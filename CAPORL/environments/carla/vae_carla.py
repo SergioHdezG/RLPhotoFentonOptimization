@@ -168,25 +168,25 @@ def build_model(input_shape=(128, 128, 3)):
     inputs = Input(shape=input_shape, name='encoder_input')
     x = inputs
 
-    x = Conv2D(filters=32,
+    x = Conv2D(filters=64,
                kernel_size=kernel_size,
                activation='relu',
                strides=2,
                padding='same')(x)
 
-    x = Conv2D(filters=32,
+    x = Conv2D(filters=64,
                kernel_size=kernel_size,
                activation='relu',
                strides=2,
                padding='same')(x)
 
-    x = Conv2D(filters=32,
+    x = Conv2D(filters=128,
                kernel_size=kernel_size,
                activation='relu',
                strides=2,
                padding='same')(x)
 
-    x = Conv2D(filters=32,
+    x = Conv2D(filters=256,
                kernel_size=kernel_size,
                activation='relu',
                strides=2,
@@ -216,25 +216,25 @@ def build_model(input_shape=(128, 128, 3)):
     x = Reshape((shape[1], shape[2], shape[3]))(x)
 
 
-    x = Conv2DTranspose(filters=32,
+    x = Conv2DTranspose(filters=256,
                         kernel_size=kernel_size,
                         activation='relu',
                         strides=2,
                         padding='same')(x)
 
-    x = Conv2DTranspose(filters=32,
+    x = Conv2DTranspose(filters=128,
                         kernel_size=kernel_size,
                         activation='relu',
                         strides=2,
                         padding='same')(x)
 
-    x = Conv2DTranspose(filters=32,
+    x = Conv2DTranspose(filters=64,
                         kernel_size=kernel_size,
                         activation='relu',
                         strides=2,
                         padding='same')(x)
 
-    x = Conv2DTranspose(filters=32,
+    x = Conv2DTranspose(filters=64,
                         kernel_size=kernel_size,
                         activation='relu',
                         strides=2,
@@ -292,8 +292,8 @@ def load_model(encoder_path, decoder_path):
     return encoder, decoder, vae
 
 def test(x_test):
-    encoder, decoder, vae = load_model('/home/shernandez/CARLA_0.9.7/PythonAPI/CarlaTutorial/encoder_3',
-                                       '/home/shernandez/CARLA_0.9.7/PythonAPI/CarlaTutorial/decoder_3')
+    encoder, decoder, vae = load_model('/home/serch/TFM/IRL3/CAPORL/environments/carla/encoder_64_64_128_256_l128',
+                                       '/home/serch/TFM/IRL3/CAPORL/environments/carla/decoder_64_64_128_256_l128')
     generate_and_save_images((encoder, decoder), latent_dim, x_test)
 
 def train(x_train, x_test, epochs, batch_size):
@@ -341,10 +341,9 @@ def train(x_train, x_test, epochs, batch_size):
 
 def main():
     print("Loading dataset..")
-    images = np.load('/home/serch/TFM/IRL2/CAPORL/environments/carla/rgb_carla.npy')
+    images = np.load('/home/serch/TFM/IRL3/CAPORL/environments/carla/dataset/rgb_carla.npy')
 
-    images = np.array(images[:10000])
-
+    images = np.array(images[-100:])
 
     test_index = np.random.choice(images.shape[0], int(images.shape[0] * 0.20), replace=False)
     x_test = images[test_index]
@@ -366,7 +365,7 @@ def main():
 
     import gc
     gc.collect()
-    # test(x_test)
-    train(x_train, x_test, epochs, batch_size)
+    test(x_test)
+    # train(x_train, x_test, epochs, batch_size)
 
 main()

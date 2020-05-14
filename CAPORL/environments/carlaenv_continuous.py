@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import CAPORL.environments.carla.vae_carla as vae
 
 try:
-    sys.path.append(glob.glob(os.path.abspath("/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"))[0])
+    sys.path.append(glob.glob(os.path.abspath("CAPORL/environments/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"))[0])
 except IndexError:
     pass
 
@@ -36,7 +36,7 @@ class env:
 
 
     def __init__(self):
-        # subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh')
+        subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh')
         time.sleep(5.)
         self.im_width = 1280  # 640
         self.im_height = 720  # 480
@@ -498,7 +498,7 @@ class env:
         render_img = np.transpose(render_img, axes=(1, 0, 2))
         return render_img
 
-    def render_ligth(self):
+    def render_ligth(self, only_return=False):
         # plt.clf()
         # plt.imshow(cv2.cvtColor(self.front_camera, cv2.COLOR_BGR2RGB))
         # plt.draw()
@@ -539,8 +539,18 @@ class env:
             render_img = cv2.putText(render_img, "Action: [{:.4f}, {:.4f}]".format(self._last_action[i][0], self._last_action[i][1]) + ' Reward: {:.4f}'.format(self.reward_hist[i]), (5, 180 + i * 20),
                                      cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
-        cv2.imshow('ventana', render_img)
-        cv2.waitKey(1)
+        if not only_return:
+            cv2.imshow('ventana', render_img)
+            cv2.waitKey(1)
+
+        render_img = cv2.cvtColor(render_img, cv2.COLOR_BGR2RGB)
+        try:
+            render_img = render_img.get()
+        except Exception:
+            render_img = render_img
+
+        render_img = np.transpose(render_img, axes=(1, 0, 2))
+        return render_img
 
     def close(self):
         cv2.destroyAllWindows()

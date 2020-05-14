@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import CAPORL.environments.carla.vae_carla as vae
 
 try:
-    sys.path.append(glob.glob(os.path.abspath("/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"))[0])
+    sys.path.append(glob.glob(os.path.abspath("CAPORL/environments/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"))[0])
 except IndexError:
     pass
 
@@ -433,7 +433,7 @@ class env:
         # plt.show()
         current_time = time.time()
         # print(current_time - self.timer_for_recording, self.timer_for_recording, current_time)
-        save = True
+        save = False
         if save and current_time - self.timer_for_recording > 1.:
             # cv2.imwrite('/home/shernandez/CARLA_0.9.7/PythonAPI/CarlaTutorial/_out/img_' + str(self.img_counter)
             #             + '.png', self.front_camera)

@@ -1,6 +1,6 @@
 import cv2
 from numpy import save
-from CAPORL.environments import carlaenv_collect_img, carlaenv_cont_no_decoder
+from CAPORL.environments import carlaenv_collect_img, carlaenv_cont_no_decoder, carlaenv_continuous
 from src.IRL.utils.callbacks import Callbacks, load_expert_memories
 import pygame
 
@@ -35,7 +35,7 @@ class game_loop():
         # JoyAx
 
         cb = Callbacks()
-        env = carlaenv_collect_img.env()
+        env = carlaenv_continuous.env()
         obs = env.reset()
 
 
@@ -112,7 +112,7 @@ class game_loop():
             cv2.waitKey(1)
         # cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_2')
 
-    save('rgb_seg.npy', list)
+    # save('rgb_seg.npy', list)
 def main_2():
     game = game_loop()
     game.run()
