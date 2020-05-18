@@ -42,6 +42,7 @@ class game_loop():
         n_experiences = 0
 
         done = False
+        recording = False
         # Prints the values for axis0
         while not self.exit:
 
@@ -73,6 +74,10 @@ class game_loop():
                         obs = env.reset()
                         pause = False
 
+            if pressed[pygame.K_F2]:
+                recording = not recording
+                print('recording = ', recording)
+
 
             # x, y = pygame.mouse.get_pos()
             # steer = ((x/1280.)-0.5)/2  # pygame.joystick.Joystick(0).get_axis(0)
@@ -87,10 +92,13 @@ class game_loop():
             # if brake < 0.1:
             #     brake = -1.
 
-            print('steer: ', steer, 'throttle: ', throttle, 'brake: ', brake)  #, ' mice: ', x, y)
+            # print('steer: ', steer, 'throttle: ', throttle, 'brake: ', brake)  #, ' mice: ', x, y)
             image = env.render(only_return=True)
             next_obs, reward, done, _ = env.step([throttle, steer, brake])
-            cb.remember_callback(obs, next_obs, [throttle, steer], reward, done)
+
+            if recording:
+                cb.remember_callback(obs, next_obs, [throttle, steer, brake], reward, done)
+
             obs = next_obs
 
             # Drawing
@@ -110,7 +118,7 @@ class game_loop():
             cv2.imshow('rgb', cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR) )
             cv2.imshow('segmentation', cv2.cvtColor(img[1], cv2.COLOR_RGB2BGR))
             cv2.waitKey(1)
-        # cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_2')
+        cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_street')
 
     # save('rgb_seg.npy', list)
 def main_2():

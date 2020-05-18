@@ -11,10 +11,10 @@ import collections
 import subprocess
 
 import matplotlib.pyplot as plt
-import CAPORL.environments.carla.vae_carla as vae
+from CAPORL.environments.carla.carla_vae_3_tf import vae_class
 
 try:
-    sys.path.append(glob.glob(os.path.abspath("CAPORL/environments/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"))[0])
+    sys.path.append(glob.glob(os.path.abspath("/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"))[0])
 except IndexError:
     pass
 
@@ -28,15 +28,15 @@ class action_space:
         """
         self.low = -1
         self.high = 1
-        self.n = 2
+        self.n = 3
 
-SECONDS_PER_EPISODE = 40
+SECONDS_PER_EPISODE = 900
 
 class env:
 
 
     def __init__(self):
-        subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh')
+        subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium', shell=True)
         time.sleep(5.)
         self.im_width = 1280  # 640
         self.im_height = 720  # 480
@@ -46,7 +46,7 @@ class env:
         self.lane_invasion_hist = []
         self.imu_data_hist = []
         self.action_space = action_space()
-        self.observation_space = np.zeros((131,))
+        self.observation_space = np.zeros((132,)) # observation, km/h, throttle, steer, brake
 
         self.render_image = np.zeros((self.im_height, self.im_height, 3), dtype=np.uint8)
         self.front_camera = None
@@ -55,8 +55,11 @@ class env:
         self._list_low_speed = []
         # TODO: Deshacer
         # /home/shernandez/PycharmProjects/AIRL/CAPORL/environments/carla/encoder_64_64_128_256_l128.h5
-        self.encoder, self.decoder, _vae = vae.load_model(os.path.abspath('CAPORL/environments/carla/encoder_64_64_128_256_l128'),
-                        os.path.abspath('CAPORL/environments/carla/decoder_64_64_128_256_l128'))
+        # self.encoder, self.decoder, _vae = vae.load_model(os.path.abspath('CAPORL/environments/carla/encoder_64_64_128_256_l128'),
+        #                 os.path.abspath('CAPORL/environments/carla/decoder_64_64_128_256_l128'))
+
+        self.vae = vae_class()
+        self.vae.load('CAPORL/environments/carla/vae_aug_16_16_16_32_l128', 'vae_tf')
         # self.client = carla.Client('10.100.18.126', 6000)
         self.client = carla.Client('localhost', 2000)
         self.client.set_timeout(60.0)
@@ -88,20 +91,21 @@ class env:
         self.timer_for_recording = time.time()
 
         self.test_flag = False
-        self._last_action = collections.deque(maxlen=25)
+        self._last_action = collections.deque(maxlen=2)
         self.first_step = True
         self.action_hist = collections.deque(maxlen=10)
         self.reward_hist = collections.deque(maxlen=25)
         self.already_done = False
         self.epi_start_point = None
         self.imu_data_now = None
-
+        self.epi_distance = []
+        self.epi_reward = [0.]
         self.save_img_list = []
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
         self.client = carla.Client('localhost', 2000)
-        self.client.set_timeout(60.0)
+        self.client.set_timeout(5.0)
 
         # Once we have a client we can retrieve the world that is currently
         # running.
@@ -109,11 +113,12 @@ class env:
             self.client.load_world('Town04')
         except:
             print('Loading exception')
+
         self.world = self.client.get_world()
         weather = carla.WeatherParameters.ClearNoon
         self.world.set_weather(weather)
 
-        self.client.set_timeout(5.0)
+        self.client.set_timeout(2.0)
         # The world contains the list blueprints that we can use for adding new
         # actors into the simulation.
         blueprint_library = self.world.get_blueprint_library()
@@ -128,6 +133,7 @@ class env:
         self.stating_points = np.loadtxt(path)
         self.img_counter = 0
         self.timer_for_recording = time.time()
+        self.init_gnss = [0.0, 0.0]
 
     def reset(self):
         try:
@@ -147,13 +153,16 @@ class env:
 
             # self.transform.location.x = np.random.normal(self.stating_points[index][0], 2)  # -20.6
             # self.transform.location.y = np.random.normal(self.stating_points[index][1], 2)  # -259.5
-            self.transform.location.x = self.stating_points[index][0]  #-20.6
-            self.transform.location.y = self.stating_points[index][1]  #-259.5
-            self.epi_start_point = [self.transform.location.x, self.transform.location.y]
-            self.transform.rotation.yaw = self.stating_points[index][2]  #120.
+            # self.transform.location.x = self.stating_points[index][0]  #-20.6
+            # self.transform.location.y = self.stating_points[index][1]  #-259.5
+            # self.epi_start_point = [self.transform.location.x, self.transform.location.y]
+            # self.transform.rotation.yaw = self.stating_points[index][2]  #120.
             # self.transform.location.x = -20.6
             # self.transform.location.y = -259.5
             # self.transform.rotation.yaw = 120
+            self.transform.location.x = 60.7  # -20.6
+            self.transform.location.y = -183.2  # -259.5
+            self.transform.rotation.yaw = 275.  # 120.
             # self.transform = self.world.get_map().get_spawn_points()[1]
             self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
             self.actor_list.append(self.vehicle)
@@ -246,7 +255,10 @@ class env:
             self.timer_for_recording = time.time()
             # TODO: Deshacer
             obs = self.extract_latent_data(self.front_camera)
-            self._last_action = collections.deque(maxlen=5)
+            self._last_action = collections.deque(maxlen=2)
+
+            for i in range(self._last_action.maxlen):
+                self._last_action.append([0., 0., 0.])
 
             v = self.vehicle.get_velocity()
             kmh = int(3.6 * math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2))
@@ -254,10 +266,14 @@ class env:
             self.reward_hist = collections.deque(maxlen=25)
             self.already_done = False
             # obs = np.concatenate((obs, [kmh], self.action_hist))
-            obs = np.concatenate((obs, [kmh], [0., 0.]))
+            obs = np.concatenate((obs, [kmh], [0., 0., 0.]))
+
+            self.epi_reward = [0.]
+            self.epi_distance = [0.]
+            self.init_gnss = [self.gnssensor.x, self.gnssensor.y]
 
         except Exception:
-            subprocess.Popen('/home/shernandez/CARLA_0.9.7/CarlaUE4.sh')
+            subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium', shell=True)
             time.sleep(5.)
             self.reset_conection()
             time.sleep(5.)
@@ -343,7 +359,7 @@ class env:
         try:
             if self.first_step:  # para lanzar el coche al comienzo del episodio
                 # for i in range(10):
-                self.vehicle.apply_control(carla.VehicleControl(brake=1., throttle=0.))
+                self.vehicle.apply_control(carla.VehicleControl(brake=0., throttle=0.))
                 # time.sleep(1.5)
                 self.first_step = False
 
@@ -352,16 +368,15 @@ class env:
 
             throttle = self._act(action, kmh)
 
-            distance = np.sqrt(np.square(self.gnssensor.x - self.epi_start_point[0]) + np.square(
-                self.gnssensor.y - self.epi_start_point[1]))
-
-            reward, done = self.reward(throttle, kmh, distance)
+            reward, done = self.reward(throttle, kmh)
             self.reward_hist.append(reward)
-            if kmh < 1:
-                self._list_low_speed.append(kmh)
+            # if kmh < 1:
+            #     self._list_low_speed.append(kmh)
 
-            if self.episode_start + SECONDS_PER_EPISODE < time.time() or len(self._list_low_speed) > 80:
+            if self.episode_start + SECONDS_PER_EPISODE < time.time(): #or len(self._list_low_speed) > 80:
                 done = True
+
+
 
             # if done:
             #     self.vehicle.destroy()
@@ -370,20 +385,30 @@ class env:
             obs = np.concatenate((obs, [kmh], action))
             # obs = np.concatenate((obs, [kmh], self.action_hist))
 
+            self.epi_distance.append(self.gnssensor.last_movement_distance())
+
         except Exception:
-            subprocess.Popen('/home/shernandez/CARLA_0.9.7/CarlaUE4.sh')
+            subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium', shell=True)
             time.sleep(5.)
             self.reset_conection()
             time.sleep(5.)
             obs = self.reset()
             reward = -1
             done = True
+
+        self.epi_reward.append(reward)
+        if done:
+            desplazamiento = np.sqrt(np.square(self.gnssensor.x - self.init_gnss[0]) + np.square(self.gnssensor.y - self.init_gnss[1]))
+
+            epi_distance = np.sum(self.epi_distance)
+            print('RL reward: {:.2f}   Camino recorrida: {:.2f}  Desplazamiento absoluto: {:.2f}'.format(np.sum(self.epi_reward), epi_distance, desplazamiento))
+
         return obs, reward, done, None
 
-    def reward(self, throttle, kmh, distance):
+    def reward(self, throttle, kmh):
         # if (len(self.collision_hist) > 0 or len(self.lane_invasion_hist) > 0 or self._check_done()) and not self.test_flag:
         imu = self.imu_data_now
-        if self._check_done():
+        if self._check_done(kmh):
             # if len(self.lane_invasion_hist) > 2:
             #
             #     frame_diff = np.abs(self.lane_invasion_hist[-1].frame - self.lane_invasion_hist[0].frame)
@@ -425,7 +450,7 @@ class env:
         # print('reward: ', reward)
         return reward/10, done
 
-    def _check_done(self):
+    def _check_done(self, kmh):
         inside_bounds = False
         # for point in self.stating_points:
         #     distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) for point in self.stating_points]
@@ -433,8 +458,13 @@ class env:
         #         inside_bounds = True
         #         break
 
-        distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) < 1 for point
-                    in self.stating_points]
+        # distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) < 100 for point
+        #             in self.stating_points]
+        distance = [True]
+        epi_distance = np.sum(self.epi_distance)
+
+        if epi_distance > 2.5 and kmh < 0.2:
+            return True
 
         return not True in distance or self.already_done
 
@@ -449,7 +479,7 @@ class env:
         # plt.show()
         current_time = time.time()
         # print(current_time - self.timer_for_recording, self.timer_for_recording, current_time)
-        save = True
+        save = False
         if save and current_time - self.timer_for_recording > 1.:
             # cv2.imwrite('/home/shernandez/CARLA_0.9.7/PythonAPI/CarlaTutorial/_out/img_' + str(self.img_counter)
             #             + '.png', self.front_camera)
@@ -468,22 +498,41 @@ class env:
 
         # z_mean, z_std, z = self.encoder.predict(train_img)
         # TODO: Deshacer
-        z_mean = self.extract_latent_data(self.front_camera)
-        z_mean = np.reshape(z_mean, (-1, len(z_mean)))
-        self.latent_data = z_mean[0]
+        # z_mean = self.extract_latent_data(self.front_camera)
+        # self.latent_data = z_mean[0]
 
-        images = self.decoder.predict(z_mean)[0]
-        images = np.uint8(images*255)
-        images = cv2.cvtColor(images, cv2.COLOR_RGB2BGR)
+        input_img = [self.front_camera/255.]
+        image_rgb, image_seg, image_dep = self.vae.predict(input_img)
+        image_rgb = np.uint8(image_rgb[0]*255)
+        image_rgb = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
+        image_seg = np.uint8(image_seg[0] * 255)
+        image_seg = cv2.cvtColor(image_seg, cv2.COLOR_RGB2BGR)
+        image_dep = np.uint8(image_dep[0] * 255)
+        image_dep = cv2.cvtColor(image_dep, cv2.COLOR_RGB2BGR)
 
 
         render_img = self.render_image
         render_img[10:10 + self.front_camera.shape[0], 10:10 + self.front_camera.shape[0], :] = self.front_camera
-        render_img[10:10 + images.shape[0], 20 + self.front_camera.shape[0]:20 + self.front_camera.shape[0] + images.shape[0], :] = images
+        render_img[10:10 + image_rgb.shape[0], 20 + self.front_camera.shape[0]:20 + self.front_camera.shape[0] + image_rgb.shape[0], :] = image_rgb
+        render_img[20 + self.front_camera.shape[0]:20 + self.front_camera.shape[0] + image_rgb.shape[0], 10:10 + image_rgb.shape[0], :] = image_seg
+        render_img[20 + self.front_camera.shape[0]:20 + self.front_camera.shape[0] + image_rgb.shape[0], 20 + self.front_camera.shape[0]:20 + self.front_camera.shape[0] + image_rgb.shape[0], :] = image_dep
 
-        for i in range(len(self._last_action)):
-            render_img = cv2.putText(render_img, "Action: [{:.4f}, {:.4f}]".format(self._last_action[i][0], self._last_action[i][1]) + ' Reward: {:.4f}'.format(self.reward_hist[i]), (5, 180 + i * 20),
-                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        throttle = np.array(self._last_action)[:, 0]
+        steer = np.array(self._last_action)[:, 1]
+        brake = np.array(self._last_action)[:, 2]
+        ctr_img = self._controls_img(np.mean(steer), np.mean(np.clip((throttle+1)/2., 0., 1.)), np.mean(brake))
+        render_img[300:300+ctr_img.shape[0], 5:5+ctr_img.shape[1], :] = ctr_img
+
+        # for i in range(len(self._last_action)):
+        #     render_img = cv2.putText(render_img, "Action: [{:.4f}, {:.4f}]".format(self._last_action[i][0], self._last_action[i][1]) + ' Reward: {:.4f}'.format(self.reward_hist[i]), (5, 300 + i * 20),
+        #                              cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+        v = self.vehicle.get_velocity()
+        kmh = int(3.6 * math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2))
+        render_img = cv2.putText(render_img, "Km/h: {:.1f}".format(kmh), (5, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+
+        distance = np.sum(self.epi_distance)
+        render_img = cv2.putText(render_img, "Distace: {:.1f}".format(distance), (5, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
         if not only_return:
             cv2.imshow('ventana', render_img)
@@ -497,6 +546,28 @@ class env:
 
         render_img = np.transpose(render_img, axes=(1, 0, 2))
         return render_img
+
+    def _controls_img(self, steer, throttle, brake):
+        ste_img = np.ones((5, 41, 3), dtype=np.uint8) * 255
+        thr_img = np.ones((5, 41, 3), dtype=np.uint8) * 255
+        brk_img = np.ones((5, 41, 3), dtype=np.uint8) * 255
+        ctr_img = np.zeros((28, 47, 3), dtype=np.uint8)
+
+        steer = np.int((steer+1)/2 * 41)
+        throttle = np.int(np.clip(throttle, 0.0, 1.0) * 41)
+        brake = np.int(np.clip(brake, 0.0, 1.0) * 41)
+
+        ste_img[:, steer:steer + 1, 1:3] = np.zeros((5, 1, 2), dtype=np.uint8)
+        thr_img[:, :throttle, 1] = thr_img[:, :throttle, 1] * 0
+        brk_img[:, :brake, 2] = brk_img[:, :brake, 2] * 0
+
+        ctr_img[3:8, 3:44, :] = ste_img
+        ctr_img[12:17, 3:44, :] = thr_img
+        ctr_img[20:25, 3:44, :] = brk_img
+
+        ctr_img = cv2.resize(ctr_img, (100, 50))
+
+        return ctr_img
 
     def render_ligth(self, only_return=False):
         # plt.clf()
@@ -558,9 +629,11 @@ class env:
     # TODO: Deshacer
     def extract_latent_data(self, img):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = np.reshape(img / 255, (1, img.shape[0], img.shape[1], img.shape[2]))
-        z_mean, z_std, z = self.encoder.predict(img)
-        self.latent_data = z_mean[0]
+        # img = np.reshape(img / 255, (1, img.shape[0], img.shape[1], img.shape[2]))
+        img = [img/255.]
+        # z_mean, z_std, z = self.encoder.predict(img)
+        latent_data = self.vae.predict_latent(img)
+        self.latent_data = latent_data[0]
         return self.latent_data
 
 class CollisionSensor(object):
@@ -600,6 +673,9 @@ class GnssSensor(object):
         self.lon = 0.0
         self.x = 0.0
         self.y = 0.0
+        self.previous_x = 0.0
+        self.previous_y = 0.0
+
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find('sensor.other.gnss')
         self.sensor = world.spawn_actor(bp, carla.Transform(carla.Location(x=1.0, z=2.8)), attach_to=self._parent)
@@ -612,6 +688,9 @@ class GnssSensor(object):
     def destroy(self):
         self.sensor.destroy()
 
+    def last_movement_distance(self):
+        return np.sqrt(np.square(self.x - self.previous_x) + np.square(self.y - self.previous_y))
+
     @staticmethod
     def _on_gnss_event(weak_self, event):
         self = weak_self()
@@ -619,6 +698,8 @@ class GnssSensor(object):
             return
         self.lat = event.latitude
         self.lon = event.longitude
+        self.previous_x = self.x
+        self.previous_y = self.y
         self.x = event.transform.location.x
         self.y = event.transform.location.y
         # self.position_list.append([event.transform.location.x, event.transform.location.y, event.transform.rotation.yaw])

@@ -85,9 +85,9 @@ class Problem:
 
                     self.discriminator.train(self.expert_traj, self.agent_traj)
 
-                    self.rl_problem.solve(100, render=False, max_step_epi=None, render_after=100, skip_states=0, discriminator=self.discriminator)
+                    self.rl_problem.solve(100, render=render, max_step_epi=None, render_after=100, skip_states=0, discriminator=self.discriminator)
         else:
-            self.rl_problem.solve(iterations, render=False, max_step_epi=None, render_after=None, skip_states=0, discriminator=self.discriminator,
+            self.rl_problem.solve(iterations, render=render, max_step_epi=None, render_after=None, skip_states=0, discriminator=self.discriminator,
                                   expert_traj=self.expert_traj)
 
 

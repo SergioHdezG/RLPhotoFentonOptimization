@@ -13,11 +13,12 @@ from CAPORL.utils.custom_networks import custom_nets
 
 
 # environment = "LunarLanderContinuous-v2"
-environment = CarRacing.env
+# environment = CarRacing.env
+environment = carlaenv_continuous.env
 
 agent = ppo_agent_v2.create_agent()
 
-model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
+model_params = params.algotirhm_hyperparams(learning_rate=1e-4,
                                             batch_size=128,
                                             epsilon=.5,
                                             epsilon_decay=0.99995,
@@ -57,8 +58,8 @@ saving_model_params = None
 
 # Loading expert memories
 exp_dir = "expert_demonstrations/"
-exp_name = 'human_expert_CarRacing_v2'
-# exp_name = 'Expert_PPO_LunarLanderContinuous'
+# exp_name = 'human_expert_CarRacing_v2'
+exp_name = 'human_expert_carla_wheel_street'
 disc_stack = 4
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=disc_stack)
 
@@ -69,11 +70,11 @@ img_input = False
 rl_problem = rl_p.Problem(environment, agent, model_params, saving_model_params, net_architecture=net_architecture,
                              n_stack=n_stack, img_input=img_input, state_size=state_size)
 
-dir_load="saved_experts/CarRacing/"
-name_loaded="CarRacing_bc-131"
+# dir_load="saved_experts/CarRacing/"
+# name_loaded="CarRacing_bc-131"
 # rl_problem.load_model(dir_load=dir_load, name_loaded=name_loaded)
 
 irl_problem = irl_p.Problem(rl_problem, exp_memory, stack_disc=disc_stack > 1)
 
 
-irl_problem.solve(2000, render=False, max_step_epi=None, render_after=1500, skip_states=1)
+irl_problem.solve(500, render=True, max_step_epi=None, render_after=1500, skip_states=1)

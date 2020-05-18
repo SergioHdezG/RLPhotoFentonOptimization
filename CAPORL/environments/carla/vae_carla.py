@@ -368,4 +368,4 @@ def main():
     test(x_test)
     # train(x_train, x_test, epochs, batch_size)
 
-main()
+# main()

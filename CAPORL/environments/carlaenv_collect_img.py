@@ -36,7 +36,7 @@ class env:
 
 
     def __init__(self):
-        # subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh')
+        subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh')
         time.sleep(5.)
         self.im_width = 1280  # 640
         self.im_height = 720  # 480
