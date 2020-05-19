@@ -1,5 +1,5 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout, BatchNormalization, Activation, Conv1D, Permute
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout, BatchNormalization, Activation, Conv1D, Permute, LSTM
 import tensorflow as tf
 from tensorflow.keras.constraints import MaxNorm
 
@@ -244,6 +244,29 @@ def critic_model_drop(input_shape):
     critic_model.add(Dropout(0.4))
     critic_model.add(Dense(128, activation='relu'))
     critic_model.add(Dropout(0.2))
+
+    return critic_model
+
+def actor_model_lstm(input_shape):
+    actor_model = Sequential()
+    actor_model.add(LSTM(256, input_shape=input_shape, activation='tanh'))
+    actor_model.add(Dense(1024, activation='tanh'))
+    # actor_model.add(Dropout(0.4))
+    actor_model.add(Dense(1024, activation='tanh'))
+    # actor_model.add(Dropout(0.3))
+    actor_model.add(Dense(128, activation='tanh'))
+
+    return actor_model
+
+
+def critic_model_lstm(input_shape):
+    critic_model = Sequential()
+    critic_model.add(LSTM(256, input_shape=input_shape, activation='tanh'))
+    critic_model.add(Dense(1024, activation='tanh'))
+    # critic_model.add(Dropout(0.4))
+    critic_model.add(Dense(1024, activation='tanh'))
+    # critic_model.add(Dropout(0.3))
+    critic_model.add(Dense(128, activation='tanh'))
 
     return critic_model
 

@@ -1,3 +1,9 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
+import tensorflow as tf
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
+sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+
 from CAPORL.RL_Agent.DQN_Agent import dddqn_agent, dqn_agent
 from CAPORL.RL_Agent.DPGAgent import dpg_agent
 from CAPORL.RL_Problem import rl_problem as rl_p
@@ -10,6 +16,7 @@ from src.IRL.utils.callbacks import load_expert_memories
 from CAPORL.RL_Agent.PPO import ppo_agent_async, ppo_agent_v2, ppo_agent_discrete
 from CAPORL.environments import CarRacing
 from CAPORL.utils.custom_networks import custom_nets
+import subprocess
 
 
 # environment = "LunarLanderContinuous-v2"
@@ -45,26 +52,26 @@ net_architecture = params.actor_critic_net_architecture(actor_conv_layers=2, act
                                                         critic_dense_layers=3, critic_n_neurons=[256, 256, 128],
                                                         critic_dense_activation=['relu', 'relu', 'relu'],
                                                         use_custom_network=True,
-                                                        actor_custom_network=custom_nets.actor_model_drop,
-                                                        critic_custom_network=custom_nets.critic_model_drop
+                                                        actor_custom_network=custom_nets.actor_model_lstm,
+                                                        critic_custom_network=custom_nets.critic_model_lstm
                                                         )
 
-saving_model_params = params.save_hyperparams(base_dir="saved_models/LunarLander/1/",
-                                              model_name="LunarLander_DPG_IRL",
-                                              save_each=200,
+saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/1/",
+                                              model_name="PPO_IRL_carla",
+                                              save_each=50,
                                               save_if_better=True)
 
-saving_model_params = None
+# saving_model_params = None
 
 # Loading expert memories
 exp_dir = "expert_demonstrations/"
 # exp_name = 'human_expert_CarRacing_v2'
 exp_name = 'human_expert_carla_wheel_street'
-disc_stack = 4
+disc_stack = 1
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=disc_stack)
 
 state_size=None
-n_stack = 4
+n_stack = 10
 img_input = False
 
 rl_problem = rl_p.Problem(environment, agent, model_params, saving_model_params, net_architecture=net_architecture,
@@ -77,4 +84,5 @@ rl_problem = rl_p.Problem(environment, agent, model_params, saving_model_params,
 irl_problem = irl_p.Problem(rl_problem, exp_memory, stack_disc=disc_stack > 1)
 
 
-irl_problem.solve(500, render=True, max_step_epi=None, render_after=1500, skip_states=1)
+irl_problem.solve(150, render=False, max_step_epi=None, render_after=1500, skip_states=1)
+

@@ -200,9 +200,9 @@ class Agent(AgentInterfaz):
         rewards = Input(shape=(1,))
         values = Input(shape=(1,))
 
-        # actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.0, -0.01, -0.01], stddev=1e-2, seed=None)))
+        actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.0, 0.0, 0.0], stddev=1e-2, seed=None)))
         # actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=0.0, stddev=1e-2, seed=None)))
-        actor_net.add(Dense(self.n_actions, name='output', activation='tanh'))
+        # actor_net.add(Dense(self.n_actions, name='output', activation='tanh'))
 
         actor_model = Model(inputs=[actor_net.inputs, advantage, old_prediction, rewards, values], outputs=[actor_net.outputs])
         actor_model.compile(optimizer=Adam(lr=self.lr_actor),

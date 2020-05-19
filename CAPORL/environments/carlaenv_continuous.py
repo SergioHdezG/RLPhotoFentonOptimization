@@ -13,8 +13,14 @@ import subprocess
 import matplotlib.pyplot as plt
 from CAPORL.environments.carla.carla_vae_3_tf import vae_class
 
+# carla_path = "/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
+carla_path = "/DNN/Sergio/CARLA_0.9.7/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
+
+# run_carla_path = '/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium'
+run_carla_path = '/DNN/Sergio/CARLA_0.9.7/CarlaUE4.sh -quality-level=Medium'
+
 try:
-    sys.path.append(glob.glob(os.path.abspath("/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"))[0])
+    sys.path.append(glob.glob(os.path.abspath(carla_path))[0])
 except IndexError:
     pass
 
@@ -30,13 +36,13 @@ class action_space:
         self.high = 1
         self.n = 3
 
-SECONDS_PER_EPISODE = 900
+SECONDS_PER_EPISODE = 60
 
 class env:
 
 
     def __init__(self):
-        subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium', shell=True)
+        subprocess.Popen(run_carla_path, shell=True)
         time.sleep(5.)
         self.im_width = 1280  # 640
         self.im_height = 720  # 480
@@ -100,13 +106,20 @@ class env:
         self.imu_data_now = None
         self.epi_distance = []
         self.epi_reward = [0.]
+        self.epi_speed = []
         self.save_img_list = []
+        self.start_time = time.time()
+        self.previous_time = time.time()
+        self.test_video = []
+        self.fps_list = []
+        self.fps = 30
+
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
         self.client = carla.Client('localhost', 2000)
         self.client.set_timeout(5.0)
-
+        time.sleep(30.)
         # Once we have a client we can retrieve the world that is currently
         # running.
         try:
@@ -133,7 +146,6 @@ class env:
         self.stating_points = np.loadtxt(path)
         self.img_counter = 0
         self.timer_for_recording = time.time()
-        self.init_gnss = [0.0, 0.0]
 
     def reset(self):
         try:
@@ -157,12 +169,12 @@ class env:
             # self.transform.location.y = self.stating_points[index][1]  #-259.5
             # self.epi_start_point = [self.transform.location.x, self.transform.location.y]
             # self.transform.rotation.yaw = self.stating_points[index][2]  #120.
-            # self.transform.location.x = -20.6
-            # self.transform.location.y = -259.5
-            # self.transform.rotation.yaw = 120
-            self.transform.location.x = 60.7  # -20.6
-            self.transform.location.y = -183.2  # -259.5
-            self.transform.rotation.yaw = 275.  # 120.
+            self.transform.location.x = -20.6
+            self.transform.location.y = -259.5
+            self.transform.rotation.yaw = 120
+            # self.transform.location.x = 60.7  # -20.6
+            # self.transform.location.y = -183.2  # -259.5
+            # self.transform.rotation.yaw = 275.  # 120.
             # self.transform = self.world.get_map().get_spawn_points()[1]
             self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
             self.actor_list.append(self.vehicle)
@@ -271,10 +283,14 @@ class env:
             self.epi_reward = [0.]
             self.epi_distance = [0.]
             self.init_gnss = [self.gnssensor.x, self.gnssensor.y]
+            self.epi_speed = [0.]
+            self.start_time = time.time()
+            self.previous_time = time.time()
+            self.fps_list = [self.fps]
 
         except Exception:
-            subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium', shell=True)
-            time.sleep(5.)
+            subprocess.Popen(run_carla_path, shell=True)
+            time.sleep(30.)
             self.reset_conection()
             time.sleep(5.)
             obs = self.reset()
@@ -388,7 +404,7 @@ class env:
             self.epi_distance.append(self.gnssensor.last_movement_distance())
 
         except Exception:
-            subprocess.Popen('/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium', shell=True)
+            subprocess.Popen(run_carla_path, shell=True)
             time.sleep(5.)
             self.reset_conection()
             time.sleep(5.)
@@ -397,11 +413,26 @@ class env:
             done = True
 
         self.epi_reward.append(reward)
+        self.epi_speed.append(kmh)
+
+        # limit frame rate in order to get the same performance when rendering and when not rendering
+        limit_fps = True
+        actual_time = 0.
+        while limit_fps:
+            actual_time = time.time()
+            frame_rate = (1.0 / (actual_time - self.previous_time))
+            limit_fps = frame_rate > (self.fps*1.05)
+            time.sleep(0.01)
+
+        self.fps_list.append(1.0 / (actual_time - self.previous_time))
+        self.previous_time = actual_time
+
         if done:
             desplazamiento = np.sqrt(np.square(self.gnssensor.x - self.init_gnss[0]) + np.square(self.gnssensor.y - self.init_gnss[1]))
-
+            fps = np.mean(self.fps_list)
             epi_distance = np.sum(self.epi_distance)
-            print('RL reward: {:.2f}   Camino recorrida: {:.2f}  Desplazamiento absoluto: {:.2f}'.format(np.sum(self.epi_reward), epi_distance, desplazamiento))
+            print('RL reward: {:.2f}   Camino recorrida: {:.2f}  Desplazamiento absoluto:   '
+                  '{:.2f} Mean speed: {:.2f}    Mean fps: {:.2f}'.format(np.sum(self.epi_reward), epi_distance, desplazamiento, np.mean(self.epi_speed), fps))
 
         return obs, reward, done, None
 
@@ -532,17 +563,27 @@ class env:
         render_img = cv2.putText(render_img, "Km/h: {:.1f}".format(kmh), (5, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
         distance = np.sum(self.epi_distance)
-        render_img = cv2.putText(render_img, "Distace: {:.1f}".format(distance), (5, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+        render_img = cv2.putText(render_img, "Distace: {:.1f}".format(distance), (5, 430), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
+        actual_time = time.time()
+        render_img = cv2.putText(render_img, "FPS: {:.1f}".format(1.0 / (actual_time - self.start_time)), (5, 460), cv2.FONT_HERSHEY_SIMPLEX,
+                                 0.75, (255, 255, 255), 2)
+        self.start_time = actual_time
+
+        render_img = cv2.resize(render_img, (512, 288))
         if not only_return:
             cv2.imshow('ventana', render_img)
             cv2.waitKey(1)
+
 
         render_img = cv2.cvtColor(render_img, cv2.COLOR_BGR2RGB)
         try:
             render_img = render_img.get()
         except Exception:
             render_img = render_img
+
+        self.test_video.append(render_img)
+
 
         render_img = np.transpose(render_img, axes=(1, 0, 2))
         return render_img

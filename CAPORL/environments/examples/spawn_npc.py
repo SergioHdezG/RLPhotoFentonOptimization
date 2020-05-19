@@ -93,7 +93,7 @@ def main():
         # sp_points.location.x = -20.6
         # sp_points.location.y = -259.5
         # sp_points.rotation.yaw = 120.
-        path = os.path.abspath('../carla/start_point_2.txt')
+        path = os.path.abspath('../carla/start_point.txt')
         stating_points = np.loadtxt(path)
         for i in range(35):
             index = random.choice(range(len(stating_points)))

@@ -45,7 +45,7 @@ class PPOProblem(RLProblemSuper):
         self.action_bound = [self.env.action_space.low, self.env.action_space.high]  # action bounds
 
         self.batch_size = batch_size
-        self.buffer_size = 2048
+        self.buffer_size = 6000
         self.learning_rate = learning_rate
 
         # List of 100 last rewards
@@ -129,6 +129,8 @@ class PPOProblem(RLProblemSuper):
 
             if self.episode % 99 == 0:
                 self.test(n_iter=4, render=True)
+                np.save('test_vid_'+str(self.episode)+'.npy', self.env.test_video)
+                self.env.test_video = []
 
             obs = self.env.reset()
             episodic_reward = 0

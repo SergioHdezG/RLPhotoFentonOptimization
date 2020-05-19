@@ -95,10 +95,12 @@ class Discriminator(object):
 
             if self.stack:
                 # expert_traj_s = Conv1D(64, kernel_size=3, strides=2, padding='same', activation='tanh')(self.expert_traj_s)
-                expert_traj_s = Flatten()(self.expert_traj_s)
+                # expert_traj_s = Flatten()(self.expert_traj_s)
+                expert_traj_s = LSTM(256, activation='tanh')(self.expert_traj_s)
 
                 # agent_traj_s = Conv1D(64, kernel_size=3, strides=2, padding='same', activation='tanh')(self.agent_traj_s)
-                agent_traj_s = Flatten()(self.agent_traj_s)
+                # agent_traj_s = Flatten()(self.agent_traj_s)
+                agent_traj_s = LSTM(256, activation='tanh')(self.agent_traj_s)
                 self.expert_traj = tf.concat([expert_traj_s, self.expert_traj_a], axis=1)
                 self.agent_traj = tf.concat([agent_traj_s, self.agent_traj_a], axis=1)
             else:
@@ -109,9 +111,9 @@ class Discriminator(object):
                 discriminator = Sequential()
                 # discriminator.add(Dense(2048, activation='tanh'))
                 # discriminator.add(Dropout(0.4))
-                discriminator.add(Dense(2048, activation='tanh'))
+                discriminator.add(Dense(128, activation='tanh'))
                 discriminator.add(Dropout(0.4))
-                discriminator.add(Dense(1024, activation='tanh'))
+                discriminator.add(Dense(128, activation='tanh'))
                 discriminator.add(Dropout(0.3))
                 discriminator.add(Dense(128, activation='tanh'))
                 discriminator.add(Dense(1, activation='linear'))
