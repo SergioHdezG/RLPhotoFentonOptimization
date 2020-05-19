@@ -43,7 +43,7 @@ class env:
 
     def __init__(self):
         subprocess.Popen(run_carla_path, shell=True)
-        time.sleep(5.)
+        time.sleep(30.)
         self.im_width = 1280  # 640
         self.im_height = 720  # 480
         self.steer_amt = 0.2
@@ -67,8 +67,8 @@ class env:
         self.vae = vae_class()
         self.vae.load('CAPORL/environments/carla/vae_aug_16_16_16_32_l128', 'vae_tf')
         # self.client = carla.Client('10.100.18.126', 6000)
-        self.client = carla.Client('localhost', 2000)
-        self.client.set_timeout(60.0)
+        self.client = carla.Client('localhost', 6000)
+        self.client.set_timeout(5.0)
 
         # Once we have a client we can retrieve the world that is currently
         # running.
@@ -76,6 +76,8 @@ class env:
             self.client.load_world('Town04')
         except:
             print('Loading exception')
+
+        time.sleep(30.)
         self.world = self.client.get_world()
         weather = carla.WeatherParameters.ClearNoon
         self.world.set_weather(weather)
@@ -112,12 +114,12 @@ class env:
         self.previous_time = time.time()
         self.test_video = []
         self.fps_list = []
-        self.fps = 30
+        self.fps = 15
 
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
-        self.client = carla.Client('localhost', 2000)
+        self.client = carla.Client('localhost', 6000)
         self.client.set_timeout(5.0)
         time.sleep(30.)
         # Once we have a client we can retrieve the world that is currently
@@ -127,6 +129,7 @@ class env:
         except:
             print('Loading exception')
 
+        time.sleep(30.)
         self.world = self.client.get_world()
         weather = carla.WeatherParameters.ClearNoon
         self.world.set_weather(weather)
@@ -431,8 +434,8 @@ class env:
             desplazamiento = np.sqrt(np.square(self.gnssensor.x - self.init_gnss[0]) + np.square(self.gnssensor.y - self.init_gnss[1]))
             fps = np.mean(self.fps_list)
             epi_distance = np.sum(self.epi_distance)
-            print('RL reward: {:.2f}   Camino recorrida: {:.2f}  Desplazamiento absoluto:   '
-                  '{:.2f} Mean speed: {:.2f}    Mean fps: {:.2f}'.format(np.sum(self.epi_reward), epi_distance, desplazamiento, np.mean(self.epi_speed), fps))
+            print('RL reward: {:.2f}   Camino recorrida: {:.2f}  Desplazamiento absoluto: '
+                  '{:.2f}   Mean speed: {:.2f}    Mean fps: {:.2f}'.format(np.sum(self.epi_reward), epi_distance, desplazamiento, np.mean(self.epi_speed), fps))
 
         return obs, reward, done, None
 

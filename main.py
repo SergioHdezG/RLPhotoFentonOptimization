@@ -58,7 +58,7 @@ net_architecture = params.actor_critic_net_architecture(actor_conv_layers=2, act
 
 saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/1/",
                                               model_name="PPO_IRL_carla",
-                                              save_each=50,
+                                              save_each=25,
                                               save_if_better=True)
 
 # saving_model_params = None
@@ -66,7 +66,7 @@ saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/1/",
 # Loading expert memories
 exp_dir = "expert_demonstrations/"
 # exp_name = 'human_expert_CarRacing_v2'
-exp_name = 'human_expert_carla_wheel_street'
+exp_name = 'human_expert_carla_wheel_road'
 disc_stack = 1
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=disc_stack)
 
