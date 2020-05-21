@@ -288,7 +288,7 @@ class env:
             self.actor_list.append(self.imu_sensor)
             self.imu_sensor.listen(lambda event: self.imu_data(event))
 
-            self.pace_car_2 = self.spawn_pace_car(10, self.pace_car_2, option=0)
+            # self.pace_car_2 = self.spawn_pace_car(10, self.pace_car_2, option=0)
 
             while self.front_camera is None:
                 time.sleep(0.01)
