@@ -8,8 +8,8 @@ class game_loop():
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Car tutorial")
-        width = 1280
-        height = 720
+        width = 512 #1280
+        height = 288 #720
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
         self.ticks = 60
@@ -118,7 +118,7 @@ class game_loop():
             cv2.imshow('rgb', cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR) )
             cv2.imshow('segmentation', cv2.cvtColor(img[1], cv2.COLOR_RGB2BGR))
             cv2.waitKey(1)
-        cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_road_traffic')
+        cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_street_road')
 
     # save('rgb_seg.npy', list)
 def main_2():

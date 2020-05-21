@@ -13,11 +13,11 @@ import subprocess
 import matplotlib.pyplot as plt
 from CAPORL.environments.carla.carla_vae_3_tf import vae_class
 
-# carla_path = "/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
-carla_path = "/DNN/Sergio/CARLA_0.9.7/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
+carla_path = "/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
+# carla_path = "/DNN/Sergio/CARLA_0.9.7/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
 
-# run_carla_path = '/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium'
-run_carla_path = '/DNN/Sergio/CARLA_0.9.7/CarlaUE4.sh -quality-level=Medium'
+run_carla_path = '/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium'
+# run_carla_path = '/DNN/Sergio/CARLA_0.9.7/CarlaUE4.sh -quality-level=Medium'
 
 try:
     sys.path.append(glob.glob(os.path.abspath(carla_path))[0])
@@ -48,6 +48,8 @@ class env:
         self.im_height = 720  # 480
         self.steer_amt = 0.2
         self.actor_list = []
+        self.pace_car = []
+        self.pace_car_2 = []
         self.collision_hist = []
         self.lane_invasion_hist = []
         self.imu_data_hist = []
@@ -67,7 +69,7 @@ class env:
         self.vae = vae_class()
         self.vae.load('CAPORL/environments/carla/vae_aug_16_16_16_32_l128', 'vae_tf')
         # self.client = carla.Client('10.100.18.126', 6000)
-        self.client = carla.Client('localhost', 6000)
+        self.client = carla.Client('localhost', 2000)
         self.client.set_timeout(5.0)
 
         # Once we have a client we can retrieve the world that is currently
@@ -93,8 +95,8 @@ class env:
         # self.model_3 = random.choice(vehicle_list)
         self.model_3 = blueprint_library.filter('model3')[0]
         # self.model_3.set_attribute("sticky_control", "False")
-        path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
-        self.stating_points = np.loadtxt(path)
+        # path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
+        # self.stating_points = np.loadtxt(path)
         self.img_counter = 0
         self.timer_for_recording = time.time()
 
@@ -114,12 +116,29 @@ class env:
         self.previous_time = time.time()
         self.test_video = []
         self.fps_list = []
-        self.fps = 15
-
+        self.fps = 16
+        self.locations = np.array([[-20.6, -259.5, 120.],
+                                    [60.7, -183.2, 275.],
+                                    [194.6, -311.7, 174.],
+                                    [194.5, -249.5, 172.],
+                                    [131.8, -181.4, -95.],
+                                    [60.7, -183.2, 275.],
+                                    [194.6, -311.7, 174.],
+                                    [194.5, -249.5, 172.],
+                                    [131.8, -181.4, -95.],
+                                    [-381.0, -2.7, -86.],
+                                    [-296.0, -82.9, -5.],
+                                    [-265.2, -88.2, 176.],
+                                    [-4.9, 327.9, -43.],
+                                    [165.9, 210.3, -18.],
+                                    [400.0, 30.3, 99.],
+                                    [187.1, 199.6, 158.]])
+        self.time_stopped = int(0)
+        # self.pace_car = self.spawn_pace_car(50, self.pace_car, option=0)
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
-        self.client = carla.Client('localhost', 6000)
+        self.client = carla.Client('localhost', 2000)
         self.client.set_timeout(5.0)
         time.sleep(30.)
         # Once we have a client we can retrieve the world that is currently
@@ -157,14 +176,17 @@ class env:
             self.imu_data_hist = []
             self._list_low_speed = []
             self.imu_data_now = None
+
+            self.client.apply_batch([carla.command.DestroyActor(x) for x in self.pace_car_2])
             for actor in self.actor_list:
-                actor.destroy()
+                    actor.destroy()
+
             self.actor_list = []
 
             self.transform = random.choice(self.world.get_map().get_spawn_points())
 
-            ran = self.stating_points.shape[0] - (self.stating_points.shape[0] // 5)  # Slecciono un punto de partida de los 4 primeros quintos de la lista ya que no me interesa que empieze al final.
-            index = random.choice(range(ran))
+            # ran = self.stating_points.shape[0] - (self.stating_points.shape[0] // 5)  # Slecciono un punto de partida de los 4 primeros quintos de la lista ya que no me interesa que empieze al final.
+            # index = random.choice(range(ran))
 
             # self.transform.location.x = np.random.normal(self.stating_points[index][0], 2)  # -20.6
             # self.transform.location.y = np.random.normal(self.stating_points[index][1], 2)  # -259.5
@@ -172,12 +194,18 @@ class env:
             # self.transform.location.y = self.stating_points[index][1]  #-259.5
             # self.epi_start_point = [self.transform.location.x, self.transform.location.y]
             # self.transform.rotation.yaw = self.stating_points[index][2]  #120.
-            self.transform.location.x = -20.6
-            self.transform.location.y = -259.5
-            self.transform.rotation.yaw = 120
+
+            ind = np.random.choice(len(self.locations))
+            rand_transform = np.array([random.random()*2 - 1, random.random()*2 - 1, random.random()*5 - 2.5])
+            self.transform.location.x = self.locations[ind][0] + rand_transform[0]
+            self.transform.location.y = self.locations[ind][1] + rand_transform[1]
+            self.transform.rotation.yaw = self.locations[ind][2] + rand_transform[2]
+
+
             # self.transform.location.x = 60.7  # -20.6
             # self.transform.location.y = -183.2  # -259.5
             # self.transform.rotation.yaw = 275.  # 120.
+
             # self.transform = self.world.get_map().get_spawn_points()[1]
             self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
             self.actor_list.append(self.vehicle)
@@ -260,6 +288,7 @@ class env:
             self.actor_list.append(self.imu_sensor)
             self.imu_sensor.listen(lambda event: self.imu_data(event))
 
+            self.pace_car_2 = self.spawn_pace_car(10, self.pace_car_2, option=0)
 
             while self.front_camera is None:
                 time.sleep(0.01)
@@ -298,6 +327,88 @@ class env:
             time.sleep(5.)
             obs = self.reset()
         return obs
+
+    def spawn_pace_car(self, n_vehicles, actor_list, option=0):
+
+        # for actor in actor_list:
+        #     try:
+        #         actor.destroy()
+        #     except:
+        #         print('problems destroyin an actor')
+
+        # self.client.apply_batch([carla.command.DestroyActor(x) for x in actor_list])
+        time.sleep(0.5)
+        actor_list = []
+
+        blueprints = self.world.get_blueprint_library().filter('vehicle')
+        blueprints = [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == 4]
+
+        if option==0:
+            spawn_points = self.world.get_map().get_spawn_points()
+        else:
+            spawn_points = []
+            # sp_points.location.x = -20.6
+            # sp_points.location.y = -259.5
+            # sp_points.rotation.yaw = 120.
+            path = os.path.basename(os.getcwd())
+            path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
+            stating_points_1 = np.loadtxt(path)
+            path = os.path.abspath('CAPORL/environments/carla/start_point_2.txt')
+            stating_points_2 = np.loadtxt(path)
+
+            for i in range(len(stating_points_1)):
+                # index = random.choice(range(len(stating_points_1)))
+                index = i
+                x = stating_points_1[index][0]
+                y = stating_points_1[index][1] + random.random()*5
+                transform = carla.Transform(carla.Location(x=x, y=y, z=1.0),
+                                            carla.Rotation(pitch=0, yaw=stating_points_1[index][2], roll=0))
+                spawn_points.append(transform)
+
+            for i in range(len(stating_points_2)):
+                # index = random.choice(range(len(stating_points_2)))
+                index = i
+                x = stating_points_2[index][0]
+                y = stating_points_2[index][1] + random.random()*5
+                transform = carla.Transform(carla.Location(x=x, y=y, z=1.0),
+                                            carla.Rotation(pitch=0, yaw=stating_points_2[index][2], roll=0))
+                spawn_points.append(transform)
+
+        spawn_points = random.shuffle(spawn_points)
+
+        # --------------
+        # Spawn vehicles
+        # --------------
+        # batch = []
+        for n, transform in enumerate(spawn_points):
+            if n >= n_vehicles:
+                break
+            blueprint = blueprints[n] #random.choice(blueprints)
+            # if blueprint.has_attribute('color'):
+            #     color = random.choice(blueprint.get_attribute('color').recommended_values)
+            #     blueprint.set_attribute('color', color)
+            # if blueprint.has_attribute('driver_id'):
+            #     driver_id = random.choice(blueprint.get_attribute('driver_id').recommended_values)
+            #     blueprint.set_attribute('driver_id', driver_id)
+            # blueprint.set_attribute('role_name', 'autopilot')
+            # batch.append(SpawnActor(blueprint, transform).then(SetAutopilot(FutureActor, True)))
+            try:
+                vehicle = self.world.spawn_actor(blueprint, transform)
+                # time.sleep(0.25)
+                vehicle.set_autopilot(True)
+                # time.sleep(0.25)
+                actor_list.append(vehicle)
+            except:
+                print('Error spawning an actor')
+
+
+        # for response in self.client.apply_batch_sync(batch):
+        #     if not response.error:
+        #         actor_list.append(response.actor_id)
+
+        # # wait for a tick to ensure client receives the last transform of the walkers we have just created
+        # self.world.wait_for_tick()
+        return actor_list
 
     def collision_data(self, event):
         print('collision')
@@ -498,7 +609,12 @@ class env:
         epi_distance = np.sum(self.epi_distance)
 
         if epi_distance > 2.5 and kmh < 0.2:
-            return True
+            if self.time_stopped == 0:
+                self.time_stopped = time.time()
+            elif time.time() - self.time_stopped > 3.:
+                self.time_stopped = int(0)
+                return True
+
 
         return not True in distance or self.already_done
 

@@ -131,8 +131,9 @@ import os
 #     # cv2.imshow('dep', dep)
 #     cv2.waitKey(1)
 
-test_images = np.load('test_vid_0.npy')
+test_images = np.load('/home/serch/TFM/IRL3/saved_models/Carla/DGX/test_vid_99.npy')
 for rgb in test_images:
+    rgb = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
     cv2.imshow('rgb', rgb)
     # cv2.imshow('seg', seg)
     # cv2.imshow('dep', dep)

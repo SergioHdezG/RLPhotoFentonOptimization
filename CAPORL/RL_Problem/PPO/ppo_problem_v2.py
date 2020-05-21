@@ -129,8 +129,8 @@ class PPOProblem(RLProblemSuper):
 
             if self.episode % 99 == 0:
                 self.test(n_iter=4, render=True)
-                np.save('test_vid_'+str(self.episode)+'.npy', self.env.test_video)
-                self.env.test_video = []
+                # np.save('test_vid_'+str(self.episode)+'.npy', self.env.test_video)
+                # self.env.test_video = []
 
             obs = self.env.reset()
             episodic_reward = 0
