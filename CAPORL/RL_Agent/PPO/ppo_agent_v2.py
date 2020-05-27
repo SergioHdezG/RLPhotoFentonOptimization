@@ -1,5 +1,5 @@
 from os import path
-
+import datetime
 from tensorflow.python.keras.models import model_from_json
 
 from  CAPORL.RL_Agent.agent_interfaz import AgentInterfaz
@@ -164,6 +164,7 @@ class Agent(AgentInterfaz):
         print("Loaded model from disk")
 
     def save(self, name, reward):
+
         # sess = tf.keras.backend.get_session()  # op_input_list=(self.actor.get_layers(), self.critic.get_layers())
         # self.saver = tf.train.Saver()
         name = name + "-" + str(reward)
@@ -181,6 +182,7 @@ class Agent(AgentInterfaz):
         # serialize weights to HDF5
         self.critic.save_weights(name+'critic'+".h5")
         print("Saved model to disk")
+        print(datetime.datetime.now())
 
     def _build_model(self, net_architecture):
         # Neural Net for Actor-Critic Model

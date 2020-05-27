@@ -1,6 +1,6 @@
 import cv2
 from numpy import save
-from CAPORL.environments import carlaenv_collect_img, carlaenv_cont_no_decoder, carlaenv_continuous
+from CAPORL.environments import carlaenv_collect_img, carlaenv_cont_no_decoder, carlaenv_continuous, carlaenv_continuous_stop, carlaenv_continuous_pace_follow
 from src.IRL.utils.callbacks import Callbacks, load_expert_memories
 import pygame
 
@@ -112,15 +112,15 @@ class game_loop():
             if n_experiences % 100 == 0:
                 print('Numero experiencias: ', n_experiences)
 
+        # list = env.save_img_list
+        # for img in list:
+        #     cv2.imshow('rgb', cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR) )
+        #     cv2.imshow('segmentation', cv2.cvtColor(img[1], cv2.COLOR_RGB2BGR))
+        #     cv2.waitKey(1)
+        # cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_road_starts')
         print('fin')
-        list = env.save_img_list
-        for img in list:
-            cv2.imshow('rgb', cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR) )
-            cv2.imshow('segmentation', cv2.cvtColor(img[1], cv2.COLOR_RGB2BGR))
-            cv2.waitKey(1)
-        cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_street_road')
-
     # save('rgb_seg.npy', list)
+
 def main_2():
     game = game_loop()
     game.run()

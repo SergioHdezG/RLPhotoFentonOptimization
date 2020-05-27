@@ -35,8 +35,10 @@ class Callbacks:
             done = np.array([x[4] for x in self.memory])
 
             data = pd.DataFrame({'obs': obs, 'action': act, 'reward': reward, 'done': done})
+            print('data ready')
             # data = pd.DataFrame({'obs': obs, 'action': act, 'reward': reward, 'next_obs': next_obs, 'done': done })
             data.to_pickle(dir+name+'.pkl')
+            print('data saved')
             # data.to_csv(dir+name+'.csv')
 
     def get_memory(self, get_action, n_stack=0):
@@ -53,7 +55,7 @@ class Callbacks:
             data = format_obs(obs, action, get_action, done, n_stack)
             return data
 
-def load_expert_memories(dir, name, load_action, n_stack=0):
+def load_expert_memories(dir, name, load_action, n_stack=0, not_formated=False):
     # data = pd.read_csv(dir+name+".csv")
     data = pd.read_pickle(dir + name + ".pkl")
     # print(data.head())
@@ -67,8 +69,12 @@ def load_expert_memories(dir, name, load_action, n_stack=0):
     reward = np.array([np.array(x) for x in reward])
     done = np.array([np.array(x) for x in done])
 
-    data = format_obs(obs, action, load_action, done, n_stack)
-    return data
+    if not_formated:
+        data = [np.array([o, a, r, d]) for o, a, r, d in zip(obs, action, reward, done)]
+        return data
+    else:
+        data = format_obs(obs, action, load_action, done, n_stack)
+        return data
 
 
 def format_obs(obs, action, get_action, done, n_stack=0):
@@ -100,7 +106,7 @@ def format_obs(obs, action, get_action, done, n_stack=0):
             data = []
             for i in range(obs.shape[0]):
                 # data.append(np.array([obs[i], [action[i]], reward[i], done[i]]))
-                data.append(np.array([obs[i], action[i]]))
+                data.append(np.array([obs[i], action[i], ]))
         else:
             data = []
             for i in range(obs.shape[0]):

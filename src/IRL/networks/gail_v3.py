@@ -216,8 +216,8 @@ class Discriminator(object):
             agent_traj_a = np.array(one_hot_agent_a)
             expert_traj_a = np.array(one_hot_expert_a)
 
-        self.fit(expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=expert_traj_a.shape[0], epochs=4,
-                 validation_split=0.2)
+        self.fit(expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=2,
+                 validation_split=0.1)  # batch_size=expert_traj_a.shape[0]
 
     def fit(self, expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=10, validation_split=0.2):
         test_samples = np.int(validation_split * expert_traj_s.shape[0])

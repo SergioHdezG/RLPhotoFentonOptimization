@@ -5,12 +5,13 @@ import cv2
 import glob
 import os
 
-# exp_dir = "expert_demonstrations/"
-# exp_name = 'human_expert_carla_wheel'
-# exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True)
-#
-# exp_name = 'human_expert_carla_wheel_2'
-# exp_memory_1 = load_expert_memories(exp_dir, exp_name, load_action=True)
+exp_dir = "expert_demonstrations/ultimos/"
+exp_name = 'human_expert_carla_street'
+exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, not_formated=True)
+
+exp_dir = "expert_demonstrations/"
+exp_name = 'human_expert_carla_wheel_road_starts'
+exp_memory_1 = load_expert_memories(exp_dir, exp_name, load_action=True, not_formated=True)
 #
 # exp_name = 'human_expert_carla_wheel_5500'
 # exp_memory_2 = load_expert_memories(exp_dir, exp_name, load_action=True)
@@ -29,12 +30,13 @@ import os
 #
 # exp_memory = np.concatenate((exp_memory_1, exp_memory_2, exp_memory_3, exp_memory_4, exp_memory_5, exp_memory_6), axis=0)
 
-# exp_memory = np.concatenate((exp_memory, exp_memory_1), axis=0)
-#
-# exp_memory = pd.DataFrame(exp_memory, columns=['obs', 'action', 'reward', 'done'])
+exp_memory = np.concatenate((exp_memory, exp_memory_1), axis=0)
+
+exp_memory = pd.DataFrame(exp_memory, columns=['obs', 'action', 'reward', 'done'])
+# exp_memory = pd.DataFrame(exp_memory, columns=['obs', 'action'])
 # #
-# exp_name = 'human_expert_carla_wheel_5500'
-# exp_memory.to_pickle(exp_dir+exp_name+'.pkl'
+exp_name = 'human_expert_carla_full'
+exp_memory.to_pickle(exp_dir+exp_name+'.pkl')
 # myfiles = []
 # dirFiles = os.listdir('/home/serch/TFM/IRL2/CAPORL/environments/examples/_out/')
 # nojpeg = []
@@ -131,13 +133,13 @@ import os
 #     # cv2.imshow('dep', dep)
 #     cv2.waitKey(1)
 
-test_images = np.load('/home/serch/TFM/IRL3/saved_models/Carla/DGX/test_vid_99.npy')
-for rgb in test_images:
-    rgb = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-    cv2.imshow('rgb', rgb)
-    # cv2.imshow('seg', seg)
-    # cv2.imshow('dep', dep)
-    cv2.waitKey(1)
+# test_images = np.load('/home/serch/TFM/IRL3/saved_models/Carla/DGX/4/test_vid_99.npy')
+# for rgb in test_images:
+#     rgb = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+#     cv2.imshow('rgb', rgb)
+#     # cv2.imshow('seg', seg)
+#     # cv2.imshow('dep', dep)
+#     cv2.waitKey(1)
 
 print('done')
 

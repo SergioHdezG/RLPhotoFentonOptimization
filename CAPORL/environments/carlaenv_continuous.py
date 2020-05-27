@@ -36,14 +36,14 @@ class action_space:
         self.high = 1
         self.n = 3
 
-SECONDS_PER_EPISODE = 60
+SECONDS_PER_EPISODE = 30
 
 class env:
 
 
     def __init__(self):
-        subprocess.Popen(run_carla_path, shell=True)
-        time.sleep(30.)
+        # subprocess.Popen(run_carla_path, shell=True)
+        time.sleep(3.)
         self.im_width = 1280  # 640
         self.im_height = 720  # 480
         self.steer_amt = 0.2
@@ -77,9 +77,9 @@ class env:
         try:
             self.client.load_world('Town04')
         except:
-            print('Loading exception')
+            print('Loading world exception')
 
-        time.sleep(30.)
+        time.sleep(5.)
         self.world = self.client.get_world()
         weather = carla.WeatherParameters.ClearNoon
         self.world.set_weather(weather)
@@ -118,23 +118,24 @@ class env:
         self.fps_list = []
         self.fps = 16
         self.locations = np.array([[-20.6, -259.5, 120.],
-                                    [60.7, -183.2, 275.],
-                                    [194.6, -311.7, 174.],
-                                    [194.5, -249.5, 172.],
-                                    [131.8, -181.4, -95.],
-                                    [60.7, -183.2, 275.],
-                                    [194.6, -311.7, 174.],
-                                    [194.5, -249.5, 172.],
-                                    [131.8, -181.4, -95.],
                                     [-381.0, -2.7, -86.],
                                     [-296.0, -82.9, -5.],
                                     [-265.2, -88.2, 176.],
                                     [-4.9, 327.9, -43.],
                                     [165.9, 210.3, -18.],
                                     [400.0, 30.3, 99.],
-                                    [187.1, 199.6, 158.]])
+                                    [187.1, 199.6, 158.],
+                                    [60.7, -183.2, 275.],
+                                    [194.6, -311.7, 174.],
+                                    [194.5, -249.5, 172.],
+                                    [131.8, -181.4, -95.],
+                                    [60.7, -183.2, 275.],
+                                    [194.6, -311.7, 174.],
+                                    [194.5, -249.5, 172.],
+                                    [131.8, -181.4, -95.]
+                                    ])
         self.time_stopped = int(0)
-        # self.pace_car = self.spawn_pace_car(50, self.pace_car, option=0)
+        # self.pace_car = self.spawn_pace_car(20, self.pace_car, option=1)
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
@@ -148,7 +149,7 @@ class env:
         except:
             print('Loading exception')
 
-        time.sleep(30.)
+        time.sleep(5.)
         self.world = self.client.get_world()
         weather = carla.WeatherParameters.ClearNoon
         self.world.set_weather(weather)
@@ -177,7 +178,6 @@ class env:
             self._list_low_speed = []
             self.imu_data_now = None
 
-            self.client.apply_batch([carla.command.DestroyActor(x) for x in self.pace_car_2])
             for actor in self.actor_list:
                     actor.destroy()
 
@@ -197,9 +197,9 @@ class env:
 
             ind = np.random.choice(len(self.locations))
             rand_transform = np.array([random.random()*2 - 1, random.random()*2 - 1, random.random()*5 - 2.5])
-            self.transform.location.x = self.locations[ind][0] + rand_transform[0]
-            self.transform.location.y = self.locations[ind][1] + rand_transform[1]
-            self.transform.rotation.yaw = self.locations[ind][2] + rand_transform[2]
+            self.transform.location.x = self.locations[ind][0] #+ rand_transform[0]
+            self.transform.location.y = self.locations[ind][1] #+ rand_transform[1]
+            self.transform.rotation.yaw = self.locations[ind][2] #+ rand_transform[2]
 
 
             # self.transform.location.x = 60.7  # -20.6
@@ -310,7 +310,7 @@ class env:
             self.reward_hist = collections.deque(maxlen=25)
             self.already_done = False
             # obs = np.concatenate((obs, [kmh], self.action_hist))
-            obs = np.concatenate((obs, [kmh], [0., 0., 0.]))
+            obs = np.concatenate((obs, [kmh/50.], [0., 0., 0.]))
 
             self.epi_reward = [0.]
             self.epi_distance = [0.]
@@ -322,7 +322,7 @@ class env:
 
         except Exception:
             subprocess.Popen(run_carla_path, shell=True)
-            time.sleep(30.)
+            time.sleep(5.)
             self.reset_conection()
             time.sleep(5.)
             obs = self.reset()
@@ -374,7 +374,7 @@ class env:
                                             carla.Rotation(pitch=0, yaw=stating_points_2[index][2], roll=0))
                 spawn_points.append(transform)
 
-        spawn_points = random.shuffle(spawn_points)
+        random.shuffle(spawn_points)
 
         # --------------
         # Spawn vehicles
@@ -395,7 +395,7 @@ class env:
             try:
                 vehicle = self.world.spawn_actor(blueprint, transform)
                 # time.sleep(0.25)
-                vehicle.set_autopilot(True)
+                # vehicle.set_autopilot(True)
                 # time.sleep(0.25)
                 actor_list.append(vehicle)
             except:
@@ -512,7 +512,7 @@ class env:
             #     self.vehicle.destroy()
             # TODO: Deshacer
             obs = self.extract_latent_data(self.front_camera)
-            obs = np.concatenate((obs, [kmh], action))
+            obs = np.concatenate((obs, [kmh/50.], action))
             # obs = np.concatenate((obs, [kmh], self.action_hist))
 
             self.epi_distance.append(self.gnssensor.last_movement_distance())

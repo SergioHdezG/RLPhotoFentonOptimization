@@ -143,8 +143,10 @@ class PPOProblem(RLProblemSuper):
             # Stacking inputs
             if self.n_stack is not None and self.n_stack > 1:
                 for i in range(self.n_stack):
-                    obs_queue.append(obs)
-                    obs_next_queue.append(obs)
+                    obs_queue.append(np.zeros(obs.shape))
+                    obs_next_queue.append(np.zeros(obs.shape))
+                obs_queue.append(obs)
+                obs_next_queue.append(obs)
 
             while not done:  # and len(batch[0])+len(tmp_batch[0]) < self.buffer_size:
                 if render or ((render_after is not None) and self.episode > render_after):

@@ -1,4 +1,5 @@
 import os
+import datetime
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 import tensorflow as tf
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
@@ -10,7 +11,7 @@ from CAPORL.RL_Problem import rl_problem as rl_p
 from CAPORL.utils.clipping_reward import *
 from CAPORL.utils.preprocess import *
 from CAPORL.utils import hyperparameters as params
-from CAPORL.environments import carlaenv_continuous
+from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop
 from src.IRL.IRL_Problem import irl_problem_super as irl_p
 from src.IRL.utils.callbacks import load_expert_memories
 from CAPORL.RL_Agent.PPO import ppo_agent_async, ppo_agent_v2, ppo_agent_discrete
@@ -21,6 +22,7 @@ import subprocess
 
 # environment = "LunarLanderContinuous-v2"
 # environment = CarRacing.env
+# environment = carlaenv_continuous.env
 environment = carlaenv_continuous.env
 
 agent = ppo_agent_v2.create_agent()
@@ -66,7 +68,7 @@ saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/2/",
 # Loading expert memories
 exp_dir = "expert_demonstrations/"
 # exp_name = 'human_expert_CarRacing_v2'
-exp_name = 'human_expert_carla_wheel_street_road'
+exp_name = 'human_expert_carla_wheel_road_start'
 disc_stack = 1
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=disc_stack)
 
@@ -78,14 +80,15 @@ rl_problem = rl_p.Problem(environment, agent, model_params, saving_model_params,
                              n_stack=n_stack, img_input=img_input, state_size=state_size)
 
 
-dir_load="saved_models/Carla/DGX/2/"
-name_loaded="PPO_IRL_carla-273"
+dir_load="/home/serch/TFM/IRL3/saved_models/Carla/DGX/9/"
+name_loaded="PPO_IRL_carla33-199"
 rl_problem.load_model(dir_load=dir_load, name_loaded=name_loaded)
 
+print(datetime.datetime.now())
 irl_problem = irl_p.Problem(rl_problem, exp_memory, stack_disc=disc_stack > 1)
 
 
 # irl_problem.solve(200, render=True, max_step_epi=None, render_after=1500, skip_states=1)
 
-rl_problem.test(10, True)
+rl_problem.test(25, True)
 

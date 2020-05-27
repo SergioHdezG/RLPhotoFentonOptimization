@@ -124,8 +124,10 @@ class RLProblemSuper:
             # Stacking inputs
             if self.n_stack is not None and self.n_stack > 1:
                 for i in range(self.n_stack):
-                    obs_queue.append(obs)
-                    obs_next_queue.append(obs)
+                    obs_queue.append(np.zeros(obs.shape))
+                    obs_next_queue.append(np.zeros(obs.shape))
+                obs_queue.append(obs)
+                obs_next_queue.append(obs)
 
             # While the episode doesn't reach a final state
             while not done:
@@ -270,7 +272,8 @@ class RLProblemSuper:
             # stacking inputs
             if self.n_stack is not None and self.n_stack > 1:
                 for i in range(self.n_stack):
-                    obs_queue.append(obs)
+                    obs_queue.append(np.zeros(obs.shape))
+                obs_queue.append(obs)
 
             while not done:
                 if render:
@@ -326,7 +329,7 @@ class RLProblemSuper:
                 # print('Memory inputs: ', self.global_steps)
                 print(dt.datetime.now())
                 if self._check_for_save(rew_mean):
-                    self.agent.save(self.save_base + self.save_name, int(rew_mean))
+                    self.agent.save(self.save_base + self.save_name + str(rew_mean), e)
 
                 # gc.collect()
         if verbose == 2:
