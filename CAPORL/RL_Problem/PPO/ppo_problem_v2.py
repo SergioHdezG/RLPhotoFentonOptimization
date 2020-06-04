@@ -116,6 +116,7 @@ class PPOProblem(RLProblemSuper):
         self.rewards_batch = []
         self.values_batch = []
         self.masks_batch = []
+
         # Stacking inputs
         if self.n_stack is not None and self.n_stack > 1:
             obs_queue = deque(maxlen=self.n_stack)
@@ -128,7 +129,7 @@ class PPOProblem(RLProblemSuper):
             tmp_batch = [[], [], [], [], [], [], []]
 
             if self.episode % 99 == 0:
-                self.test(n_iter=4, render=True)
+                self.test(n_iter=0, render=True)
                 # np.save('test_vid_'+str(self.episode)+'.npy', self.env.test_video)
                 # self.env.test_video = []
 
@@ -191,6 +192,7 @@ class PPOProblem(RLProblemSuper):
                 epochs += 1
                 self.global_steps += 1
 
+            self.agent.exploration_noise = np.random.rand() * 2 / 10
             self.episode += 1
 
             # Add reward to the list

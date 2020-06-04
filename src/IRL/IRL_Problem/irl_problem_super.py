@@ -58,7 +58,7 @@ class Problem:
             discrete_env = True
 
         n_stack = self.n_stack if self.stack_disc else 1
-        return gail_v3.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
+        return vanilla_airl.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
                                           img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-4,
                                           discrete=discrete_env)
 
@@ -78,14 +78,14 @@ class Problem:
                                 information will be displayed, if 2 fewer information will be displayed.
         :return:
         """
-        if False:
+        if True:
             for iter in range(iterations):
-                    n_agent_iter = 50
-                    self.agent_traj = self.agent_play(n_agent_iter, render=False)
+                    n_agent_iter = 10
+                    self.agent_traj = self.agent_play(n_agent_iter, render=render)
 
                     self.discriminator.train(self.expert_traj, self.agent_traj)
 
-                    self.rl_problem.solve(100, render=render, max_step_epi=None, render_after=100, skip_states=0, discriminator=self.discriminator)
+                    self.rl_problem.solve(25, render=render, max_step_epi=None, render_after=100, skip_states=0, discriminator=self.discriminator)
         else:
             self.rl_problem.solve(iterations, render=render, max_step_epi=None, render_after=None, skip_states=0, discriminator=self.discriminator,
                                   expert_traj=self.expert_traj)

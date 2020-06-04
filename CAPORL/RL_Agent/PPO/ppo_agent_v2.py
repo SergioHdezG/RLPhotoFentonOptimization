@@ -37,13 +37,13 @@ class Agent(AgentInterfaz):
         self.entropy_beta = 0.001
         self.lmbda = 0.95
         self.train_epochs = 10
-        self.exploration_noise = 0.3
+        self.exploration_noise = 0.1
         self.actor, self.critic = self._build_model(net_architecture)
         # self.critic = self.build_critic()
         # self.actor = self.build_actor_continuous()
         self.memory = []
         self.epsilon = 1.0
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 1.0
 
         self.dummy_action, self.dummy_value = np.zeros((1, self.n_actions)), np.zeros((1, 1))
 
@@ -202,7 +202,7 @@ class Agent(AgentInterfaz):
         rewards = Input(shape=(1,))
         values = Input(shape=(1,))
 
-        actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.02, 0.0, -0.02], stddev=1e-2, seed=None)))
+        actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.0, 0.0, -0.1], stddev=1e-3, seed=None)))
         # actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=0.0, stddev=1e-2, seed=None)))
         # actor_net.add(Dense(self.n_actions, name='output', activation='tanh'))
 

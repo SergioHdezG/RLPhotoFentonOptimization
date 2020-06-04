@@ -58,7 +58,7 @@ net_architecture = params.actor_critic_net_architecture(actor_conv_layers=2, act
                                                         critic_custom_network=custom_nets.critic_model_lstm
                                                         )
 
-saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/2/",
+saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/virl/7/",
                                               model_name="PPO_IRL_carla",
                                               save_each=25,
                                               save_if_better=False)
@@ -69,7 +69,7 @@ saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/2/",
 exp_dir = "expert_demonstrations/"
 # exp_name = 'human_expert_CarRacing_v2'
 exp_name = 'human_expert_carla_wheel_road_start'
-disc_stack = 1
+disc_stack = 10
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=disc_stack)
 
 state_size=None
@@ -80,15 +80,14 @@ rl_problem = rl_p.Problem(environment, agent, model_params, saving_model_params,
                              n_stack=n_stack, img_input=img_input, state_size=state_size)
 
 
-dir_load="/home/serch/TFM/IRL3/saved_models/Carla/DGX/9/"
-name_loaded="PPO_IRL_carla33-199"
+dir_load="/home/serch/TFM/IRL3/saved_models/Carla/DGX/20/"
+name_loaded="PPO_IRL_carla17-99"
 rl_problem.load_model(dir_load=dir_load, name_loaded=name_loaded)
 
 print(datetime.datetime.now())
 irl_problem = irl_p.Problem(rl_problem, exp_memory, stack_disc=disc_stack > 1)
 
 
-# irl_problem.solve(200, render=True, max_step_epi=None, render_after=1500, skip_states=1)
-
-rl_problem.test(25, True)
+# irl_problem.solve(6, render=False, max_step_epi=None, render_after=1500, skip_states=1)
+rl_problem.test(10, True)
 

@@ -36,16 +36,17 @@ class Discriminator(object):
         a_input = Input(shape=self.n_actions)
         if self.stack:
             # flat_s = Dense(128, activation='tanh')(s_input)
-            flat_s = Conv1D(32, kernel_size=3, strides=2, padding='same', activation='tanh')(s_input)
-            flat_s = Flatten()(flat_s)
+            # flat_s = Conv1D(32, kernel_size=3, strides=2, padding='same', activation='tanh')(s_input)
+            flat_s = LSTM(256, activation='tanh')(s_input)
+            # flat_s = Flatten()(s_input)
         else:
             flat_s = s_input
         concat = Concatenate(axis=1)([flat_s, a_input])
-        dense = Dense(256, activation='tanh')(concat)
+        # dense = Dense(256, activation='tanh')(concat)
         # dense = Dropout(0.3)(dense)
-        dense = Dense(256, activation='tanh')(dense)
+        # dense = Dense(256, activation='tanh')(dense)
         # dense = Dropout(0.4)(dense)
-        dense = Dense(128, activation='tanh')(dense)
+        dense = Dense(128, activation='tanh')(concat)
         output = Dense(1, activation='sigmoid')(dense)
 
         model = Model(inputs=[s_input, a_input], outputs=output)
@@ -157,7 +158,7 @@ class Discriminator(object):
 
         y = np.concatenate([expert_label, agent_label], axis=0)
 
-        self.model.fit([x_s, x_a], y, batch_size=128, epochs=10, shuffle=True, verbose=2, validation_split=0.2)
+        self.model.fit([x_s, x_a], y, batch_size=128, epochs=2, shuffle=True, verbose=2, validation_split=0.2)
 
     # def load(self, dir, name):
     #     name = path.join(dir, name)

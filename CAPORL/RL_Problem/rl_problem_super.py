@@ -299,7 +299,7 @@ class RLProblemSuper:
 
             self._feedback_print(e, episodic_reward, epochs, 1, rew_mean_list)
 
-        print('Mean Reward ', epi_rew_mean / n_iter)
+        # print('Mean Reward ', epi_rew_mean / n_iter)
         self.env.close()
         return
 
@@ -329,7 +329,7 @@ class RLProblemSuper:
                 # print('Memory inputs: ', self.global_steps)
                 print(dt.datetime.now())
                 if self._check_for_save(rew_mean):
-                    self.agent.save(self.save_base + self.save_name + str(rew_mean), e)
+                    self.agent.save(self.save_base + self.save_name + str(int(rew_mean)), e)
 
                 # gc.collect()
         if verbose == 2:

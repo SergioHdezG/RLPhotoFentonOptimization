@@ -36,7 +36,7 @@ class action_space:
         self.high = 1
         self.n = 3
 
-SECONDS_PER_EPISODE = 30
+SECONDS_PER_EPISODE = 60
 
 class env:
 
@@ -95,8 +95,8 @@ class env:
         # self.model_3 = random.choice(vehicle_list)
         self.model_3 = blueprint_library.filter('model3')[0]
         # self.model_3.set_attribute("sticky_control", "False")
-        # path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
-        # self.stating_points = np.loadtxt(path)
+        path = os.path.abspath('CAPORL/environments/carla/start_point_road_ida.txt')
+        self.stating_points = np.loadtxt(path)
         self.img_counter = 0
         self.timer_for_recording = time.time()
 
@@ -118,24 +118,26 @@ class env:
         self.fps_list = []
         self.fps = 16
         self.locations = np.array([[-20.6, -259.5, 120.],
-                                    [-381.0, -2.7, -86.],
-                                    [-296.0, -82.9, -5.],
-                                    [-265.2, -88.2, 176.],
-                                    [-4.9, 327.9, -43.],
-                                    [165.9, 210.3, -18.],
-                                    [400.0, 30.3, 99.],
-                                    [187.1, 199.6, 158.],
-                                    [60.7, -183.2, 275.],
-                                    [194.6, -311.7, 174.],
-                                    [194.5, -249.5, 172.],
-                                    [131.8, -181.4, -95.],
-                                    [60.7, -183.2, 275.],
-                                    [194.6, -311.7, 174.],
-                                    [194.5, -249.5, 172.],
-                                    [131.8, -181.4, -95.]
+                                    # [-381.0, -2.7, -86.],
+                                    # [-296.0, -82.9, -5.],
+                                    # [-265.2, -88.2, 176.],
+                                    # [-4.9, 327.9, -43.],
+                                    # [165.9, 210.3, -18.],
+                                    # [400.0, 30.3, 99.],
+                                    # [187.1, 199.6, 158.],
+                                    # [60.7, -183.2, 275.],
+                                    # [194.6, -311.7, 174.],
+                                    # [194.5, -249.5, 172.],
+                                    # [131.8, -181.4, -95.],
+                                    # [60.7, -183.2, 275.],
+                                    # [194.6, -311.7, 174.],
+                                    # [194.5, -249.5, 172.],
+                                    # [131.8, -181.4, -95.]
                                     ])
         self.time_stopped = int(0)
         # self.pace_car = self.spawn_pace_car(20, self.pace_car, option=1)
+        self.dist_fuera_carril = -1.
+        self.last_was_in = True
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
@@ -320,6 +322,8 @@ class env:
             self.previous_time = time.time()
             self.fps_list = [self.fps]
 
+            self.dist_fuera_carril = -1
+            self.last_was_in = True
         except Exception:
             subprocess.Popen(run_carla_path, shell=True)
             time.sleep(5.)
@@ -597,16 +601,24 @@ class env:
 
     def _check_done(self, kmh):
         inside_bounds = False
-        # for point in self.stating_points:
-        #     distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) for point in self.stating_points]
-        #     if distance < 2.5:
-        #         inside_bounds = True
-        #         break
+        for point in self.stating_points:
+            distance = np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1]))
+            if distance < 1.75:
+                inside_bounds = True
+                break
 
-        # distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) < 100 for point
+        # distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) < 1. for point
         #             in self.stating_points]
-        distance = [True]
+
         epi_distance = np.sum(self.epi_distance)
+
+        if not inside_bounds:
+            # if self.dist_fuera_carril < 0 or np.abs(self.dist_fuera_carril - epi_distance) > 10.:
+            #     print('fuera carril, distancia', epi_distance)
+            #     self.dist_fuera_carril = epi_distance
+            if self.last_was_in:
+                print('fuera carril, distancia', epi_distance)
+        self.last_was_in = inside_bounds
 
         if epi_distance > 2.5 and kmh < 0.2:
             if self.time_stopped == 0:
@@ -615,7 +627,7 @@ class env:
                 self.time_stopped = int(0)
                 return True
 
-
+        distance = [True]
         return not True in distance or self.already_done
 
     def render(self, only_return=False):

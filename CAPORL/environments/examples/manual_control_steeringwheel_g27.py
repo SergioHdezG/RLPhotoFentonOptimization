@@ -166,9 +166,9 @@ class World(object):
         while self.player is None:
             spawn_points = self.world.get_map().get_spawn_points()
             spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
-            spawn_point.location.x = 60.7 #-20.6
-            spawn_point.location.y = -183.2 # -259.5
-            spawn_point.rotation.yaw = 275.#120.
+            spawn_point.location.x = 194.6#60.7 # -20.6
+            spawn_point.location.y = -311.7 #-183.2 #-259.5
+            spawn_point.rotation.yaw = 174. # 275.#120.
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
             self.player.get_world().set_weather(carla.WeatherParameters.ClearNoon)
         # Set up the sensors.
@@ -454,10 +454,10 @@ class HUD(object):
             'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
             'Height:  % 18.0f m' % t.location.z,
             '']
-        #
-        # f = open('/home/serch/TFM/IRL2/CAPORL/environments/carla/start_point_2.txt', 'a')
-        # f.writelines(['\n', str(t.location.x), '\t', str(t.location.y), '\t', str(t.rotation.yaw)])
-        # f.close()
+
+        f = open('/home/serch/TFM/IRL3/CAPORL/environments/carla/start_point_street_vuelta.txt', 'a')
+        f.writelines(['\n', str(t.location.x), '\t', str(t.location.y), '\t', str(t.rotation.yaw)])
+        f.close()
 
         if isinstance(c, carla.VehicleControl):
             self._info_text += [
