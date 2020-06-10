@@ -22,8 +22,8 @@ import subprocess
 
 # environment = "LunarLanderContinuous-v2"
 # environment = CarRacing.env
+environment = carlaenv_continuous_stop.env
 # environment = carlaenv_continuous.env
-environment = carlaenv_continuous.env
 
 agent = ppo_agent_v2.create_agent()
 
@@ -58,9 +58,9 @@ net_architecture = params.actor_critic_net_architecture(actor_conv_layers=2, act
                                                         critic_custom_network=custom_nets.critic_model_lstm
                                                         )
 
-saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/virl/7/",
+saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/3/",
                                               model_name="PPO_IRL_carla",
-                                              save_each=25,
+                                              save_each=150,
                                               save_if_better=False)
 
 # saving_model_params = None
@@ -80,14 +80,14 @@ rl_problem = rl_p.Problem(environment, agent, model_params, saving_model_params,
                              n_stack=n_stack, img_input=img_input, state_size=state_size)
 
 
-dir_load="/home/serch/TFM/IRL3/saved_models/Carla/DGX/20/"
-name_loaded="PPO_IRL_carla17-99"
+dir_load="/home/serch/TFM/IRL3/saved_models/Carla/behaivoral_cloning/"
+name_loaded="Carla_bc_1-1"
 rl_problem.load_model(dir_load=dir_load, name_loaded=name_loaded)
 
 print(datetime.datetime.now())
 irl_problem = irl_p.Problem(rl_problem, exp_memory, stack_disc=disc_stack > 1)
 
 
-# irl_problem.solve(6, render=False, max_step_epi=None, render_after=1500, skip_states=1)
+# irl_problem.solve(150, render=True, max_step_epi=None, render_after=1500, skip_states=1)
 rl_problem.test(10, True)
 

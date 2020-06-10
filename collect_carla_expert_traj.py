@@ -3,6 +3,11 @@ from numpy import save
 from CAPORL.environments import carlaenv_collect_img, carlaenv_cont_no_decoder, carlaenv_continuous, carlaenv_continuous_stop, carlaenv_continuous_pace_follow
 from src.IRL.utils.callbacks import Callbacks, load_expert_memories
 import pygame
+from CAPORL.RL_Problem import rl_problem as rl_p
+from CAPORL.RL_Agent.PPO import ppo_agent_v2
+from collections import deque
+import numpy as np
+import datetime as dt
 
 class game_loop():
     def __init__(self):
@@ -34,92 +39,107 @@ class game_loop():
         # print
         # JoyAx
 
+
         cb = Callbacks()
-        env = carlaenv_continuous.env()
+        env = carlaenv_continuous_stop.env()
         obs = env.reset()
 
-
-        n_experiences = 0
-
-        done = False
         recording = False
-        # Prints the values for axis0
-        while not self.exit:
+        for e in range(100):
 
-            if done:
-                obs = env.reset()
+            done = False
+            episodic_reward = 0
+            n_experiences = 0
+            rew_mean_list = deque(maxlen=10)
+            # Prints the values for axis0
+            obs = env.reset()
 
-            # # Event queue
-            # for event in pygame.event.get():
-            #     if event.type == pygame.QUIT:
-            #         pass
-                    # self.exit = True
-            # pygame.event.pump()
+            while not self.exit and not done:
 
-            # User input
-            pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_ESCAPE]:
-                self.exit = True
-            if pressed[pygame.K_SPACE]:
-                obs = env.reset()
+                # # Event queue
+                # for event in pygame.event.get():
+                #     if event.type == pygame.QUIT:
+                #         pass
+                        # self.exit = True
+                # pygame.event.pump()
 
-            # Pause
-            if pressed[pygame.K_F1]:
-                print('pause')
-                pause = True
-                while pause:
-                    pygame.event.pump()
-                    pressed = pygame.key.get_pressed()
-                    if pressed[pygame.K_SPACE]:
-                        obs = env.reset()
-                        pause = False
+                # User input
+                pressed = pygame.key.get_pressed()
+                if pressed[pygame.K_ESCAPE]:
+                    self.exit = True
+                if pressed[pygame.K_SPACE]:
+                    obs = env.reset()
 
-            if pressed[pygame.K_F2]:
-                recording = not recording
-                print('recording = ', recording)
+                # Pause
+                if pressed[pygame.K_F1]:
+                    print('pause')
+                    pause = True
+                    while pause:
+                        pygame.event.pump()
+                        pressed = pygame.key.get_pressed()
+                        if pressed[pygame.K_SPACE]:
+                            obs = env.reset()
+                            pause = False
+
+                if pressed[pygame.K_F2]:
+                    recording = not recording
+                    print('recording = ', recording)
 
 
-            # x, y = pygame.mouse.get_pos()
-            # steer = ((x/1280.)-0.5)/2  # pygame.joystick.Joystick(0).get_axis(0)
-            # throttle = ((720 - y)/720 * 2) - 1 # -pygame.joystick.Joystick(0).get_axis(2)
+                # x, y = pygame.mouse.get_pos()
+                # steer = ((x/1280.)-0.5)/2  # pygame.joystick.Joystick(0).get_axis(0)
+                # throttle = ((720 - y)/720 * 2) - 1 # -pygame.joystick.Joystick(0).get_axis(2)
 
-            pygame.event.pump()
-            steer = pygame.joystick.Joystick(0).get_axis(0) #/3
-            throttle = -pygame.joystick.Joystick(0).get_axis(2) #(-pygame.joystick.Joystick(0).get_axis(1)*1.35)*2 -1
-            # if throttle < -0.9:
-            #     throttle = -1.
-            brake = -pygame.joystick.Joystick(0).get_axis(3)
-            # if brake < 0.1:
-            #     brake = -1.
+                pygame.event.pump()
+                steer = pygame.joystick.Joystick(0).get_axis(0) #/3
+                throttle = -pygame.joystick.Joystick(0).get_axis(2) #(-pygame.joystick.Joystick(0).get_axis(1)*1.35)*2 -1
+                # if throttle < -0.9:
+                #     throttle = -1.
+                brake = -pygame.joystick.Joystick(0).get_axis(3)
+                # if brake < 0.1:
+                #     brake = -1.
 
-            # print('steer: ', steer, 'throttle: ', throttle, 'brake: ', brake)  #, ' mice: ', x, y)
-            image = env.render(only_return=True)
-            next_obs, reward, done, _ = env.step([throttle, steer, brake])
+                # print('steer: ', steer, 'throttle: ', throttle, 'brake: ', brake)  #, ' mice: ', x, y)
+                image = env.render(only_return=True)
+                next_obs, reward, done, _ = env.step([throttle, steer, brake])
 
-            if recording:
-                cb.remember_callback(obs, next_obs, [throttle, steer, brake], reward, done)
+                if recording:
+                    cb.remember_callback(obs, next_obs, [throttle, steer, brake], reward, done)
 
-            obs = next_obs
+                obs = next_obs
 
-            # Drawing
-            image = pygame.surfarray.make_surface(image)
-            # self.screen.fill((0, 0, 0))
-            self.screen.blit(image, (0, 0))
-            # pygame.display.flip()
-            pygame.display.update()
-            self.clock.tick(self.ticks)
-            n_experiences += 1
-            if n_experiences % 100 == 0:
-                print('Numero experiencias: ', n_experiences)
+                # Drawing
+                image = pygame.surfarray.make_surface(image)
+                # self.screen.fill((0, 0, 0))
+                self.screen.blit(image, (0, 0))
+                # pygame.display.flip()
+                pygame.display.update()
+                self.clock.tick(self.ticks)
+                n_experiences += 1
+                episodic_reward += reward
+                # if n_experiences % 100 == 0:
+                #     print('Numero experiencias: ', n_experiences)
 
+            rew_mean_list.append(episodic_reward)
+            _feedback_print(e, episodic_reward, n_experiences, 1, rew_mean_list)
+            if self.exit:
+                break
         # list = env.save_img_list
         # for img in list:
         #     cv2.imshow('rgb', cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR) )
         #     cv2.imshow('segmentation', cv2.cvtColor(img[1], cv2.COLOR_RGB2BGR))
         #     cv2.waitKey(1)
-        # cb.memory_to_csv('expert_demonstrations/', 'human_expert_carla_wheel_road_starts')
+        cb.memory_to_csv('expert_demonstrations/ultimos/', 'human_expert_carla_road_stops')
         print('fin')
     # save('rgb_seg.npy', list)
+
+def _feedback_print(e, episodic_reward, epochs, verbose, epi_rew_list):
+    rew_mean = np.sum(epi_rew_list) / len(epi_rew_list)
+
+    if verbose == 1:
+        if (e + 1) % 1 == 0:
+            print('Episode ', e + 1, 'Epochs ', epochs, ' Reward {:.1f}'.format(episodic_reward),
+                  'Smooth Reward {:.1f}'.format(rew_mean), ' Epsilon {:.4f}'.format(1.00))
 
 def main_2():
     game = game_loop()

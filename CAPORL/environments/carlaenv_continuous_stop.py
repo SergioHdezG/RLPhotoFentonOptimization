@@ -95,8 +95,8 @@ class env:
         # self.model_3 = random.choice(vehicle_list)
         self.model_3 = blueprint_library.filter('model3')[0]
         # self.model_3.set_attribute("sticky_control", "False")
-        path = os.path.abspath('CAPORL/environments/carla/start_point_street_vuelta.txt')
-        self.stating_points = np.loadtxt(path)
+        # path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
+        # self.stating_points = np.loadtxt(path)
         self.img_counter = 0
         self.timer_for_recording = time.time()
 
@@ -118,26 +118,34 @@ class env:
         self.fps_list = []
         self.fps = 16
         self.locations = np.array([[-20.6, -259.5, 120.],
-                                    [-381.0, -2.7, -86.],
-                                    [-296.0, -82.9, -5.],
-                                    [-265.2, -88.2, 176.],
-                                    [-4.9, 327.9, -43.],
-                                    [165.9, 210.3, -18.],
-                                    [400.0, 30.3, 99.],
-                                    [187.1, 199.6, 158.],
-                                    [60.7, -183.2, 275.],
-                                    [194.6, -311.7, 174.],
-                                    [194.5, -249.5, 172.],
-                                    [131.8, -181.4, -95.],
-                                    [60.7, -183.2, 275.],
-                                    [194.6, -311.7, 174.],
-                                    [194.5, -249.5, 172.],
-                                    [131.8, -181.4, -95.]
-                                    ])
+                                   [-296.0, -82.9, -5.]])
+                                  # ,
+                                  #   [60.7, -183.2, 275.],
+                                  #   [194.6, -311.7, 174.],
+                                  #   [194.5, -249.5, 172.],
+                                  #   [131.8, -181.4, -95.],
+                                  #   [60.7, -183.2, 275.],
+                                  #   [194.6, -311.7, 174.],
+                                  #   [194.5, -249.5, 172.],
+                                  #   [131.8, -181.4, -95.],
+                                  #   [-381.0, -2.7, -86.],
+                                  #   [-296.0, -82.9, -5.],
+                                  #   [-265.2, -88.2, 176.],
+                                  #   [-4.9, 327.9, -43.],
+                                  #   [165.9, 210.3, -18.],
+                                  #   [400.0, 30.3, 99.],
+                                  #   [187.1, 199.6, 158.]])
+
+        self.pace_locations = np.array([[-219.1, -96.0, -20.],
+                                        [-126.5, -141.1, -32.],
+                                        [-81.1, -182.9, 135.],
+                                        [-151.0, -130.3, 174.],
+                                        [-265.2, -88.2, 176.],
+                                        [-21.0, -252.0, 300.]])
+
         self.time_stopped = int(0)
+
         # self.pace_car = self.spawn_pace_car(20, self.pace_car, option=1)
-        self.dist_fuera_carril = -1.
-        self.last_was_in = True
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
@@ -207,7 +215,22 @@ class env:
             # self.transform.location.x = 60.7  # -20.6
             # self.transform.location.y = -183.2  # -259.5
             # self.transform.rotation.yaw = 275.  # 120.
-
+            pace_transform = random.choice(self.world.get_map().get_spawn_points())
+            n_pace_locations = random.choice(range(len(self.pace_locations)))
+            n_pace_locations = np.clip(n_pace_locations, 4, len(self.pace_locations))
+            pace_locations = np.random.choice(range(len(self.pace_locations)), n_pace_locations, replace=False)
+            for l in pace_locations:
+                pace_transform.location.x = self.pace_locations[l][0]
+                pace_transform.location.y = self.pace_locations[l][1]
+                pace_transform.rotation.yaw = self.pace_locations[l][2]
+                pace_car = self.world.spawn_actor(self.model_3, pace_transform)
+                self.actor_list.append(pace_car)
+            # pace_transform = random.choice(self.world.get_map().get_spawn_points())
+            # pace_transform.location.x = -21.0
+            # pace_transform.location.y = -252.0
+            # pace_transform.rotation.yaw = 300.
+            # pace_car = self.world.spawn_actor(self.model_3, pace_transform)
+            # self.actor_list.append(pace_car)
             # self.transform = self.world.get_map().get_spawn_points()[1]
             self.vehicle = self.world.spawn_actor(self.model_3, self.transform)
             self.actor_list.append(self.vehicle)
@@ -312,7 +335,7 @@ class env:
             self.reward_hist = collections.deque(maxlen=25)
             self.already_done = False
             # obs = np.concatenate((obs, [kmh], self.action_hist))
-            obs = np.concatenate((obs, [kmh/50.], [0., 0., 0.]))
+            obs = np.concatenate((obs, [kmh/100.], [0., 0., 0.]))
 
             self.epi_reward = [0.]
             self.epi_distance = [0.]
@@ -322,8 +345,6 @@ class env:
             self.previous_time = time.time()
             self.fps_list = [self.fps]
 
-            self.dist_fuera_carril = -1
-            self.last_was_in = True
         except Exception:
             subprocess.Popen(run_carla_path, shell=True)
             time.sleep(5.)
@@ -331,88 +352,6 @@ class env:
             time.sleep(5.)
             obs = self.reset()
         return obs
-
-    def spawn_pace_car(self, n_vehicles, actor_list, option=0):
-
-        # for actor in actor_list:
-        #     try:
-        #         actor.destroy()
-        #     except:
-        #         print('problems destroyin an actor')
-
-        # self.client.apply_batch([carla.command.DestroyActor(x) for x in actor_list])
-        time.sleep(0.5)
-        actor_list = []
-
-        blueprints = self.world.get_blueprint_library().filter('vehicle')
-        blueprints = [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == 4]
-
-        if option==0:
-            spawn_points = self.world.get_map().get_spawn_points()
-        else:
-            spawn_points = []
-            # sp_points.location.x = -20.6
-            # sp_points.location.y = -259.5
-            # sp_points.rotation.yaw = 120.
-            path = os.path.basename(os.getcwd())
-            path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
-            stating_points_1 = np.loadtxt(path)
-            path = os.path.abspath('CAPORL/environments/carla/start_point_2.txt')
-            stating_points_2 = np.loadtxt(path)
-
-            for i in range(len(stating_points_1)):
-                # index = random.choice(range(len(stating_points_1)))
-                index = i
-                x = stating_points_1[index][0]
-                y = stating_points_1[index][1] + random.random()*5
-                transform = carla.Transform(carla.Location(x=x, y=y, z=1.0),
-                                            carla.Rotation(pitch=0, yaw=stating_points_1[index][2], roll=0))
-                spawn_points.append(transform)
-
-            for i in range(len(stating_points_2)):
-                # index = random.choice(range(len(stating_points_2)))
-                index = i
-                x = stating_points_2[index][0]
-                y = stating_points_2[index][1] + random.random()*5
-                transform = carla.Transform(carla.Location(x=x, y=y, z=1.0),
-                                            carla.Rotation(pitch=0, yaw=stating_points_2[index][2], roll=0))
-                spawn_points.append(transform)
-
-        random.shuffle(spawn_points)
-
-        # --------------
-        # Spawn vehicles
-        # --------------
-        # batch = []
-        for n, transform in enumerate(spawn_points):
-            if n >= n_vehicles:
-                break
-            blueprint = blueprints[n] #random.choice(blueprints)
-            # if blueprint.has_attribute('color'):
-            #     color = random.choice(blueprint.get_attribute('color').recommended_values)
-            #     blueprint.set_attribute('color', color)
-            # if blueprint.has_attribute('driver_id'):
-            #     driver_id = random.choice(blueprint.get_attribute('driver_id').recommended_values)
-            #     blueprint.set_attribute('driver_id', driver_id)
-            # blueprint.set_attribute('role_name', 'autopilot')
-            # batch.append(SpawnActor(blueprint, transform).then(SetAutopilot(FutureActor, True)))
-            try:
-                vehicle = self.world.spawn_actor(blueprint, transform)
-                # time.sleep(0.25)
-                # vehicle.set_autopilot(True)
-                # time.sleep(0.25)
-                actor_list.append(vehicle)
-            except:
-                print('Error spawning an actor')
-
-
-        # for response in self.client.apply_batch_sync(batch):
-        #     if not response.error:
-        #         actor_list.append(response.actor_id)
-
-        # # wait for a tick to ensure client receives the last transform of the walkers we have just created
-        # self.world.wait_for_tick()
-        return actor_list
 
     def collision_data(self, event):
         print('collision')
@@ -516,7 +455,7 @@ class env:
             #     self.vehicle.destroy()
             # TODO: Deshacer
             obs = self.extract_latent_data(self.front_camera)
-            obs = np.concatenate((obs, [kmh/50.], action))
+            obs = np.concatenate((obs, [kmh/100.], action))
             # obs = np.concatenate((obs, [kmh], self.action_hist))
 
             self.epi_distance.append(self.gnssensor.last_movement_distance())
@@ -601,24 +540,16 @@ class env:
 
     def _check_done(self, kmh):
         inside_bounds = False
-        for point in self.stating_points:
-            distance = np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1]))
-            if distance < 1.75:
-                inside_bounds = True
-                break
+        # for point in self.stating_points:
+        #     distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) for point in self.stating_points]
+        #     if distance < 2.5:
+        #         inside_bounds = True
+        #         break
 
-        # distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) < 1. for point
+        # distance = [np.sqrt(np.square(self.gnssensor.x - point[0]) + np.square(self.gnssensor.y - point[1])) < 100 for point
         #             in self.stating_points]
-
+        distance = [True]
         epi_distance = np.sum(self.epi_distance)
-
-        if not inside_bounds:
-            # if self.dist_fuera_carril < 0 or np.abs(self.dist_fuera_carril - epi_distance) > 10.:
-            #     print('fuera carril, distancia', epi_distance)
-            #     self.dist_fuera_carril = epi_distance
-            if self.last_was_in:
-                print('fuera carril, distancia', epi_distance)
-        self.last_was_in = inside_bounds
 
         if epi_distance > 2.5 and kmh < 0.2:
             if self.time_stopped == 0:
@@ -627,7 +558,7 @@ class env:
                 self.time_stopped = int(0)
                 return True
 
-        distance = [True]
+
         return not True in distance or self.already_done
 
     def render(self, only_return=False):

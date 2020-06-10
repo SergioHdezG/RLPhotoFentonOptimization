@@ -78,7 +78,7 @@ class Problem:
                                 information will be displayed, if 2 fewer information will be displayed.
         :return:
         """
-        if True:
+        if False:
             for iter in range(iterations):
                     n_agent_iter = 10
                     self.agent_traj = self.agent_play(n_agent_iter, render=render)

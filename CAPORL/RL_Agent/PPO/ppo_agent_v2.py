@@ -202,7 +202,7 @@ class Agent(AgentInterfaz):
         rewards = Input(shape=(1,))
         values = Input(shape=(1,))
 
-        actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.0, 0.0, -0.1], stddev=1e-3, seed=None)))
+        actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.0, 0.0, -0.0], stddev=1e-3, seed=None)))
         # actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=0.0, stddev=1e-2, seed=None)))
         # actor_net.add(Dense(self.n_actions, name='output', activation='tanh'))
 

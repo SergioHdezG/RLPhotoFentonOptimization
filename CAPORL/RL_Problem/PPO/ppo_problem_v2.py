@@ -60,6 +60,8 @@ class PPOProblem(RLProblemSuper):
         self.masks_batch = []
 
         self.agent = self._build_agent(agent, model_params, net_architecture)
+        self.agent_traj = deque(maxlen=5000)
+        self.disc_loss = 100
 
     def _build_agent(self, agent, model_params, net_architecture):
         if self.img_input:
@@ -202,10 +204,15 @@ class PPOProblem(RLProblemSuper):
             self._feedback_print(self.episode, episodic_reward, epochs, verbose, self.rew_mean_list)
 
         if discriminator is not None and expert_traj is not None:
-            agent_traj = [[np.array(o), np.array(a)] for o, a in zip(self.obs_batch, self.actions_batch)]
-            discriminator.train(expert_traj, agent_traj)
+            if self.disc_loss > 0.01:
+                # agent_traj = [[np.array(o), np.array(a)] for o, a in zip(self.obs_batch, self.actions_batch)]
+                # discriminator.train(expert_traj, agent_traj)
+                [self.agent_traj.append([np.array(o), np.array(a)]) for o, a in zip(self.obs_batch, self.actions_batch)]
+                self.disc_loss = discriminator.train(expert_traj, self.agent_traj)
 
-            self.rewards_batch = [discriminator.get_reward(o, a)[0] for o, a in zip(self.obs_batch, self.actions_batch)]
+                self.rewards_batch = [discriminator.get_reward(o, a)[0] for o, a in zip(self.obs_batch, self.actions_batch)]
+            else:
+                self.disc_loss += 0.0025
 
         self.agent.remember(self.obs_batch, self.actions_batch, self.actions_probs_batch, self.rewards_batch,
                             self.values_batch, self.masks_batch)
