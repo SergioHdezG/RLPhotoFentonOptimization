@@ -250,12 +250,12 @@ def critic_model_drop(input_shape):
 def actor_model_lstm(input_shape):
     actor_model = Sequential()
     actor_model.add(LSTM(512, input_shape=input_shape, activation='tanh'))
-    # actor_model.add(Dense(1024, activation='tanh'))
+    actor_model.add(Dense(512, activation='tanh'))
     # actor_model.add(Dropout(0.4))
     # actor_model.add(Flatten(input_shape=input_shape))
-    actor_model.add(Dense(512, activation='relu', input_shape=input_shape))
+    # actor_model.add(Dense(1024, activation='tanh', input_shape=input_shape))
     # actor_model.add(Dropout(0.3))
-    actor_model.add(Dense(128, activation='relu'))
+    actor_model.add(Dense(128, activation='tanh'))
 
     return actor_model
 
@@ -263,12 +263,12 @@ def actor_model_lstm(input_shape):
 def critic_model_lstm(input_shape):
     critic_model = Sequential()
     critic_model.add(LSTM(512, input_shape=input_shape, activation='tanh'))
-    # critic_model.add(Dense(1024, activation='tanh'))
+    critic_model.add(Dense(512, activation='tanh'))
     # critic_model.add(Dropout(0.4))
-    critic_model.add(Flatten(input_shape=input_shape))
-    critic_model.add(Dense(512, activation='relu', input_shape=input_shape))
+    # critic_model.add(Flatten(input_shape=input_shape))
+    # critic_model.add(Dense(1024, activation='tanh', input_shape=input_shape))
     # critic_model.add(Dropout(0.3))
-    critic_model.add(Dense(128, activation='relu'))
+    critic_model.add(Dense(128, activation='tanh'))
 
     return critic_model
 

@@ -60,7 +60,7 @@ class PPOProblem(RLProblemSuper):
         self.masks_batch = []
 
         self.agent = self._build_agent(agent, model_params, net_architecture)
-        self.agent_traj = deque(maxlen=5000)
+        self.agent_traj = deque(maxlen=10000)
         self.disc_loss = 100
 
     def _build_agent(self, agent, model_params, net_architecture):
@@ -205,8 +205,8 @@ class PPOProblem(RLProblemSuper):
 
         if discriminator is not None and expert_traj is not None:
             if self.disc_loss > 0.01:
-                # agent_traj = [[np.array(o), np.array(a)] for o, a in zip(self.obs_batch, self.actions_batch)]
-                # discriminator.train(expert_traj, agent_traj)
+            # agent_traj = [[np.array(o), np.array(a)] for o, a in zip(self.obs_batch, self.actions_batch)]
+            # discriminator.train(expert_traj, agent_traj)
                 [self.agent_traj.append([np.array(o), np.array(a)]) for o, a in zip(self.obs_batch, self.actions_batch)]
                 self.disc_loss = discriminator.train(expert_traj, self.agent_traj)
 

@@ -1,3 +1,5 @@
+from collections import deque
+
 import numpy as np
 import datetime as dt
 # from pympler import muppy, summary
@@ -38,7 +40,8 @@ class Problem:
 
         # Reinforcement learning problem/agent
         self.rl_problem = rl_problem
-        self.agent_traj = None
+        # self.agent_traj = None
+        self.agent_traj = deque(maxlen=20000)
         self.expert_traj = expert_traj
 
         # If expert trajectories includes the action took for the expert: True, if only include the observations: False
@@ -59,7 +62,7 @@ class Problem:
 
         n_stack = self.n_stack if self.stack_disc else 1
         return vanilla_airl.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
-                                          img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-4,
+                                          img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-5,
                                           discrete=discrete_env)
 
     def solve(self, iterations, render=True, render_after=None, max_step_epi=None, skip_states=1,
@@ -78,14 +81,17 @@ class Problem:
                                 information will be displayed, if 2 fewer information will be displayed.
         :return:
         """
-        if False:
+        if True:
             for iter in range(iterations):
                     n_agent_iter = 10
-                    self.agent_traj = self.agent_play(n_agent_iter, render=render)
+                    # self.agent_traj = self.agent_play(n_agent_iter, render=render)
+
+                    for element in self.agent_play(n_agent_iter, render=render):
+                        self.agent_traj.append(element)
 
                     self.discriminator.train(self.expert_traj, self.agent_traj)
 
-                    self.rl_problem.solve(25, render=render, max_step_epi=None, render_after=100, skip_states=0, discriminator=self.discriminator)
+                    self.rl_problem.solve(100, render=render, max_step_epi=None, render_after=1000, skip_states=0, discriminator=self.discriminator)
         else:
             self.rl_problem.solve(iterations, render=render, max_step_epi=None, render_after=None, skip_states=0, discriminator=self.discriminator,
                                   expert_traj=self.expert_traj)

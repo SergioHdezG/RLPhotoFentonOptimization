@@ -132,8 +132,6 @@ class Agent(AgentInterfaz):
                                       verbose=False)
 
         self.epsilon *= self.epsilon_decay
-        if self.epsilon < 0.05:
-            self.epsilon = 1.0
         return actor_loss, critic_loss
 
     def load(self, dir, name):

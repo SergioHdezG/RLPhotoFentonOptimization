@@ -11,7 +11,7 @@ from CAPORL.RL_Problem import rl_problem as rl_p
 from CAPORL.utils.clipping_reward import *
 from CAPORL.utils.preprocess import *
 from CAPORL.utils import hyperparameters as params
-from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop
+from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop, carlaenv_stop_async
 from src.IRL.IRL_Problem import irl_problem_super as irl_p
 from src.IRL.utils.callbacks import load_expert_memories
 from CAPORL.RL_Agent.PPO import ppo_agent_async, ppo_agent_v2, ppo_agent_discrete
@@ -22,13 +22,13 @@ import subprocess
 
 # environment = "LunarLanderContinuous-v2"
 # environment = CarRacing.env
-environment = carlaenv_continuous_stop.env
-# environment = carlaenv_continuous.env
+# environment = carlaenv_continuous_stop.env
+environment = carlaenv_continuous.env
 
 agent = ppo_agent_v2.create_agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-4,
-                                            batch_size=128,
+                                            batch_size=64,
                                             epsilon=.5,
                                             epsilon_decay=0.99995,
                                             epsilon_min=0.15,
@@ -58,36 +58,38 @@ net_architecture = params.actor_critic_net_architecture(actor_conv_layers=2, act
                                                         critic_custom_network=custom_nets.critic_model_lstm
                                                         )
 
-saving_model_params = params.save_hyperparams(base_dir="saved_models/Carla/3/",
+saving_model_params = params.save_hyperparams(base_dir="saved_models/steer/2/",
                                               model_name="PPO_IRL_carla",
-                                              save_each=150,
+                                              save_each=100,
                                               save_if_better=False)
 
 # saving_model_params = None
 
 # Loading expert memories
-exp_dir = "expert_demonstrations/"
+exp_dir = "expert_demonstrations/ultimos/"
 # exp_name = 'human_expert_CarRacing_v2'
-exp_name = 'human_expert_carla_wheel_road_start'
-disc_stack = 10
+exp_name = 'human_expert_carla_road_stops'
+# exp_name = "human_expert_carla_road_steer"
+disc_stack = 4
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=disc_stack)
 
 state_size=None
-n_stack = 10
+n_stack = 4
 img_input = False
 
 rl_problem = rl_p.Problem(environment, agent, model_params, saving_model_params, net_architecture=net_architecture,
                              n_stack=n_stack, img_input=img_input, state_size=state_size)
 
 
-dir_load="/home/serch/TFM/IRL3/saved_models/Carla/behaivoral_cloning/"
-name_loaded="Carla_bc_1-1"
+dir_load="saved_models/"
+name_loaded="Carla_bc_-10"
+dir_load="/home/shernandez/PycharmProjects/IRL3/saved_models/pc/4/"
+name_loaded="PPO_IRL_carla146-149"
 rl_problem.load_model(dir_load=dir_load, name_loaded=name_loaded)
 
 print(datetime.datetime.now())
 irl_problem = irl_p.Problem(rl_problem, exp_memory, stack_disc=disc_stack > 1)
 
-
-# irl_problem.solve(150, render=True, max_step_epi=None, render_after=1500, skip_states=1)
+# irl_problem.solve(500, render=False, max_step_epi=None, render_after=1500, skip_states=1)
 rl_problem.test(10, True)
 
