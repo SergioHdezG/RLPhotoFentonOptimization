@@ -18,12 +18,12 @@ from tensorflow.keras import backend as K
 import numpy as np
 from CAPORL.environments import CarRacing
 from CAPORL.utils.custom_networks import custom_nets
-from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop, carla_behaivoral_cloning
+from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop
 
 # environment = "LunarLanderContinuous-v2"
 # environment = el_viajante
 # environment = CarRacing.env
-environment = carla_behaivoral_cloning.env
+environment = carlaenv_continuous.env
 agent = ppo_agent_v2.create_agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
@@ -76,9 +76,9 @@ problem = rl_problem.Problem(environment, agent, model_params, saving_model_para
 
 # Loading expert memories
 exp_dir = "expert_demonstrations/ultimos/"
-exp_dir = "/home/serch/TFM/IRL3/expert_demonstrations/ultimos/"
-# exp_name = 'human_expert_carla_full'
-exp_name = 'human_expert_carla_road_stops'
+# exp_dir = "/home/serch/TFM/IRL3/expert_demonstrations/ultimos/"
+exp_name = 'human_expert_carla_full'
+# exp_name = 'human_expert_carla_road_stops'
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=10)
 
 exp_memory_s = np.array([x[0] for x in exp_memory])
@@ -98,17 +98,17 @@ dummy_values = np.zeros((exp_memory_a.shape[0], 1))
 problem.agent.actor.compile(optimizer=Adam(lr=0.0001), loss='mse')
 
 problem.agent.actor.fit([exp_memory_s, dummy_advantage, dummy_old_prediction, dummy_rewards, dummy_values],
-                        [exp_memory_a], batch_size=128, shuffle=True, epochs=1, verbose=1,
+                        [exp_memory_a], batch_size=128, shuffle=True, epochs=10, verbose=1,
                         validation_split=0.2)
 
 
 # problem.preprocess = atari_assault_preprocess
 # problem.preprocess = preproces_car_racing
 # problem.clip_reward = clip_reward_atari
-dir_load="saved_models/Carla/behaivoral_cloning/"
-name_loaded="Carla_bc_1"
+dir_load="saved_models/"
+name_loaded="Carla_bc_"
 
-problem.agent.save(dir_load+name_loaded, 1)
+problem.agent.save(dir_load+name_loaded, 10)
 
 # callback = callbacks.Callbacks()
 # problem.load_model(dir_load=dir_load, name_loaded=name_loaded)

@@ -13,10 +13,10 @@ import subprocess
 import matplotlib.pyplot as plt
 from CAPORL.environments.carla.carla_vae_3_tf import vae_class
 
-carla_path = "/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
+carla_path = "/home/shernandez/CARLA_0.9.7/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
 # carla_path = "/DNN/Sergio/CARLA_0.9.7/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
 
-run_carla_path = '/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium'
+run_carla_path = '/home/shernandez/CARLA_0.9.7/CarlaUE4.sh'
 # run_carla_path = '/DNN/Sergio/CARLA_0.9.7/CarlaUE4.sh -quality-level=Medium'
 
 try:
@@ -36,14 +36,14 @@ class action_space:
         self.high = 1
         self.n = 3
 
-SECONDS_PER_EPISODE = 60
+SECONDS_PER_EPISODE = 25
 
 class env:
 
 
     def __init__(self):
         # subprocess.Popen(run_carla_path, shell=True)
-        time.sleep(3.)
+        time.sleep(1.)
         self.im_width = 1280  # 640
         self.im_height = 720  # 480
         self.steer_amt = 0.2
@@ -78,6 +78,7 @@ class env:
             self.client.load_world('Town04')
         except:
             print('Loading world exception')
+            time.sleep(20.)
 
         time.sleep(5.)
         self.world = self.client.get_world()
@@ -149,6 +150,7 @@ class env:
 
     def reset_conection(self):
         # self.client = carla.Client('10.100.18.126', 6000)
+        time.sleep(30.)
         self.client = carla.Client('localhost', 2000)
         self.client.set_timeout(5.0)
         time.sleep(30.)
@@ -158,6 +160,7 @@ class env:
             self.client.load_world('Town04')
         except:
             print('Loading exception')
+            time.sleep(30.)
 
         time.sleep(5.)
         self.world = self.client.get_world()
@@ -175,8 +178,8 @@ class env:
         # self.model_3 = random.choice(vehicle_list)
         self.model_3 = blueprint_library.filter('model3')[0]
         # self.model_3.set_attribute("sticky_control", "False")
-        path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
-        self.stating_points = np.loadtxt(path)
+        # path = os.path.abspath('CAPORL/environments/carla/start_point.txt')
+        # self.stating_points = np.loadtxt(path)
         self.img_counter = 0
         self.timer_for_recording = time.time()
 
@@ -346,9 +349,12 @@ class env:
             self.fps_list = [self.fps]
 
         except Exception:
-            subprocess.Popen(run_carla_path, shell=True)
-            time.sleep(5.)
-            self.reset_conection()
+            try:
+                self.reset_conection()
+            except Exception:
+                subprocess.Popen(run_carla_path, shell=True)
+                time.sleep(30.)
+                self.reset_conection()
             time.sleep(5.)
             obs = self.reset()
         return obs
@@ -461,9 +467,12 @@ class env:
             self.epi_distance.append(self.gnssensor.last_movement_distance())
 
         except Exception:
-            subprocess.Popen(run_carla_path, shell=True)
-            time.sleep(5.)
-            self.reset_conection()
+            try:
+                self.reset_conection()
+            except Exception:
+                subprocess.Popen(run_carla_path, shell=True)
+                time.sleep(5.)
+                self.reset_conection()
             time.sleep(5.)
             obs = self.reset()
             reward = -1
@@ -552,11 +561,11 @@ class env:
         epi_distance = np.sum(self.epi_distance)
 
         if epi_distance > 2.5 and kmh < 0.2:
-            if self.time_stopped == 0:
-                self.time_stopped = time.time()
-            elif time.time() - self.time_stopped > 3.:
-                self.time_stopped = int(0)
-                return True
+            # if self.time_stopped == 0:
+            #     self.time_stopped = time.time()
+            # elif time.time() - self.time_stopped > 1.:
+            #     self.time_stopped = int(0)
+            return True
 
 
         return not True in distance or self.already_done

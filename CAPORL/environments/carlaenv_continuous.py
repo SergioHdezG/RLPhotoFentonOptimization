@@ -13,10 +13,10 @@ import subprocess
 import matplotlib.pyplot as plt
 from CAPORL.environments.carla.carla_vae_3_tf import vae_class
 
-carla_path = "/home/serch/CARLA_0.9.7.4/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
+carla_path = "/home/shernandez/CARLA_0.9.7/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
 # carla_path = "/DNN/Sergio/CARLA_0.9.7/PythonAPI/carla/dist/carla-0.9.7-py3.5-linux-x86_64.egg"
 
-run_carla_path = '/home/serch/CARLA_0.9.7.4/CarlaUE4.sh -quality-level=Medium'
+run_carla_path = '/home/shernandez/CARLA_0.9.7/CarlaUE4.sh'
 # run_carla_path = '/DNN/Sergio/CARLA_0.9.7/CarlaUE4.sh -quality-level=Medium'
 
 try:

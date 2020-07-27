@@ -111,9 +111,9 @@ class Discriminator(object):
                 discriminator = Sequential()
                 # discriminator.add(Dense(2048, activation='tanh'))
                 # discriminator.add(Dropout(0.4))
-                discriminator.add(Dense(256, activation='tanh'))
+                # discriminator.add(Dense(256, activation='tanh'))
                 # discriminator.add(Dropout(0.4))
-                discriminator.add(Dense(256, activation='tanh'))
+                # discriminator.add(Dense(256, activation='tanh'))
                 # discriminator.add(Dropout(0.3))
                 discriminator.add(Dense(128, activation='tanh'))
                 discriminator.add(Dense(1, activation='linear'))
@@ -217,7 +217,7 @@ class Discriminator(object):
             expert_traj_a = np.array(one_hot_expert_a)
 
         loss = self.fit(expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=2,
-                 validation_split=0.1)  # batch_size=expert_traj_a.shape[0]
+                 validation_split=0.15)  # batch_size=expert_traj_a.shape[0]
         return loss
 
     def fit(self, expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=10, validation_split=0.2):
@@ -234,6 +234,7 @@ class Discriminator(object):
         agent_traj_s = agent_traj_s[test_samples:]
         agent_traj_a = agent_traj_a[test_samples:]
 
+        val_loss = 100
         print("train samples: ", train_samples*2, " val_samples: ", test_samples*2)
         for epoch in range(epochs):
             mean_loss = []
