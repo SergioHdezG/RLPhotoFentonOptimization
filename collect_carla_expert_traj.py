@@ -129,7 +129,7 @@ class game_loop():
         #     cv2.imshow('rgb', cv2.cvtColor(img[0], cv2.COLOR_RGB2BGR) )
         #     cv2.imshow('segmentation', cv2.cvtColor(img[1], cv2.COLOR_RGB2BGR))
         #     cv2.waitKey(1)
-        cb.memory_to_csv('expert_demonstrations/ultimos/', 'human_expert_carla_road_stops')
+        # cb.memory_to_csv('expert_demonstrations/ultimos/', 'human_expert_carla_road_steer')
         print('fin')
     # save('rgb_seg.npy', list)
 

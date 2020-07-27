@@ -8,14 +8,14 @@ class AgentInterfaz:
     def act(self, obs):
         """​
         Select an action given an observation​
-        :return: observation as numpy array of state shape​
+        :return: action as numpy array of state shape​
         """
         pass
 
     def act_test(self, obs):
         """​
         Select an action given an observation​ in exploitation mode
-        :return: observation as numpy array of state shape​
+        :return: action as numpy array of state shape​
         """
         pass
 
