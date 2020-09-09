@@ -50,7 +50,7 @@ class DQNAgentSuper:
         self.model = self._build_model(net_architecture)
         self.target_model = self._build_model(net_architecture)
         self.model.summary()
-        self.memory = Memory(maxlen=50000)
+        self.memory = Memory(maxlen=10000)
 
         self.gamma = gamma  # discount rate
 
@@ -84,8 +84,36 @@ class DQNAgentSuper:
             return random.randrange(self.action_size)
 
         # Exploitation
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            # obs = obs.reshape(-1, *self.state_size)
+
+            # TODO: chaquear como gacer Temporal channel first y multiple color channel last
+
+            obs = np.squeeze(obs, axis=3)
+
+            # TODO: Descomentar para depurar visualmente
+            # import matplotlib.pylab as plt
+            # plt.figure(1)
+            # plt.subplot(221)
+            # plt.imshow(obs[0])
+            # plt.subplot(222)
+            # plt.imshow(obs[1])
+            # plt.subplot(223)
+            # plt.imshow(obs[2])
+            # plt.subplot(224)
+            # plt.imshow(obs[3])
+
+            obs = obs.transpose(1, 2, 0)
+
+            # TODO: Descomentar para depurar visualmente
+            # plt.figure(2)
+            # plt.imshow(np.mean(obs, axis=2))
+            # plt.show()
+
+            obs = np.array([obs])
+        elif self.stack:
+            # obs = obs.reshape(-1, *self.state_size)
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
 
@@ -97,8 +125,13 @@ class DQNAgentSuper:
         Selecting the action for test mode.
         :param obs: Observation (State)
         """
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            obs = np.squeeze(obs, axis=3)
+            obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
 

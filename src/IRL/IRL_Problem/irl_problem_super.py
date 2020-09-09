@@ -110,6 +110,6 @@ class Problem:
     def _preprocess(self, obs):
         return obs
 
-    def _clip_reward(self, rew):
+    def _clip_norm_reward(self, rew):
         return rew
 

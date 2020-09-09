@@ -60,6 +60,7 @@ class PPOProblem(RLProblemSuper):
     def _build_agent(self, agent, model_params, net_architecture):
         if self.img_input:
             stack = self.n_stack is not None and self.n_stack > 1
+            # TODO: Tratar n_stack como ambos channel last and channel first
             state_size = (*self.state_size[:2], self.state_size[-1] * self.n_stack)
 
         elif self.n_stack is not None and self.n_stack > 1:
@@ -92,7 +93,7 @@ class PPOProblem(RLProblemSuper):
         self.global_steps = 0
         self.episode = 0
         # List of 100 last rewards
-        self.rew_mean_list = deque(maxlen=100)
+        self.rew_mean_list = deque(maxlen=10)
 
         while self.episode < episodes:
             self.collect_batch(render, render_after, max_step_epi, skip_states, verbose, discriminator, expert_traj)

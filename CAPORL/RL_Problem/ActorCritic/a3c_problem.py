@@ -89,7 +89,7 @@ class A3CProblem:
         self.sess.run(tf.global_variables_initializer())
 
         self.preprocess = self._preprocess
-        self.clip_reward = self._clip_reward
+        self.clip_norm_reward = self._clip_norm_reward
 
     def solve(self, episodes, verbose=1, render=False, render_after=None, max_step_epi=None, skip_states=1):
 
@@ -100,7 +100,7 @@ class A3CProblem:
 
         worker_threads = []
         for worker in self.workers:  # start workers
-            job = lambda: worker.work(episodes, render, render_after, max_step_epi, self.preprocess, self.clip_reward,
+            job = lambda: worker.work(episodes, render, render_after, max_step_epi, self.preprocess, self.clip_norm_reward,
                                       skip_states=skip_states)
             t = threading.Thread(target=job)
             t.start()
@@ -118,7 +118,7 @@ class A3CProblem:
         glob.global_raw_rewards = deque(maxlen=100)
         glob.global_episodes = 0
 
-        self.workers[-1].test(n_iter, render, self.preprocess, self.clip_reward)
+        self.workers[-1].test(n_iter, render, self.preprocess, self.clip_norm_reward)
 
 
     def _build_agent(self, saving_model_params, net_architecture):
@@ -172,7 +172,7 @@ class A3CProblem:
     def _preprocess(self, obs):
         return obs
 
-    def _clip_reward(self, obs):
+    def _clip_norm_reward(self, obs):
         return obs
 
     def load_model(self, dir_load="", name_loaded=""):

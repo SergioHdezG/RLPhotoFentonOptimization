@@ -76,7 +76,7 @@ problem = rl_problem.Problem(environment, agent, model_params, saving_model_para
 
 # problem.preprocess = atari_assault_preprocess
 # problem.preprocess = preproces_car_racing
-# problem.clip_reward = clip_reward_atari
+# problem.clip_norm_reward = clip_reward_atari
 dir_load="/home/serch/TFM/IRL3/saved_models/Carla/RL_1/1/"
 name_loaded="PPO_IRL_carla174-69"
 

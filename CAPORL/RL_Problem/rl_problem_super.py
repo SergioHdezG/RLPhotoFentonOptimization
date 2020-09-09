@@ -55,9 +55,9 @@ class RLProblemSuper:
         except AttributeError:
             self.n_actions = self.env.action_space.shape[0]
 
-        # Setting default preprocess and clip_reward functions
+        # Setting default preprocess and clip_norm_reward functions
         self.preprocess = self._preprocess  # Preprocessing function for observations
-        self.clip_reward = self._clip_reward  # Clipping reward
+        self.clip_norm_reward = self._clip_norm_reward  # Clipping reward
 
         # The agent will be initialized in agent subclass
         self.agent = None
@@ -68,10 +68,7 @@ class RLProblemSuper:
         if saving_model_params is not None:
             self.save_base, self.save_name, self.save_each, self.save_if_better = parse_saving_model_params(saving_model_params)
         else:
-            self.save_base = "/home/shernandez/PycharmProjects/CAPORL_full_project/saved_models/"
-            self.save_name = agent.create_agent()
-            self.save_each = None
-            self.save_if_better = False
+            self.save_base = self.save_name = self.save_each = self.save_if_better = None
 
         self.max_rew_mean = -2**1000  # Store the maximum value for reward mean
 
@@ -98,7 +95,7 @@ class RLProblemSuper:
         self.global_steps = 0
 
         # List of 100 last rewards
-        rew_mean_list = deque(maxlen=100)
+        rew_mean_list = deque(maxlen=10)
 
         # Stacking inputs
         if self.n_stack is not None and self.n_stack > 1:
@@ -208,9 +205,9 @@ class RLProblemSuper:
             else:
                 obs_satck = np.array(obs_queue).reshape(self.state_size, self.n_stack)
                 obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
-            self.agent.remember(obs_satck, action, self.clip_reward(reward), obs_next_stack, done)
+            self.agent.remember(obs_satck, action, self.clip_norm_reward(reward), obs_next_stack, done)
         else:
-            self.agent.remember(obs, action, self.clip_reward(reward), next_obs, done)
+            self.agent.remember(obs, action, self.clip_norm_reward(reward), next_obs, done)
         return next_obs, obs_next_queue, reward, done, epochs
 
     def frame_skipping(self, action, done, next_obs, reward, skip_states, epochs):
@@ -253,7 +250,7 @@ class RLProblemSuper:
         :return:
         """
         epi_rew_mean = 0
-        rew_mean_list = deque(maxlen=100)
+        rew_mean_list = deque(maxlen=10)
 
         # Stacking inputs
         if self.n_stack is not None and self.n_stack > 1:
@@ -306,7 +303,7 @@ class RLProblemSuper:
     def _preprocess(self, obs):
         return obs
 
-    def _clip_reward(self, rew):
+    def _clip_norm_reward(self, rew):
         return rew
 
     def _max_steps(self, done, epochs, max_steps):

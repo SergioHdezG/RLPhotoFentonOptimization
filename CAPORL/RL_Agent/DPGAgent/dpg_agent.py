@@ -47,7 +47,7 @@ class Agent:
 
         self._build_graph(net_architecture)
 
-        self.epsilon = 1.  # Is not used here
+        self.epsilon = 0.  # Is not used here
 
         self.sess = tf.Session()
         self.saver = tf.train.Saver()
@@ -73,8 +73,13 @@ class Agent:
         """
         Select an action depending on the input type
         """
-        if self.img_input or self.stack:
-            observation = observation.reshape(-1, *self.state_size)
+        if self.img_input:
+            observation = np.squeeze(observation, axis=3)
+            observation = observation.transpose(1, 2, 0)
+            observation = np.array([observation])
+
+        elif self.stack:
+            observation = np.array([observation])
         else:
             observation = observation.reshape(-1, self.state_size)
 

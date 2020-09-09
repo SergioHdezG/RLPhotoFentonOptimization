@@ -19,7 +19,7 @@ class RLExpert():
                                           state_size=state_size)
 
         # problem.preprocess = atari_assault_preprocess
-        # problem.clip_reward = clip_reward_atari_v2""
+        # problem.clip_norm_reward = clip_reward_atari_v2""
         self.memory = []
 
     def play(self, n_iter=100, render=False):

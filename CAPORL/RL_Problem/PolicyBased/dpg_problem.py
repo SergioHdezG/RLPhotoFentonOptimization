@@ -28,17 +28,26 @@ class DPGProblem(RLProblemSuper):
     def _build_agent(self, agent, model_params, net_architecture):
         # Building the agent depending of the input type
         if self.img_input:
-            if self.n_stack is not None and self.n_stack > 1:
-                return agent.Agent(self.n_actions, (*self.state_size[:2], self.state_size[-1] * self.n_stack),
-                                   stack=True, img_input=True, model_params=model_params,
-                                   net_architecture=net_architecture)
-            else:
-                return agent.Agent(self.n_actions, (*self.state_size[:2], self.state_size[-1]), stack=False,
-                                   img_input=True, model_params=model_params,
-                                   net_architecture=net_architecture)
+            stack = self.n_stack is not None and self.n_stack > 1
+            # TODO: Tratar n_stack como ambos channel last and channel first
+            state_size = (*self.state_size[:2], self.state_size[-1] * self.n_stack)
+            # if self.n_stack is not None and self.n_stack > 1:
+            #     return agent.Agent(self.n_actions, (*self.state_size[:2], self.state_size[-1] * self.n_stack),
+            #                        stack=True, img_input=True, model_params=model_params,
+            #                        net_architecture=net_architecture)
+            # else:
+            #     return agent.Agent(self.n_actions, (*self.state_size[:2], self.state_size[-1]), stack=False,
+            #                        img_input=True, model_params=model_params,
+            #                        net_architecture=net_architecture)
         elif self.n_stack is not None and self.n_stack > 1:
-            return agent.Agent(self.n_actions, (self.state_size, self.n_stack), stack=True, model_params=model_params,
-                               net_architecture=net_architecture)
+            stack = True
+            state_size = (self.n_stack, self.state_size)
+            # return agent.Agent(self.n_actions, (self.state_size, self.n_stack), stack=True, model_params=model_params,
+            #                    net_architecture=net_architecture)
         else:
-            return agent.Agent(self.n_actions, self.state_size, model_params=model_params,
-                               net_architecture=net_architecture)
+            stack = False
+            state_size = self.state_size
+            # return agent.Agent(self.n_actions, self.state_size, model_params=model_params,
+            #                    net_architecture=net_architecture)
+        return agent.Agent(self.n_actions, state_size, stack=stack, img_input=self.img_input, model_params=model_params,
+                            net_architecture=net_architecture)

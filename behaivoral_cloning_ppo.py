@@ -104,7 +104,7 @@ problem.agent.actor.fit([exp_memory_s, dummy_advantage, dummy_old_prediction, du
 
 # problem.preprocess = atari_assault_preprocess
 # problem.preprocess = preproces_car_racing
-# problem.clip_reward = clip_reward_atari
+# problem.clip_norm_reward = clip_reward_atari
 dir_load="saved_models/"
 name_loaded="Carla_bc_"
 

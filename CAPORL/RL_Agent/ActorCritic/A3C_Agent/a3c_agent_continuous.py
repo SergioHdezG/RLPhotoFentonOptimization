@@ -57,7 +57,7 @@ class Worker(object):
         self.gamma = 0.90
 
         self.preprocess = None
-        self.clip_reward = None
+        self.clip_norm_reward = None
 
         if saving_model_params is not None:
             self.save_base, self.save_name, self.save_each, self.save_if_better = parse_saving_model_params(saving_model_params)
@@ -69,10 +69,10 @@ class Worker(object):
 
         self.max_rew_mean = -2**1000  # Store the maximum value for reward mean
 
-    def work(self, episodes, render=False, render_after=None, max_steps_epi=None, preprocess=None, clip_reward=None,
+    def work(self, episodes, render=False, render_after=None, max_steps_epi=None, preprocess=None, clip_norm_reward=None,
              skip_states=1):
         self.preprocess = preprocess
-        self.clip_reward = clip_reward
+        self.clip_norm_reward = clip_norm_reward
 
         # global global_rewards, global_episodes
         total_step = 1
@@ -129,7 +129,7 @@ class Worker(object):
                 # save actions, states and rewards in buffer
                 buffer_s.append(obs)
                 buffer_a.append(action)
-                buffer_r.append(self.clip_reward(reward)) # normalize reward
+                buffer_r.append(self.clip_norm_reward(reward)) # normalize reward
 
                 if total_step % self.n_steps_update == 0 or done:  # update global and assign to local net
                     if done:
@@ -170,9 +170,9 @@ class Worker(object):
 
                 epochs += 1
 
-    def test(self, n_iter, render=True, max_steps_epi=None, preprocess=None, clip_reward=None, callback=None):
+    def test(self, n_iter, render=True, max_steps_epi=None, preprocess=None, clip_norm_reward=None, callback=None):
         self.preprocess = preprocess
-        self.clip_reward = clip_reward
+        self.clip_norm_reward = clip_norm_reward
 
         # global global_rewards, global_episodes
         total_step = 1

@@ -63,7 +63,7 @@ class Worker(object):
         self.epsilon_min = epsilon_min
 
         self.preprocess = None
-        self.clip_reward = None
+        self.clip_norm_reward = None
 
         if saving_model_params is not None:
             self.save_base, self.save_name, self.save_each, self.save_if_better = parse_saving_model_params(saving_model_params)
@@ -75,10 +75,10 @@ class Worker(object):
 
         self.max_rew_mean = -2**1000  # Store the maximum value for reward mean
 
-    def work(self, episodes, render=False, render_after=None, max_steps_epi=None, preprocess=None, clip_reward=None,
+    def work(self, episodes, render=False, render_after=None, max_steps_epi=None, preprocess=None, clip_norm_reward=None,
              skip_states=1):
         self.preprocess = preprocess
-        self.clip_reward = clip_reward
+        self.clip_norm_reward = clip_norm_reward
 
         # global global_rewards, global_episodes
         total_step = 1
@@ -138,7 +138,7 @@ class Worker(object):
                 act_one_hot = np.zeros(self.n_actions)  # turn action into one-hot representation
                 act_one_hot[action] = 1
                 buffer_a.append(act_one_hot)
-                buffer_r.append(self.clip_reward(reward))  # normalize reward
+                buffer_r.append(self.clip_norm_reward(reward))  # normalize reward
 
                 if total_step % self.n_steps_update == 0 or done:  # update global and assign to local net
                     if done:
@@ -184,9 +184,9 @@ class Worker(object):
         self.AC.update_global(feed_dict)  # actual training step, update global ACNet
         self.AC.pull_global()  # get global parameters to local ACNet
 
-    def test(self, n_iter, render=True, max_steps_epi=None, preprocess=None, clip_reward=None, callback=None):
+    def test(self, n_iter, render=True, max_steps_epi=None, preprocess=None, clip_norm_reward=None, callback=None):
         self.preprocess = preprocess
-        self.clip_reward = clip_reward
+        self.clip_norm_reward = clip_norm_reward
 
         # global global_rewards, global_episodes
         total_step = 1
@@ -303,7 +303,7 @@ class Worker(object):
     def preprocess(self, obs):
         return obs
 
-    def clip_reward(self, obs):
+    def clip_norm_reward(self, obs):
         return obs
 
     def copy_next_obs(self, next_obs, obs, obs_next_queue, obs_queue):

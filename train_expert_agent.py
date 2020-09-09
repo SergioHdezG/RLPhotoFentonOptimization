@@ -65,7 +65,7 @@ memory_max_len = 50000  # Indicamos la capacidad máxima de la memoria
 
 # problem.preprocess = atari_assault_preprocess
 # problem.preprocess = preproces_car_racing
-# problem.clip_reward = clip_reward_atari
+# problem.clip_norm_reward = clip_reward_atari
 dir_load="saved_experts/LunarLander/1/"
 name_loaded="LunarLander_ddqn-214"
 

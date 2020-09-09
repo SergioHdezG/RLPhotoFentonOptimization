@@ -1,7 +1,7 @@
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Flatten
 import tensorflow as tf
-
+from termcolor import colored
 
 def read_net_params(net_architecture, actor=False, critic=False):
     id_1 = 'conv_layers'
@@ -32,18 +32,55 @@ def read_net_params(net_architecture, actor=False, critic=False):
         # id_9 is unique
         id_10 = prefix + id_10
 
-    n_conv_layers = net_architecture[id_1]
-    kernel_num = net_architecture[id_2]
-    kernel_size = net_architecture[id_3]
-    strides = net_architecture[id_4]
-    conv_activation = net_architecture[id_5]
+    if (id_1 and id_2 and id_3 and id_4 and id_5 in net_architecture)\
+        and (net_architecture[id_1] and net_architecture[id_2] and net_architecture[id_3] and net_architecture[id_4]
+        and net_architecture[id_5] is not None):
 
-    n_dense_layers = net_architecture[id_6]
-    n_neurons = net_architecture[id_7]
-    dense_activation = net_architecture[id_8]
+        n_conv_layers = net_architecture[id_1]
+        kernel_num = net_architecture[id_2]
+        kernel_size = net_architecture[id_3]
+        strides = net_architecture[id_4]
+        conv_activation = net_architecture[id_5]
+        print('Convolutional layers selected: {conv_layers:\t\t', n_conv_layers,
+              '\n\t\t\t\t\t\t\t    kernel_num:\t\t\t', kernel_num, '\n\t\t\t\t\t\t\t    kernel_size:\t\t', kernel_size,
+              '\n\t\t\t\t\t\t\t    kernel_strides:\t\t', strides, '\n\t\t\t\t\t\t\t    conv_activation:\t',
+              conv_activation, '}')
+    else:
+        n_conv_layers = None
+        kernel_num = None
+        kernel_size = None
+        strides = None
+        conv_activation = None
+        print(colored('WARNING: If you want to specify convolutional layers you must set all the values for the '
+                      'following keys: conv_layers, kernel_num, kernel_size, kernel_strides and conv_activation',
+                      'yellow'))
 
-    use_custom_net = net_architecture[id_9]
-    custom_net = net_architecture[id_10]
+    if (id_6 and id_7 and id_8 in net_architecture) and (net_architecture[id_6] and net_architecture[id_7]
+                                                         and net_architecture[id_8]  is not None):
+        n_dense_layers = net_architecture[id_6]
+        n_neurons = net_architecture[id_7]
+        dense_activation = net_architecture[id_8]
+        print('Dense layers selected: {dense_lay:\t\t\t', n_dense_layers, '\n\t\t\t\t\t    n_neurons:\t\t\t', n_neurons,
+              '\n\t\t\t\t\t    dense_activation:\t', dense_activation, '}')
+    else:
+        n_dense_layers = None
+        n_neurons = None
+        dense_activation = None
+        print(colored('WARNING: If you want to specify dense layers you must set all the values for the following keys:'
+                      ' dense_lay, n_neurons and dense_activation', 'yellow'))
+
+
+    if (id_9 and id_10 in net_architecture) and (net_architecture[id_9] and net_architecture[id_10] is not None):
+        use_custom_net = net_architecture[id_9]
+        custom_net = net_architecture[id_10]
+        print('Custom network option selected: {use_custom_network: ', use_custom_net, ', custom_network: ',
+              custom_net, '}')
+    else:
+        use_custom_net = False
+        custom_net = None
+        print(colored('WARNING: If you want to use a custom neural net you must set the values for all the following '
+                      'keys: '
+                      'use_custom_network, custom_network', 'yellow'))
 
     return n_conv_layers, kernel_num, kernel_size, strides, conv_activation, n_dense_layers, n_neurons, \
            dense_activation, use_custom_net, custom_net
