@@ -7,6 +7,7 @@ import numpy as np
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
 from CAPORL.Memory.deque_memory import Memory
 
+# TODO: Heredar de a2c_agent_discrete.py
 def create_agent():
     return "A2C_discrete_queue"
 
@@ -87,16 +88,26 @@ class Agent(object):
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.n_actions)
 
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            obs = np.squeeze(obs, axis=3)
+            obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
 
         return self.worker.choose_action(obs)
 
     def act_test(self, obs):
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            obs = np.squeeze(obs, axis=3)
+            obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
 

@@ -51,27 +51,25 @@ class A2CProblem(RLProblemSuper):
 
     def _build_agent(self, agent, model_params, net_architecture):
         if self.img_input:
-            img_input = True
             stack = self.n_stack is not None and self.n_stack > 1
+            # TODO: Tratar n_stack como ambos channel last and channel first
             state_size = (*self.state_size[:2], self.state_size[-1] * self.n_stack)
 
         elif self.n_stack is not None and self.n_stack > 1:
-            img_input = False
             stack = True
-            state_size = (self.state_size, self.n_stack)
+            state_size = (self.n_stack, self.state_size)
         else:
-            img_input = False
             stack = False
             state_size = self.state_size
 
         if "A2C_continuous" in agent.create_agent():
             return agent.Agent(self.sess, state_size=state_size, n_actions=self.n_actions, stack=stack,
-                               img_input=img_input, lr_actor=self.lr_actor, lr_critic=self.lr_critic,
+                               img_input=self.img_input, lr_actor=self.lr_actor, lr_critic=self.lr_critic,
                                n_steps_update=self.n_steps_update, action_bound=self.action_bound,
                                batch_size=self.batch_size, net_architecture=net_architecture)
         else:
             return agent.Agent(self.sess, state_size=state_size, n_actions=self.n_actions, stack=stack,
-                               img_input=img_input, epsilon=self.epsilon, epsilon_decay=self.epsilon_decay,
+                               img_input=self.img_input, epsilon=self.epsilon, epsilon_decay=self.epsilon_decay,
                                epsilon_min=self.epsilon_min, lr_actor=self.lr_actor, lr_critic=self.lr_critic,
                                n_steps_update=self.n_steps_update, batch_size=self.batch_size,
                                net_architecture=net_architecture)

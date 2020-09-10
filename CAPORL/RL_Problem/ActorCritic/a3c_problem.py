@@ -123,28 +123,25 @@ class A3CProblem:
 
     def _build_agent(self, saving_model_params, net_architecture):
         if self.img_input:
-            img_input = True
             stack = self.n_stack is not None and self.n_stack > 1
             state_size = (*self.state_size[:2], self.state_size[-1] * self.n_stack)
 
         elif self.n_stack is not None and self.n_stack > 1:
-            img_input = False
             stack = True
-            state_size = (self.state_size, self.n_stack)
+            state_size = (self.n_stack, self.state_size)
         else:
-            img_input = False
             stack = False
             state_size = self.state_size
 
         with tf.device("/cpu:0"):
             if self.discrete:
                 self.global_ac = self.ACNet(self.global_net_scope, self.sess, state_size, self.n_actions,
-                                            stack=stack, img_input=img_input, lr_actor=self.lr_actor,
+                                            stack=stack, img_input=self.img_input, lr_actor=self.lr_actor,
                                             lr_critic=self.lr_critic, net_architecture=net_architecture)  # we only need its params
             else:
                 self.global_ac = self.ACNet(self.global_net_scope, self.sess, state_size, self.n_actions,
                                             lr_actor=self.lr_actor, lr_critic=self.lr_critic, stack=stack,
-                                            img_input=img_input, action_bound=self.action_bound,
+                                            img_input=self.img_input, action_bound=self.action_bound,
                                             net_architecture=net_architecture)  # we only need its params
             self.saver = tf.train.Saver()
             self.workers = []
@@ -157,13 +154,15 @@ class A3CProblem:
                                     n_stack=self.n_stack, img_input=self.img_input, epsilon=self.epsilon,
                                     epsilon_min=self.epsilon_min, epsilon_decay=self.epsilon_decay,
                                     lr_actor=self.lr_actor, lr_critic=self.lr_critic,
-                                    n_steps_update=self.n_steps_update, saving_model_params=saving_model_params))
+                                    n_steps_update=self.n_steps_update, saving_model_params=saving_model_params,
+                                    net_architecture=net_architecture))
                 else:
                     self.workers.append(
                         self.Worker(i_name, self.global_ac, self.sess, self.state_size, self.n_actions, self.environment,
                                     n_stack=self.n_stack, img_input=self.img_input, lr_actor=self.lr_actor,
                                     lr_critic=self.lr_critic, n_steps_update=self.n_steps_update,
-                                    action_bound=self.action_bound, saving_model_params=saving_model_params))
+                                    action_bound=self.action_bound, saving_model_params=saving_model_params,
+                                    net_architecture=net_architecture))
 
 
         for w in self.workers:

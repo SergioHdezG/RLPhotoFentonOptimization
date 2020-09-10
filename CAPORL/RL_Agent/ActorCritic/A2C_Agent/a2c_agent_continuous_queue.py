@@ -6,6 +6,7 @@ import tensorflow as tf
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous
 from CAPORL.Memory.deque_memory import Memory
 
+# TODO: Heredar de a2c_agent_continuous.py
 def create_agent():
     return "A2C_continuous_queue"
 
@@ -86,8 +87,13 @@ class Agent(object):
         Selecting the action using epsilon greedy policy
         :param obs: Observation (State)
         """
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            obs = np.squeeze(obs, axis=3)
+            obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
 

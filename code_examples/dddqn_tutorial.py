@@ -14,7 +14,7 @@ agent = dddqn_agent.create_agent()
 model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
                                             batch_size=64,
                                             epsilon=0.9,
-                                            epsilon_decay=0.99995,
+                                            epsilon_decay=0.99999,
                                             epsilon_min=0.15)
 
 net_architecture = params.net_architecture(conv_layers=2,
@@ -69,10 +69,10 @@ problem.preprocess = atari_preprocess
 problem.clip_norm_reward = clip_norm_atari_reward
 
 # Seleccionamos el tamaño de la memoria
-memory_max_len = 2000  # Indicamos la capacidad máxima de la memoria
+memory_max_len = 10000  # Indicamos la capacidad máxima de la memoria
 problem.agent.set_memory(deq_m, memory_max_len)
 
 
 # Se selecciona no renderizar hasta el peisodio 8 para accelerar la simulación
-problem.solve(render=False, episodes=100, skip_states=5, render_after=90)
+problem.solve(render=False, episodes=500, skip_states=5, render_after=490)
 problem.test(n_iter=10, render=True)

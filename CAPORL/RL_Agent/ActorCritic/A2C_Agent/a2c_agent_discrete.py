@@ -1,3 +1,4 @@
+import random
 import tensorflow as tf
 import numpy as np
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
@@ -68,8 +69,16 @@ class Agent(object):
         Selecting the action using epsilon greedy policy
         :param obs: Observation (State)
         """
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if np.random.rand() <= self.epsilon:
+            return random.randrange(self.n_actions)
+
+        if self.img_input:
+            obs = np.squeeze(obs, axis=3)
+            obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
 

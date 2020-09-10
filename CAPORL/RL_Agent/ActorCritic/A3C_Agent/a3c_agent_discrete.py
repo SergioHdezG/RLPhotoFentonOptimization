@@ -38,22 +38,19 @@ class Worker(object):
         self.state_size = state_size
 
         if self.img_input:
-            img_input = True
             stack = self.n_stack is not None and self.n_stack > 1
             state_size = (*self.state_size[:2], self.state_size[-1] * self.n_stack)
 
         elif self.n_stack is not None and self.n_stack > 1:
-            img_input = False
             stack = True
-            state_size = (self.state_size, self.n_stack)
+            state_size = (self.n_stack, self.state_size)
         else:
-            img_input = False
             stack = False
             state_size = self.state_size
         self.sess = sess
         self.saver = None  # Needs to be initialized outside this class
 
-        self.AC = ACNet(name, self.sess, state_size, self.n_actions, stack=stack, img_input=img_input, lr_actor=lr_actor,
+        self.AC = ACNet(name, self.sess, state_size, self.n_actions, stack=stack, img_input=self.img_input, lr_actor=lr_actor,
                         lr_critic=lr_critic, globalAC=globalAC, net_architecture=net_architecture)  # create ACNet for each worker
 
         self.epsilon = epsilon
@@ -68,10 +65,7 @@ class Worker(object):
         if saving_model_params is not None:
             self.save_base, self.save_name, self.save_each, self.save_if_better = parse_saving_model_params(saving_model_params)
         else:
-            self.save_base = "/home/shernandez/PycharmProjects/CAPORL_full_project/saved_models/"
-            self.save_name = create_agent()
-            self.save_each = None
-            self.save_if_better = False
+            self.save_base = self.save_name = self.save_each = self.save_if_better = None
 
         self.max_rew_mean = -2**1000  # Store the maximum value for reward mean
 
@@ -127,8 +121,10 @@ class Worker(object):
                         obs_satck = np.dstack(obs_queue)
                         obs_next_stack = np.dstack(obs_next_queue)
                     else:
-                        obs_satck = np.array(obs_queue).reshape(self.state_size, self.n_stack)
-                        obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
+                        # obs_satck = np.array(obs_queue).reshape(self.state_size, self.n_stack)
+                        # obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
+                        obs_satck = np.array(obs_queue)
+                        obs_next_stack = np.array(obs_next_queue)
 
                     obs = obs_satck
                     next_obs = obs_next_stack
@@ -152,14 +148,11 @@ class Worker(object):
                     buffer_v_target.reverse()
 
                     if self.img_input:
-                        if self.n_stack is not None and self.n_stack > 1:
-                            buffer_s = np.reshape(buffer_s, (-1, *self.state_size[:2], self.state_size[-1]*self.n_stack))
-                        else:
-                            buffer_s = np.reshape(buffer_s, (-1, *self.state_size[:2], self.state_size[-1]))
+                        buffer_s = np.dstack(buffer_s)
                     elif self.n_stack is not None and self.n_stack > 1:
-                        buffer_s = np.array(buffer_s).reshape((-1, self.state_size, self.n_stack))
+                        buffer_s = np.array([np.reshape(x, (self.n_stack, self.state_size)) for x in buffer_s])
                     else:
-                        buffer_s = np.vstack(buffer_s)
+                        buffer_s = np.array(buffer_s)
 
                     buffer_a, buffer_v_target = np.vstack(buffer_a), np.vstack(
                         buffer_v_target)
@@ -237,8 +230,23 @@ class Worker(object):
                 self._feedback_print(glob.global_episodes, ep_r, epochs, verbose=1)
         self.env.close()
 
-
     def act(self, obs, obs_queue):
+        # Select an action depending on stacked input or not
+        if self.n_stack is not None and self.n_stack > 1:
+            action = self._act(np.array(obs_queue))
+        else:
+            action = self._act(obs)
+        return action
+
+    def act_test(self, obs, obs_queue):
+        # Select an action in testing mode
+        if self.n_stack is not None and self.n_stack > 1:
+            action = self._act_test(np.array(obs_queue))
+        else:
+            action = self._act_test(obs)
+        return action
+
+    def _act(self, obs):
         """
         Selecting the action using epsilon greedy policy
         :param obs: Observation (State)
@@ -248,30 +256,40 @@ class Worker(object):
             return random.randrange(self.n_actions)  # '''<-- Exploration'''
 
         if self.img_input:
-            if self.n_stack is not None and self.n_stack > 1:
-                return self.AC.choose_action(np.array(obs_queue).reshape(-1, *self.state_size[:2], self.state_size[-1] * self.n_stack))
-            else:
-                return self.AC.choose_action(np.array(obs).reshape(-1, *self.state_size[:2], self.state_size[-1]))
-        if self.n_stack is not None and self.n_stack > 1:
-            return self.AC.choose_action(np.array(obs_queue).reshape(-1, self.state_size, self.n_stack))
-        else:
-            return self.AC.choose_action(np.array(obs).reshape(-1,self.state_size))  # '''<-- Exploitation'''
+            obs = np.squeeze(obs, axis=3)
+            obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
 
-    def act_test(self, obs, obs_queue):
+        if self.n_stack is not None and self.n_stack > 1:
+            obs = np.array([obs])
+            # if self.n_stack is not None and self.n_stack > 1:
+            #     return self.AC.choose_action(np.array(obs_queue).reshape(-1, *self.state_size[:2], self.state_size[-1] * self.n_stack))
+            # else:
+            #     return self.AC.choose_action(np.array(obs).reshape(-1, *self.state_size[:2], self.state_size[-1]))
+        # if self.n_stack is not None and self.n_stack > 1:
+        #     return self.AC.choose_action(np.array(obs_queue).reshape(-1, self.state_size, self.n_stack))
+        else:
+            obs = obs.reshape(-1, self.state_size)
+
+        return self.AC.choose_action(obs)  # '''<-- Exploitation'''
+
+    def _act_test(self, obs):
         """
         Selecting the action using epsilon greedy policy
         :param obs: Observation (State)
         :return:
         """
         if self.img_input:
-            if self.n_stack is not None and self.n_stack > 1:
-                return self.AC.choose_action(np.array(obs_queue).reshape(-1, *self.state_size[:2], self.state_size[-1] * self.n_stack))
-            else:
-                return self.AC.choose_action(np.array(obs).reshape(-1, *self.state_size[:2], self.state_size[-1]))
+            obs = np.squeeze(obs, axis=3)
+            obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
         if self.n_stack is not None and self.n_stack > 1:
-            return self.AC.choose_action(np.array(obs_queue).reshape(-1, self.state_size, self.n_stack))
+            obs = np.array([obs])
         else:
-            return self.AC.choose_action(np.array(obs).reshape(-1,self.state_size))  # '''<-- Exploitation'''
+            obs = obs.reshape(-1, self.state_size)
+
+        return self.AC.choose_action(obs)  # '''<-- Exploitation'''
 
     def _feedback_print(self, e, episodic_reward, epochs, verbose):
         glob.global_raw_rewards.append(episodic_reward)

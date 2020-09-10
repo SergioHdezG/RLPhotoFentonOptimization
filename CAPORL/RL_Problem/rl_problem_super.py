@@ -203,8 +203,11 @@ class RLProblemSuper:
                 obs_satck = np.dstack(obs_queue)
                 obs_next_stack = np.dstack(obs_next_queue)
             else:
-                obs_satck = np.array(obs_queue).reshape(self.state_size, self.n_stack)
-                obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
+                # obs_satck = np.array(obs_queue).reshape(self.state_size, self.n_stack)
+                # obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
+                obs_satck = np.array(obs_queue)
+                obs_next_stack = np.array(obs_next_queue)
+
             self.agent.remember(obs_satck, action, self.clip_norm_reward(reward), obs_next_stack, done)
         else:
             self.agent.remember(obs, action, self.clip_norm_reward(reward), next_obs, done)
