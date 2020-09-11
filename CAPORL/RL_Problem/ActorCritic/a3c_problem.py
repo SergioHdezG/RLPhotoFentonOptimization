@@ -93,7 +93,7 @@ class A3CProblem:
 
     def solve(self, episodes, verbose=1, render=False, render_after=None, max_step_epi=None, skip_states=1):
 
-        glob.global_raw_rewards = deque(maxlen=100)
+        glob.global_raw_rewards = deque(maxlen=10)
         glob.global_episodes = 0
 
         glob.coord = tf.train.Coordinator()
@@ -115,10 +115,10 @@ class A3CProblem:
         :param render: bool. Render or not
         :return:
         """
-        glob.global_raw_rewards = deque(maxlen=100)
+        glob.global_raw_rewards = deque(maxlen=10)
         glob.global_episodes = 0
 
-        self.workers[-1].test(n_iter, render, self.preprocess, self.clip_norm_reward)
+        self.workers[-1].test(n_iter, render, preprocess=self.preprocess, clip_norm_reward=self.clip_norm_reward)
 
 
     def _build_agent(self, saving_model_params, net_architecture):

@@ -251,30 +251,32 @@ class Agent(object):
         self.memory.append([obs, action, reward, next_obs])
 
     def act(self, obs, train_indicator=True):
-        if self.stack:
-            # if self.img_input:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
-            if self.img_input:
-                obs = obs.reshape(-1, *self.state_size)
-            else:
-                obs = obs.reshape(-1, self.state_size)
-                #obs = obs[np.newaxis, :]
+            obs = obs.reshape(-1, self.state_size)
 
         action_probs = self.sess.run(self.actor_net, feed_dict={self.s: obs, self.training_mode: False})
         action_aux = action_probs[0]
         # print('action: ', action_aux)
         if np.isnan(action_aux.all()) or np.isnan(action_aux[0]):  # or np.isnan(action[1]):
-            print('nan')
+            print('action is nan')
 
         # noise = train_indicator * max(self.epsilon, 0) * self._OrnsUhl(action,  mu=np.zeros(self.action_size), 0.15, 3)
         # noise = np.reshape([self.actor_noise(action_aux[0]), self.actor_noise(action_aux[1])], (2,))
-        action = np.reshape([np.random.normal(action_aux[0], 0.5*self.epsilon), np.random.normal(action_aux[1], 0.3*self.epsilon)], (2,))
+        # action = np.reshape([np.random.normal(action_aux[0], 0.5*self.epsilon), np.random.normal(action_aux[1], 0.3*self.epsilon)], (2,))
 
+        action = np.random.normal(action_aux, 1 * self.epsilon)
         # rand = (np.random.randint(2) - 0.5) * 2
 
         # action = action_aux + noise * self.epsilon
-        print("action: ", action_aux, " noise: ", action)
+        # print("action: ", action_aux, " noise: ", action)
         # action = [action[0], 0.02, 0]
         # action = self.actor_noise(action, self.action_sigma)
         # print('Action : ', action, 'preact: ', action_aux, ' Noise: ', noise)
@@ -284,14 +286,16 @@ class Agent(object):
         return np.clip(action, self.action_low_bound, self.action_high_bound) #np.clip(action, self.action_low_bound, self.action_high_bound)
 
     def act_test(self, obs):
-        if self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
-            if self.img_input:
-                obs = obs.reshape(-1, *self.state_size)
-            else:
-                obs = obs.reshape(-1, self.state_size)
-                # obs = obs[np.newaxis, :]
+            obs = obs.reshape(-1, self.state_size)
 
         action_probs = self.sess.run(self.actor_net, feed_dict={self.s: obs, self.training_mode: False})
         action = action_probs[0]

@@ -85,25 +85,26 @@ class DQNAgentSuper:
 
         # Exploitation
         if self.img_input:
-            # obs = obs.reshape(-1, *self.state_size)
+            if self.stack:
+                # obs = obs.reshape(-1, *self.state_size)
 
-            # TODO: chaquear como gacer Temporal channel first y multiple color channel last
+                # TODO: chaquear como gacer Temporal channel first y multiple color channel last
 
-            obs = np.squeeze(obs, axis=3)
+                obs = np.squeeze(obs, axis=3)
 
-            # TODO: Descomentar para depurar visualmente
-            # import matplotlib.pylab as plt
-            # plt.figure(1)
-            # plt.subplot(221)
-            # plt.imshow(obs[0])
-            # plt.subplot(222)
-            # plt.imshow(obs[1])
-            # plt.subplot(223)
-            # plt.imshow(obs[2])
-            # plt.subplot(224)
-            # plt.imshow(obs[3])
+                # TODO: Descomentar para depurar visualmente
+                # import matplotlib.pylab as plt
+                # plt.figure(1)
+                # plt.subplot(221)
+                # plt.imshow(obs[0])
+                # plt.subplot(222)
+                # plt.imshow(obs[1])
+                # plt.subplot(223)
+                # plt.imshow(obs[2])
+                # plt.subplot(224)
+                # plt.imshow(obs[3])
 
-            obs = obs.transpose(1, 2, 0)
+                obs = obs.transpose(1, 2, 0)
 
             # TODO: Descomentar para depurar visualmente
             # plt.figure(2)
@@ -126,8 +127,9 @@ class DQNAgentSuper:
         :param obs: Observation (State)
         """
         if self.img_input:
-            obs = np.squeeze(obs, axis=3)
-            obs = obs.transpose(1, 2, 0)
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
             obs = np.array([obs])
 
         elif self.stack:

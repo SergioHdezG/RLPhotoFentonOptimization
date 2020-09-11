@@ -137,7 +137,7 @@ class Worker(object):
                     buffer_v_target.reverse()
 
                     if self.img_input:
-                        buffer_s = np.dstack(buffer_s)
+                        buffer_s = np.array(buffer_s)
                     elif self.n_stack is not None and self.n_stack > 1:
                         buffer_s = np.array([np.reshape(x, (self.n_stack, self.state_size)) for x in buffer_s])
                     else:
@@ -266,11 +266,12 @@ class Worker(object):
         :return:
         """
         if self.img_input:
-            obs = np.squeeze(obs, axis=3)
-            obs = obs.transpose(1, 2, 0)
+            if self.n_stack is not None and self.n_stack > 1:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
             obs = np.array([obs])
 
-        if self.n_stack is not None and self.n_stack > 1:
+        elif self.n_stack is not None and self.n_stack > 1:
             obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)

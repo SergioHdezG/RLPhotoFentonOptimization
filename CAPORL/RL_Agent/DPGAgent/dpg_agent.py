@@ -74,8 +74,9 @@ class Agent:
         Select an action depending on the input type
         """
         if self.img_input:
-            observation = np.squeeze(observation, axis=3)
-            observation = observation.transpose(1, 2, 0)
+            if self.stack:
+                observation = np.squeeze(observation, axis=3)
+                observation = observation.transpose(1, 2, 0)
             observation = np.array([observation])
 
         elif self.stack:

@@ -73,8 +73,9 @@ class Agent(object):
             return random.randrange(self.n_actions)
 
         if self.img_input:
-            obs = np.squeeze(obs, axis=3)
-            obs = obs.transpose(1, 2, 0)
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
             obs = np.array([obs])
 
         elif self.stack:
