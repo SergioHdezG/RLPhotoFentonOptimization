@@ -20,7 +20,8 @@ def create_agent():
 # worker class that inits own environment, trains on it and updloads weights to global net
 class Agent(AgentInterfaz):
     def __init__(self, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
-                 batch_size=32, buffer_size=2048, net_architecture=None, n_asyn_envs=2):
+                 batch_size=32, buffer_size=2048, epsilon=1.0, epsilon_decay=0.995, epsilon_min = 0.1,
+                 net_architecture=None, n_asyn_envs=2):
         self.state_size = state_size
         self.n_actions = n_actions
         self.stack = stack
@@ -41,7 +42,9 @@ class Agent(AgentInterfaz):
         # self.critic = self.build_critic()
         # self.actor = self.build_actor_continuous()
         self.memory = []
-        self.epsilon = 0.0  # Only for rendering
+        self.epsilon = 0.0  # For epsilon-greedy
+        self.epsilon_decay = epsilon_decay
+        self.epsilon_min = epsilon_min
 
         self.dummy_action, self.dummy_value = np.zeros((n_asyn_envs, self.n_actions)), np.zeros((n_asyn_envs, 1))
         self.n_asyn_envs = n_asyn_envs

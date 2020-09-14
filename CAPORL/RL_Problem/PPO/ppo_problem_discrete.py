@@ -55,7 +55,7 @@ class PPOProblem(RLProblemSuper):
         self.values_batch = []
         self.masks_batch = []
 
-        self.agent = self._build_agent(agent, model_params, net_architecture)
+        self.agent = self._build_agent(agent, [batch_size, epsilon, epsilon_min, epsilon_decay, learning_rate, n_step_rew], net_architecture)
 
     def _build_agent(self, agent, model_params, net_architecture):
         if self.img_input:
@@ -70,9 +70,10 @@ class PPOProblem(RLProblemSuper):
             stack = False
             state_size = self.state_size
 
-        return agent.Agent(state_size, self.n_actions, stack=stack,
-                                       img_input=self.img_input, lr_actor=self.learning_rate, lr_critic=self.learning_rate,
-                                       batch_size=self.batch_size, buffer_size=self.buffer_size, net_architecture=net_architecture)
+        return agent.Agent(state_size, self.n_actions, stack=stack, img_input=self.img_input,
+                           lr_actor=self.learning_rate, lr_critic=self.learning_rate, batch_size=self.batch_size,
+                           buffer_size=self.buffer_size, epsilon=model_params[1], epsilon_decay=model_params[3],
+                           epsilon_min=model_params[2], net_architecture=net_architecture)
 
     def solve(self, episodes, render=True, render_after=None, max_step_epi=None, skip_states=1, verbose=1, discriminator=None, expert_traj=None):
         """ Algorithm for training the agent to solve the environment problem.

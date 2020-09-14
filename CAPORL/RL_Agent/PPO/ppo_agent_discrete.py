@@ -20,7 +20,8 @@ def create_agent():
 # worker class that inits own environment, trains on it and updloads weights to global net
 class Agent(AgentInterfaz):
     def __init__(self, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
-                 batch_size=32, buffer_size=2048, net_architecture=None):
+                 batch_size=32, buffer_size=2048, epsilon=1.0, epsilon_decay=0.995, epsilon_min = 0.1,
+                 net_architecture=None):
         self.state_size = state_size
         self.n_actions = n_actions
         self.stack = stack
@@ -41,31 +42,46 @@ class Agent(AgentInterfaz):
         # self.critic = self.build_critic()
         # self.actor = self.build_actor_continuous()
         self.memory = []
-        self.epsilon = 1.0  # For epsilon-greedy
-        self.epsilon_decay = 0.995
+        self.epsilon = epsilon  # For epsilon-greedy
+        self.epsilon_decay = epsilon_decay
+        self.epsilon_min = epsilon_min
 
         self.dummy_action, self.dummy_value = np.zeros((1, self.n_actions)), np.zeros((1, 1))
 
     def act(self, obs):
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
 
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
 
-        if random.random() > self.epsilon:
-            action = np.argmax(p[0])
+        if random.random() < self.epsilon:
+            action = random.randrange(self.n_actions)
+
         else:
-            action = np.random.choice(self.n_actions, p=np.nan_to_num(p[0]))
+            # action = np.argmax(p[0])
+            action = np.random.choice(self.n_actions, p=np.nan_to_num(p[0], nan=0.0))
         value = self.critic.predict([obs])[0]
         action_matrix = np.zeros(self.n_actions)
         action_matrix[action] = 1
         return action, action_matrix, p, value
 
     def act_test(self, obs):
-        if self.img_input or self.stack:
-            obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
@@ -133,7 +149,8 @@ class Agent(AgentInterfaz):
         critic_loss = self.critic.fit([obs], [returns], batch_size=self.batch_size, shuffle=True, epochs=self.train_epochs,
                                       verbose=False)
 
-        self.epsilon *= self.epsilon_decay
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
         return actor_loss, critic_loss
 
     def load(self, dir, name):

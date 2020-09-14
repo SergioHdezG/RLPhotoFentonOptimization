@@ -20,7 +20,8 @@ def create_agent():
 # worker class that inits own environment, trains on it and updloads weights to global net
 class Agent(AgentInterfaz):
     def __init__(self, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
-                 action_bound=None, batch_size=32, buffer_size=2048, net_architecture=None):
+                 action_bound=None, batch_size=32, buffer_size=2048, epsilon=1.0, epsilon_decay=0.995, epsilon_min = 0.1,
+                 net_architecture=None):
         self.state_size = state_size
         self.n_actions = n_actions
         self.stack = stack
@@ -37,19 +38,25 @@ class Agent(AgentInterfaz):
         self.entropy_beta = 0.001
         self.lmbda = 0.95
         self.train_epochs = 10
-        self.exploration_noise = 0.1
+        self.exploration_noise = 1.0
         self.actor, self.critic = self._build_model(net_architecture)
         # self.critic = self.build_critic()
         # self.actor = self.build_actor_continuous()
         self.memory = []
-        self.epsilon = 1.0
-        self.epsilon_decay = 1.0
+        self.epsilon = epsilon  # For epsilon-greedy
+        self.epsilon_decay = epsilon_decay
+        self.epsilon_min = epsilon_min
 
         self.dummy_action, self.dummy_value = np.zeros((1, self.n_actions)), np.zeros((1, 1))
 
     def act(self, obs):
-        if self.img_input or self.stack:
-            # obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
+            obs = np.array([obs])
+
+        elif self.stack:
             obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
@@ -60,8 +67,10 @@ class Agent(AgentInterfaz):
         return action, action_matrix, p, value
 
     def act_test(self, obs):
-        if self.img_input or self.stack:
-            # obs = obs.reshape(-1, *self.state_size)
+        if self.img_input:
+            if self.stack:
+                obs = np.squeeze(obs, axis=3)
+                obs = obs.transpose(1, 2, 0)
             obs = np.array([obs])
         else:
             obs = obs.reshape(-1, self.state_size)
@@ -130,8 +139,8 @@ class Agent(AgentInterfaz):
                                     epochs=self.train_epochs, verbose=False)
         critic_loss = self.critic.fit([obs], [returns], batch_size=self.batch_size, shuffle=True, epochs=self.train_epochs,
                                       verbose=False)
-
-        self.epsilon *= self.epsilon_decay
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
         return actor_loss, critic_loss
 
     def load(self, dir, name):
@@ -202,9 +211,9 @@ class Agent(AgentInterfaz):
         rewards = Input(shape=(1,))
         values = Input(shape=(1,))
 
-        actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.0, 0.0, -0.0], stddev=1e-3, seed=None)))
+        # actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=[0.0, 0.0, -0.0], stddev=1e-3, seed=None)))
         # actor_net.add(Dense(self.n_actions, name='output', activation='tanh', kernel_initializer=RandomNormal(mean=0.0, stddev=1e-2, seed=None)))
-        # actor_net.add(Dense(self.n_actions, name='output', activation='tanh'))
+        actor_net.add(Dense(self.n_actions, name='output', activation='tanh'))
 
         actor_model = Model(inputs=[actor_net.inputs, advantage, old_prediction, rewards, values], outputs=[actor_net.outputs])
         actor_model.compile(optimizer=Adam(lr=self.lr_actor),

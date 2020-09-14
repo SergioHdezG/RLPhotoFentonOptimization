@@ -56,6 +56,7 @@ class Agent(object):
         self.action_sigma = 3e-1
         # self.actor_noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(self.n_actions))
         ou = OU(mu=0.0, theta=0.6, sigma=0.2)
+        # TODO: seleccionar modelo de ruido correcto
         self.actor_noise = ou.function
 
         # self.actor_noise = np.random.normal
