@@ -90,7 +90,7 @@ class DQNAgentSuper:
 
                 # TODO: chaquear como gacer Temporal channel first y multiple color channel last
 
-                obs = np.squeeze(obs, axis=3)
+                # obs = np.squeeze(obs, axis=3)
 
                 # TODO: Descomentar para depurar visualmente
                 # import matplotlib.pylab as plt
@@ -104,8 +104,8 @@ class DQNAgentSuper:
                 # plt.subplot(224)
                 # plt.imshow(obs[3])
 
-                obs = obs.transpose(1, 2, 0)
-
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
             # TODO: Descomentar para depurar visualmente
             # plt.figure(2)
             # plt.imshow(np.mean(obs, axis=2))
@@ -128,8 +128,9 @@ class DQNAgentSuper:
         """
         if self.img_input:
             if self.stack:
-                obs = np.squeeze(obs, axis=3)
-                obs = obs.transpose(1, 2, 0)
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
             obs = np.array([obs])
 
         elif self.stack:

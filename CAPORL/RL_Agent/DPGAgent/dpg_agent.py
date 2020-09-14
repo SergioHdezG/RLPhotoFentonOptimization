@@ -75,8 +75,9 @@ class Agent:
         """
         if self.img_input:
             if self.stack:
-                observation = np.squeeze(observation, axis=3)
-                observation = observation.transpose(1, 2, 0)
+                # observation = np.squeeze(observation, axis=3)
+                # observation = obs.transpose(1, 2, 0)
+                observation = np.dstack(observation)
             observation = np.array([observation])
 
         elif self.stack:

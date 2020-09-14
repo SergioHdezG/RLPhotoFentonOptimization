@@ -227,7 +227,7 @@ class PPOProblem(RLProblemSuper):
             obs_next_queue.append(next_obs)
 
             if self.img_input:
-                obs_next_stack = np.dstack(obs_next_queue)
+                obs_queue_stack = np.dstack(obs_next_queue)
             else:
                 # obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
                 # obs_next_stack = np.transpose(obs_next_queue)

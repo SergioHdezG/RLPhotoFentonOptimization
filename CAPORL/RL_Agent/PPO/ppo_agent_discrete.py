@@ -51,8 +51,9 @@ class Agent(AgentInterfaz):
     def act(self, obs):
         if self.img_input:
             if self.stack:
-                obs = np.squeeze(obs, axis=3)
-                obs = obs.transpose(1, 2, 0)
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
             obs = np.array([obs])
 
         elif self.stack:
@@ -62,12 +63,12 @@ class Agent(AgentInterfaz):
 
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
 
-        if random.random() < self.epsilon:
-            action = random.randrange(self.n_actions)
-
-        else:
+        # if random.random() < self.epsilon:
+        #     action = random.randrange(self.n_actions)
+        #
+        # else:
             # action = np.argmax(p[0])
-            action = np.random.choice(self.n_actions, p=np.nan_to_num(p[0], nan=0.0))
+        action = np.random.choice(self.n_actions, p=np.nan_to_num(p[0], nan=0.0))
         value = self.critic.predict([obs])[0]
         action_matrix = np.zeros(self.n_actions)
         action_matrix[action] = 1
@@ -76,8 +77,9 @@ class Agent(AgentInterfaz):
     def act_test(self, obs):
         if self.img_input:
             if self.stack:
-                obs = np.squeeze(obs, axis=3)
-                obs = obs.transpose(1, 2, 0)
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
             obs = np.array([obs])
 
         elif self.stack:
@@ -86,6 +88,7 @@ class Agent(AgentInterfaz):
             obs = obs.reshape(-1, self.state_size)
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
         action = np.argmax(p[0])
+        # action = np.random.choice(self.n_actions, p=np.nan_to_num(p[0], nan=0.0))
         return action
 
     def remember(self, obs, action, pred_act, rewards, values, mask):
@@ -106,7 +109,9 @@ class Agent(AgentInterfaz):
         # pred_act = np.array(pred_act)
         # pred_act = np.reshape(pred_act, (pred_act.shape[0], pred_act.shape[2]))
         pred_act = np.array([a[0] for a in pred_act])
-        returns = np.reshape(np.array(returns), (len(returns), 1))
+        # returns = np.reshape(np.array(returns), (len(returns), 1))
+        # returns = np.array(returns)[:, np.newaxis]
+        returns = np.array(returns)
         rewards = np.array(rewards)
         values = np.array(values)
         mask = np.array(mask)

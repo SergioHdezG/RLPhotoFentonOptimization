@@ -172,17 +172,17 @@ class PPOProblem(RLProblemSuper):
 
             # Store the experience in episode memory
             next_obs, obs_next_queue, reward, done, epochs, mask = self.store_episode_experience(action,
-                                                                                                            done,
-                                                                                                            next_obs,
-                                                                                                            obs,
-                                                                                                            obs_next_queue,
-                                                                                                            obs_queue,
-                                                                                                            reward,
-                                                                                                            skip_states,
-                                                                                                            epochs,
-                                                                                                            predicted_action,
-                                                                                                            action_matrix,
-                                                                                                            value)
+                                                                                                done,
+                                                                                                next_obs,
+                                                                                                obs,
+                                                                                                obs_next_queue,
+                                                                                                obs_queue,
+                                                                                                reward,
+                                                                                                skip_states,
+                                                                                                epochs,
+                                                                                                predicted_action,
+                                                                                                action_matrix,
+                                                                                                value)
 
             # copy next_obs to obs
             obs, obs_queue = self.copy_next_obs(next_obs, obs, obs_next_queue, obs_queue)
@@ -237,6 +237,8 @@ class PPOProblem(RLProblemSuper):
     def store_episode_experience(self, action, done, next_obs, obs, obs_next_queue, obs_queue, reward, skip_states, epochs,
                                 predicted_action, action_matrix, value):
 
+        done, next_obs, reward, epochs = self.frame_skipping(action, done, next_obs, reward, skip_states, epochs)
+
         # Con este método de paralelización no se puede aplicar frame-skipping
         mask = np.logical_not(done)
 
@@ -245,7 +247,7 @@ class PPOProblem(RLProblemSuper):
                 next_queue.append(o)
 
             if self.img_input:
-                obs_next_stack = np.dstack(obs_next_queue)
+                obs_queue_stack = np.array([np.dstack(o) for o in obs_queue])
             else:
                 # obs_next_stack = np.array(obs_next_queue).reshape(self.n_asyn_envs, self.state_size, self.n_stack)
                 obs_queue_stack = np.array(obs_queue)
@@ -260,6 +262,38 @@ class PPOProblem(RLProblemSuper):
         self.masks_batch.append(mask)
 
         return next_obs, obs_next_queue, reward, done, epochs, mask
+
+    def frame_skipping(self, action, done, next_obs, reward, skip_states, epochs):
+        # if skip_states > 1 and not done:
+        #     for i in range(skip_states - 2):
+        #         next_obs_aux1, reward_aux, done_aux, _ = self.env.step(action)
+        #         epochs += 1
+        #         reward += reward_aux
+        #         if done_aux:
+        #             next_obs_aux2 = next_obs_aux1
+        #             done = done_aux
+        #             break
+        #
+        #     if not done:
+        #         next_obs_aux2, reward_aux, done_aux, _ = self.env.step(action)
+        #         epochs += 1
+        #         reward += reward_aux
+        #         done = done_aux
+        #
+        #     if self.img_input:
+        #         next_obs_aux2 = self.preprocess(next_obs_aux2)
+        #         if skip_states > 2:
+        #             next_obs_aux1 = self.preprocess(next_obs_aux1)
+        #             next_obs = np.maximum(next_obs_aux2, next_obs_aux1)
+        #         else:
+        #             next_obs = self.preprocess(next_obs)
+        #             next_obs = np.maximum(next_obs_aux2, next_obs)
+        #     else:
+        #         next_obs = self.preprocess(next_obs_aux2)
+        # else:
+        #     next_obs = self.preprocess(next_obs)
+        next_obs = np.array([self.preprocess(o) for o in next_obs])
+        return done, next_obs, reward, epochs
 
     def test(self, n_iter=10, render=True, callback=None):
         # Reasignamos el entorno de test al entorno principal para poder usar el método test del padre

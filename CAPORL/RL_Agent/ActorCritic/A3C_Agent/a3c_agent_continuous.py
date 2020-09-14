@@ -267,8 +267,9 @@ class Worker(object):
         """
         if self.img_input:
             if self.n_stack is not None and self.n_stack > 1:
-                obs = np.squeeze(obs, axis=3)
-                obs = obs.transpose(1, 2, 0)
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
             obs = np.array([obs])
 
         elif self.n_stack is not None and self.n_stack > 1:

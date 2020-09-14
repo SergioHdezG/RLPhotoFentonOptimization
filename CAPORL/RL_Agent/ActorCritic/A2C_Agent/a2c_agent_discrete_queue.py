@@ -90,8 +90,9 @@ class Agent(object):
 
         if self.img_input:
             if self.stack:
-                obs = np.squeeze(obs, axis=3)
-                obs = obs.transpose(1, 2, 0)
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
             obs = np.array([obs])
 
         elif self.stack:
@@ -104,8 +105,9 @@ class Agent(object):
     def act_test(self, obs):
         if self.img_input:
             if self.stack:
-                obs = np.squeeze(obs, axis=3)
-                obs = obs.transpose(1, 2, 0)
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
             obs = np.array([obs])
 
         elif self.stack:

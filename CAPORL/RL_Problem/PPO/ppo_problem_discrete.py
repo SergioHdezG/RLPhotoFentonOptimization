@@ -155,6 +155,7 @@ class PPOProblem(RLProblemSuper):
                     else:
                         reward = discriminator.get_reward(obs, action)[0]
                     if render or ((render_after is not None) and self.episode > render_after):
+                        # TODO: esto que es?
                         rew_img = np.ones((50, 300, 3), dtype=np.uint8)
                         rew_img = cv2.putText(rew_img, "Reward: {:.4f} ".format(reward), (5, 40),
                                               cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
@@ -210,7 +211,7 @@ class PPOProblem(RLProblemSuper):
             obs_next_queue.append(next_obs)
 
             if self.img_input:
-                obs_next_stack = np.dstack(obs_next_queue)
+                obs_queue_stack = np.dstack(obs_queue)
             else:
                 # obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
                 obs_queue_stack = np.array(obs_queue)

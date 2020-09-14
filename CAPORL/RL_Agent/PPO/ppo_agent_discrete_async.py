@@ -50,7 +50,13 @@ class Agent(AgentInterfaz):
         self.n_asyn_envs = n_asyn_envs
 
     def act(self, obs):
-        if self.img_input or self.stack:
+        if self.img_input:
+            if self.stack:
+                obs = np.array([np.dstack(o) for o in obs])
+            else:
+                obs = obs
+
+        elif self.stack:
             # obs = obs.reshape(-1, *self.state_size)
             obs = obs
         else:
@@ -67,12 +73,18 @@ class Agent(AgentInterfaz):
         return action, action_matrix, p, value
 
     def act_test(self, obs):
-        if self.img_input or self.stack:
-            # obs = obs.reshape(-1, *self.state_size)
-            obs = [obs]
+        if self.img_input:
+            if self.stack:
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
             # obs = obs.reshape(-1, self.state_size)
-            obs = [obs]
+            obs = np.array([obs])
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
         action = np.argmax(p[0])
         return action
@@ -88,10 +100,15 @@ class Agent(AgentInterfaz):
         :param done: If the episode is finished
         :return:
         """
-        if self.stack:
+
+        if self.img_input:
+                # TODO: Probar img en color en pc despacho, en personal excede la memoria
+                obs = np.transpose(obs, axes=(1, 0, 2, 3, 4))
+        elif self.stack:
             obs = np.transpose(obs, axes=(1, 0, 2, 3))
         else:
             obs = np.transpose(obs, axes=(1, 0, 2))
+
         action = np.transpose(action, axes=(1, 0, 2))
         pred_act = np.transpose(pred_act, axes=(1, 0, 2))
         rewards = np.transpose(rewards, axes=(1, 0))
@@ -105,6 +122,7 @@ class Agent(AgentInterfaz):
         v = values[0]
         m = mask[0]
 
+        # TODO: Optimizar, es muy lento
         for i in range(1, self.n_asyn_envs):
             o = np.concatenate((o, obs[i]), axis=0)
             a = np.concatenate((a, action[i]), axis=0)

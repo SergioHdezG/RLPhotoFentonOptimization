@@ -64,12 +64,17 @@ class Agent(AgentInterfaz):
         return action, action_matrix, p, value
 
     def act_test(self, obs):
-        if self.img_input or self.stack:
-            # obs = obs.reshape(-1, *self.state_size)
-            obs = [obs]
+        if self.img_input:
+            if self.stack:
+                # obs = np.squeeze(obs, axis=3)
+                # obs = obs.transpose(1, 2, 0)
+                obs = np.dstack(obs)
+            obs = np.array([obs])
+
+        elif self.stack:
+            obs = np.array([obs])
         else:
-            # obs = obs.reshape(-1, self.state_size)
-            obs = [obs]
+            obs = np.array([obs])
 
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
         action = p[0]
@@ -86,7 +91,9 @@ class Agent(AgentInterfaz):
         :param done: If the episode is finished
         :return:
         """
-        if self.stack:
+        if self.img_input:
+                obs = np.transpose(obs, axes=(1, 0, 2, 3, 4))
+        elif self.stack:
             obs = np.transpose(obs, axes=(1, 0, 2, 3))
         else:
             obs = np.transpose(obs, axes=(1, 0, 2))
