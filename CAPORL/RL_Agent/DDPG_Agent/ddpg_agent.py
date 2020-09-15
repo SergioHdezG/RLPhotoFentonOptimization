@@ -7,12 +7,14 @@ from CAPORL.utils.parse_utils import *
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import ddpg_net
 from tensorflow.keras.initializers import RandomNormal
+from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+
 
 def create_agent():
     return 'DDPG'
 
 
-class Agent(object):
+class Agent(AgentSuper):
     def __init__(self, n_actions, state_size, action_low_bound, action_high_bound, batch_size=64, learning_rate=0.001,
                  stack=False, img_input=False, gamma=0.99, tau=0.001, memory_size=10000, epsilon_decay=0.999995,
                  model_params=None, net_architecture=None):
@@ -26,6 +28,8 @@ class Agent(object):
                 img_input:          True if inputs are images, False otherwise.
                 model_params:       Dictionary of params like learning rate, batch size, epsilon values, n step returns...
         """
+        super().__init__()
+
         self.state_size = state_size
         self.n_actions = n_actions
         self.action_low_bound = action_low_bound
@@ -252,18 +256,18 @@ class Agent(object):
         self.memory.append([obs, action, reward, next_obs])
 
     def act(self, obs, train_indicator=True):
-        if self.img_input:
-            if self.stack:
-                # obs = np.squeeze(obs, axis=3)
-                # obs = obs.transpose(1, 2, 0)
-                obs = np.dstack(obs)
-            obs = np.array([obs])
-
-        elif self.stack:
-            obs = np.array([obs])
-        else:
-            obs = obs.reshape(-1, self.state_size)
-
+        # if self.img_input:
+        #     if self.stack:
+        #         # obs = np.squeeze(obs, axis=3)
+        #         # obs = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        #
+        # elif self.stack:
+        #     obs = np.array([obs])
+        # else:
+        #     obs = obs.reshape(-1, self.state_size)
+        obs = self._format_obs_act(obs)
         action_probs = self.sess.run(self.actor_net, feed_dict={self.s: obs, self.training_mode: False})
         action_aux = action_probs[0]
         # print('action: ', action_aux)
@@ -288,18 +292,18 @@ class Agent(object):
         return np.clip(action, self.action_low_bound, self.action_high_bound) #np.clip(action, self.action_low_bound, self.action_high_bound)
 
     def act_test(self, obs):
-        if self.img_input:
-            if self.stack:
-                # obs = np.squeeze(obs, axis=3)
-                # obs = obs.transpose(1, 2, 0)
-                obs = np.dstack(obs)
-            obs = np.array([obs])
-
-        elif self.stack:
-            obs = np.array([obs])
-        else:
-            obs = obs.reshape(-1, self.state_size)
-
+        # if self.img_input:
+        #     if self.stack:
+        #         # obs = np.squeeze(obs, axis=3)
+        #         # obs = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        #
+        # elif self.stack:
+        #     obs = np.array([obs])
+        # else:
+        #     obs = obs.reshape(-1, self.state_size)
+        obs = self._format_obs_act(obs)
         action_probs = self.sess.run(self.actor_net, feed_dict={self.s: obs, self.training_mode: False})
         action = action_probs[0]
         # action = [action[0], 0.1, 0]

@@ -6,12 +6,14 @@ from CAPORL.utils.parse_utils import *
 from CAPORL.RL_Problem.rl_problem_super import *
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import dpg_net
+from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+
 
 def create_agent():
     return 'DPG'
 
 
-class Agent:
+class Agent(AgentSuper):
     """
     Deterministic Policy Gradient Agent
     """
@@ -28,6 +30,8 @@ class Agent:
             img_input:          True if inputs are images, False otherwise.
             model_params:       Dictionary of params like learning rate, batch size, epsilon values, n step returns...
         """
+        super().__init__()
+
         self.state_size = state_size
         self.n_actions = n_actions
 
@@ -69,30 +73,31 @@ class Agent:
                 """
         self.memory.append([obs, action_one_hot, reward])
 
-    def act(self, observation):
+    def act(self, obs):
         """
         Select an action depending on the input type
         """
-        if self.img_input:
-            if self.stack:
-                # observation = np.squeeze(observation, axis=3)
-                # observation = obs.transpose(1, 2, 0)
-                observation = np.dstack(observation)
-            observation = np.array([observation])
+        # if self.img_input:
+        #     if self.stack:
+        #         # observation = np.squeeze(observation, axis=3)
+        #         # observation = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        #
+        # elif self.stack:
+        #     obs = np.array([obs])
+        # else:
+        #     obs = obs.reshape(-1, self.state_size)
 
-        elif self.stack:
-            observation = np.array([observation])
-        else:
-            observation = observation.reshape(-1, self.state_size)
+        obs = self._format_obs_act(obs)
 
-        # TODO: aquí hay un problema de memoria
-        prob_weights = self.sess.run(self.outputs_softmax, feed_dict={self.X: observation})
+        prob_weights = self.sess.run(self.outputs_softmax, feed_dict={self.X: obs})
         action = np.random.choice(range(len(prob_weights.ravel())), p=prob_weights.ravel())
 
         return action
 
-    def act_test(self, observation):
-        return self.act(observation)
+    def act_test(self, obs):
+        return self.act(obs)
 
     def _build_model(self, s, net_architecture):
 

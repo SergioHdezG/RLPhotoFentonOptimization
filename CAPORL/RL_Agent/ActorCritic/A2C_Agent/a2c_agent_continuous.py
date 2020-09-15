@@ -1,17 +1,18 @@
 import numpy as np
 import tensorflow as tf
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous
-
+from CAPORL.RL_Agent.agent_interfaz import AgentSuper
 
 def create_agent():
     return "A2C_continuous"
 
 
 # worker class that inits own environment, trains on it and updloads weights to global net
-class Agent(object):
+class Agent(AgentSuper):
     def __init__(self, sess, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  n_steps_update=10, action_bound=None, batch_size=0, net_architecture=None):
 
+        super().__init__()
         self.stack = stack
         self.img_input = img_input
 
@@ -69,18 +70,19 @@ class Agent(object):
         Selecting the action using epsilon greedy policy
         :param obs: Observation (State)
         """
-        if self.img_input:
-            if self.stack:
-                # obs = np.squeeze(obs, axis=3)
-                # obs = obs.transpose(1, 2, 0)
-                obs = np.dstack(obs)
-            obs = np.array([obs])
+        # if self.img_input:
+        #     if self.stack:
+        #         # obs = np.squeeze(obs, axis=3)
+        #         # obs = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        #
+        # elif self.stack:
+        #     obs = np.array([obs])
+        # else:
+        #     obs = obs.reshape(-1, self.state_size)
 
-        elif self.stack:
-            obs = np.array([obs])
-        else:
-            obs = obs.reshape(-1, self.state_size)
-
+        obs = self._format_obs_act(obs)
         return self.worker.choose_action(obs)
 
     def act_test(self, obs):

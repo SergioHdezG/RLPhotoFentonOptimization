@@ -74,5 +74,5 @@ problem.agent.set_memory(deq_m, memory_max_len)
 
 
 # Se selecciona no renderizar hasta el peisodio 8 para accelerar la simulación
-problem.solve(render=False, episodes=1000, skip_states=5, render_after=490)
+problem.solve(render=False, episodes=1000, skip_states=4, render_after=490)
 problem.test(n_iter=100, render=True)

@@ -1,7 +1,7 @@
 from os import path
 import datetime
 from tensorflow.python.keras.models import model_from_json
-
+import random
 from  CAPORL.RL_Agent.agent_interfaz import AgentInterfaz
 import numpy as np
 import tensorflow as tf
@@ -13,15 +13,19 @@ from tensorflow.keras.optimizers import Adam
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import ppo_net
 from tensorflow.keras.initializers import RandomNormal
+from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+
 
 def create_agent():
     return "PPO_continuous"
 
 # worker class that inits own environment, trains on it and updloads weights to global net
-class Agent(AgentInterfaz):
+class Agent(AgentSuper):
     def __init__(self, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  action_bound=None, batch_size=32, buffer_size=2048, epsilon=1.0, epsilon_decay=0.995, epsilon_min = 0.1,
                  net_architecture=None):
+        super().__init__()
+
         self.state_size = state_size
         self.n_actions = n_actions
         self.stack = stack
@@ -50,17 +54,18 @@ class Agent(AgentInterfaz):
         self.dummy_action, self.dummy_value = np.zeros((1, self.n_actions)), np.zeros((1, 1))
 
     def act(self, obs):
-        if self.img_input:
-            if self.stack:
-                # obs = np.squeeze(obs, axis=3)
-                # obs = obs.transpose(1, 2, 0)
-                obs = np.dstack(obs)
-            obs = np.array([obs])
-
-        elif self.stack:
-            obs = np.array([obs])
-        else:
-            obs = obs.reshape(-1, self.state_size)
+        # if self.img_input:
+        #     if self.stack:
+        #         # obs = np.squeeze(obs, axis=3)
+        #         # obs = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        #
+        # elif self.stack:
+        #     obs = np.array([obs])
+        # else:
+        #     obs = obs.reshape(-1, self.state_size)
+        obs = self._format_obs_act(obs)
 
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
         action = action_matrix = p[0] + np.random.normal(loc=0, scale=self.exploration_noise*self.epsilon, size=p[0].shape)
@@ -68,14 +73,15 @@ class Agent(AgentInterfaz):
         return action, action_matrix, p, value
 
     def act_test(self, obs):
-        if self.img_input:
-            if self.stack:
-                # obs = np.squeeze(obs, axis=3)
-                # obs = obs.transpose(1, 2, 0)
-                obs = np.dstack(obs)
-            obs = np.array([obs])
-        else:
-            obs = np.array([obs])
+        # if self.img_input:
+        #     if self.stack:
+        #         # obs = np.squeeze(obs, axis=3)
+        #         # obs = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        # else:
+        #     obs = np.array([obs])
+        obs = self._format_obs_act(obs)
         p = self.actor.predict([obs, self.dummy_value, self.dummy_action, self.dummy_value, self.dummy_value])
         action = p[0]
         return action

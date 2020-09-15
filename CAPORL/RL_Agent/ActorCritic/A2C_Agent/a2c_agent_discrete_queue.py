@@ -6,6 +6,8 @@ import gc
 import numpy as np
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
 from CAPORL.Memory.deque_memory import Memory
+from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+
 
 # TODO: Heredar de a2c_agent_discrete.py
 def create_agent():
@@ -13,10 +15,11 @@ def create_agent():
 
 
 # worker class that inits own environment, trains on it and updloads weights to global net
-class Agent(object):
+class Agent(AgentSuper):
     def __init__(self, sess, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  epsilon=1., epsilon_decay=0.99995, epsilon_min=0.15, n_steps_update=10, batch_size=32,
                  net_architecture=None):
+        super().__init__()
 
         self.batch_size = batch_size
         self.stack = stack
@@ -88,33 +91,33 @@ class Agent(object):
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.n_actions)
 
-        if self.img_input:
-            if self.stack:
-                # obs = np.squeeze(obs, axis=3)
-                # obs = obs.transpose(1, 2, 0)
-                obs = np.dstack(obs)
-            obs = np.array([obs])
-
-        elif self.stack:
-            obs = np.array([obs])
-        else:
-            obs = obs.reshape(-1, self.state_size)
-
+        # if self.img_input:
+        #     if self.stack:
+        #         # obs = np.squeeze(obs, axis=3)
+        #         # obs = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        #
+        # elif self.stack:
+        #     obs = np.array([obs])
+        # else:
+        #     obs = obs.reshape(-1, self.state_size)
+        obs = self._format_obs_act(obs)
         return self.worker.choose_action(obs)
 
     def act_test(self, obs):
-        if self.img_input:
-            if self.stack:
-                # obs = np.squeeze(obs, axis=3)
-                # obs = obs.transpose(1, 2, 0)
-                obs = np.dstack(obs)
-            obs = np.array([obs])
-
-        elif self.stack:
-            obs = np.array([obs])
-        else:
-            obs = obs.reshape(-1, self.state_size)
-
+        # if self.img_input:
+        #     if self.stack:
+        #         # obs = np.squeeze(obs, axis=3)
+        #         # obs = obs.transpose(1, 2, 0)
+        #         obs = np.dstack(obs)
+        #     obs = np.array([obs])
+        #
+        # elif self.stack:
+        #     obs = np.array([obs])
+        # else:
+        #     obs = obs.reshape(-1, self.state_size)
+        obs = self._format_obs_act(obs)
         return self.worker.choose_action(obs)
 
     def load_main_memories(self):

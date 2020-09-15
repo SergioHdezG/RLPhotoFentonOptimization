@@ -19,7 +19,7 @@ agent_cont = ppo_agent_v2.create_agent()
 # Este algoritmo utiliza el parámetro n_step_return que indica que ventana de tiempo se utiliza para calcular el valor
 # del retorno durante la optimización. En este caso una ventana temporal de los 15 últimos estados.
 model_params_disc = params.algotirhm_hyperparams(learning_rate=1e-3,
-                                            batch_size=16,
+                                            batch_size=32,
                                             epsilon=0.9,
                                             epsilon_decay=0.95,
                                             epsilon_min=0.15)
@@ -41,22 +41,23 @@ model_params_cont = params.algotirhm_hyperparams(learning_rate=1e-3,
 
 def lstm_custom_model(input_shape):
     actor_model = Sequential()
-    actor_model.add(LSTM(32, input_shape=input_shape, activation='tanh'))
+    actor_model.add(LSTM(64, input_shape=input_shape, activation='tanh'))
     actor_model.add(Dense(64, activation='relu'))
     actor_model.add(Dense(64, activation='relu'))
+
     return actor_model
 
 net_architecture = params.actor_critic_net_architecture(
-                    actor_conv_layers=3,                            critic_conv_layers=2,
-                    actor_kernel_num=[32, 64, 32],                  critic_kernel_num=[32, 32],
-                    actor_kernel_size=[7, 5, 3],                    critic_kernel_size=[3, 3],
-                    actor_kernel_strides=[4, 2, 1],                 critic_kernel_strides=[2, 2],
-                    actor_conv_activation=['relu', 'relu', 'relu'], critic_conv_activation=['tanh', 'tanh'],
+                    actor_conv_layers=2,                            critic_conv_layers=2,
+                    actor_kernel_num=[32, 32],                      critic_kernel_num=[32, 32],
+                    actor_kernel_size=[3, 3],                       critic_kernel_size=[3, 3],
+                    actor_kernel_strides=[2, 2],                    critic_kernel_strides=[2, 2],
+                    actor_conv_activation=['relu', 'relu'],         critic_conv_activation=['relu', 'relu'],
                     actor_dense_layers=2,                           critic_dense_layers=2,
-                    actor_n_neurons=[128, 128],                     critic_n_neurons=[128, 128],
+                    actor_n_neurons=[512, 256],                     critic_n_neurons=[512, 256],
                     actor_dense_activation=['relu', 'relu'],        critic_dense_activation=['relu', 'relu'],
                     use_custom_network=False,
-                    actor_custom_network=lstm_custom_model,          critic_custom_network=lstm_custom_model
+                    actor_custom_network=lstm_custom_model,         critic_custom_network=lstm_custom_model
                     )
 
 import numpy as np
@@ -75,14 +76,14 @@ def atari_preprocess(obs):
 
 # Descomentar para ejecutar el ejemplo discreto
 problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
-                             n_stack=5, img_input=True, state_size=(90, 80, 1))
+                             n_stack=4, img_input=True, state_size=(90, 80, 1))
 
 problem_disc.preprocess = atari_preprocess
 
 # En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
 # iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
 # máximo de épocas.
-problem_disc.solve(3000, render=True, max_step_epi=1000, skip_states=1)
+problem_disc.solve(3000, render=True, max_step_epi=5000, skip_states=3)
 problem_disc.test(render=True, n_iter=10)
 
 

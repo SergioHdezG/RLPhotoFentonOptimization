@@ -213,6 +213,7 @@ class RLProblemSuper:
             self.agent.remember(obs, action, self.clip_norm_reward(reward), next_obs, done)
         return next_obs, obs_next_queue, reward, done, epochs
 
+    import matplotlib.pyplot as plt
     def frame_skipping(self, action, done, next_obs, reward, skip_states, epochs):
         if skip_states > 1 and not done:
             for i in range(skip_states - 2):
@@ -233,8 +234,23 @@ class RLProblemSuper:
             if self.img_input:
                 next_obs_aux2 = self.preprocess(next_obs_aux2)
                 if skip_states > 2:
+                    mostrar = False
                     next_obs_aux1 = self.preprocess(next_obs_aux1)
+                    if mostrar:
+                        aux = next_obs_aux1.copy()
+                        fig = plt.figure(1)
+                        plt.subplot(131)
+                        plt.imshow(np.squeeze(aux))
+                        plt.subplot(132)
+                        aux = next_obs_aux2.copy()
+                        plt.imshow(np.squeeze(aux))
+                    # TODO: esto no se debería hacer con todas las imágenes intermedias? consultar en paper atari dqn
                     next_obs = np.maximum(next_obs_aux2, next_obs_aux1)
+                    if mostrar:
+                        plt.subplot(133)
+                        aux = next_obs.copy()
+                        plt.imshow(np.squeeze(aux))
+                        plt.show()
                 else:
                     next_obs = self.preprocess(next_obs)
                     next_obs = np.maximum(next_obs_aux2, next_obs)

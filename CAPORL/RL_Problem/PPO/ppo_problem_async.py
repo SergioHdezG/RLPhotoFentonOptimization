@@ -25,7 +25,7 @@ class PPOProblem(RLProblemSuper):
         super().__init__(environment, agent, n_stack=n_stack, img_input=img_input, state_size=state_size,
                          saving_model_params=saving_model_params, net_architecture=net_architecture)
         self.environment = environment
-        self.n_asyn_envs = 1 #multiprocessing.cpu_count()
+        self.n_asyn_envs = multiprocessing.cpu_count()
 
         # Copiamos el entorno creado en rl_problem_super para que lo almacene env_test
         self.env_test = self.env

@@ -264,35 +264,41 @@ class PPOProblem(RLProblemSuper):
         return next_obs, obs_next_queue, reward, done, epochs, mask
 
     def frame_skipping(self, action, done, next_obs, reward, skip_states, epochs):
-        # if skip_states > 1 and not done:
-        #     for i in range(skip_states - 2):
-        #         next_obs_aux1, reward_aux, done_aux, _ = self.env.step(action)
-        #         epochs += 1
-        #         reward += reward_aux
-        #         if done_aux:
-        #             next_obs_aux2 = next_obs_aux1
-        #             done = done_aux
-        #             break
+        # isdone = False
+        # for d in done:
+        #     if d:
+        #         isdone = True
         #
-        #     if not done:
-        #         next_obs_aux2, reward_aux, done_aux, _ = self.env.step(action)
-        #         epochs += 1
-        #         reward += reward_aux
-        #         done = done_aux
-        #
-        #     if self.img_input:
-        #         next_obs_aux2 = self.preprocess(next_obs_aux2)
-        #         if skip_states > 2:
-        #             next_obs_aux1 = self.preprocess(next_obs_aux1)
-        #             next_obs = np.maximum(next_obs_aux2, next_obs_aux1)
-        #         else:
-        #             next_obs = self.preprocess(next_obs)
-        #             next_obs = np.maximum(next_obs_aux2, next_obs)
-        #     else:
-        #         next_obs = self.preprocess(next_obs_aux2)
-        # else:
-        #     next_obs = self.preprocess(next_obs)
-        next_obs = np.array([self.preprocess(o) for o in next_obs])
+        # if isdone:
+        #     print('is done')
+        if skip_states > 1 and not done.any():
+            for i in range(skip_states - 2):
+                next_obs_aux1, reward_aux, done_aux, _ = self.env.step(action)
+                epochs += 1
+                reward += reward_aux
+                if done_aux.any():
+                    next_obs_aux2 = next_obs_aux1
+                    done = done_aux
+                    break
+
+            if not done.any():
+                next_obs_aux2, reward_aux, done_aux, _ = self.env.step(action)
+                epochs += 1
+                reward += reward_aux
+                done = done_aux
+
+            # if self.img_input:
+            #     next_obs_aux2 = self.preprocess(next_obs_aux2)
+            #     if skip_states > 2:
+            #         next_obs_aux1 = self.preprocess(next_obs_aux1)
+            #         next_obs = np.maximum(next_obs_aux2, next_obs_aux1)
+            #     else:
+            #         next_obs = self.preprocess(next_obs)
+            #         next_obs = np.maximum(next_obs_aux2, next_obs)
+            # else:
+            next_obs = np.array([self.preprocess(o) for o in next_obs_aux2])
+        else:
+            next_obs = np.array([self.preprocess(o) for o in next_obs])
         return done, next_obs, reward, epochs
 
     def test(self, n_iter=10, render=True, callback=None):

@@ -10,7 +10,7 @@ from CAPORL.utils.parse_utils import *
 def create_agent():
     return "A3C_continuous"
 
-
+# TODO: Tratar que herede de AgentSuper
 # worker class that inits own environment, trains on it and updloads weights to global net
 class Worker(object):
     def __init__(self, name, globalAC, sess, state_size, n_actions, environment, n_stack=1, img_input=False,
