@@ -234,23 +234,10 @@ class RLProblemSuper:
             if self.img_input:
                 next_obs_aux2 = self.preprocess(next_obs_aux2)
                 if skip_states > 2:
-                    mostrar = False
                     next_obs_aux1 = self.preprocess(next_obs_aux1)
-                    if mostrar:
-                        aux = next_obs_aux1.copy()
-                        fig = plt.figure(1)
-                        plt.subplot(131)
-                        plt.imshow(np.squeeze(aux))
-                        plt.subplot(132)
-                        aux = next_obs_aux2.copy()
-                        plt.imshow(np.squeeze(aux))
                     # TODO: esto no se debería hacer con todas las imágenes intermedias? consultar en paper atari dqn
                     next_obs = np.maximum(next_obs_aux2, next_obs_aux1)
-                    if mostrar:
-                        plt.subplot(133)
-                        aux = next_obs.copy()
-                        plt.imshow(np.squeeze(aux))
-                        plt.show()
+
                 else:
                     next_obs = self.preprocess(next_obs)
                     next_obs = np.maximum(next_obs_aux2, next_obs)

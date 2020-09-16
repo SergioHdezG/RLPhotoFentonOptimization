@@ -5,7 +5,7 @@ from CAPORL.utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 
-environment_disc = "SpaceInvaders-v0"
+environment_disc = "CartPole-v1"
 environment_cont = "LunarLanderContinuous-v2"
 
 # Encontramos cuatro tipos de agentes PPO, dos para problemas con acciones discretas (ppo_agent_discrete,
@@ -41,9 +41,9 @@ model_params_cont = params.algotirhm_hyperparams(learning_rate=1e-3,
 
 def lstm_custom_model(input_shape):
     actor_model = Sequential()
-    actor_model.add(LSTM(64, input_shape=input_shape, activation='tanh'))
-    actor_model.add(Dense(64, activation='relu'))
-    actor_model.add(Dense(64, activation='relu'))
+    # actor_model.add(LSTM(32, input_shape=input_shape, activation='tanh'))
+    actor_model.add(Dense(128, input_shape=input_shape, activation='relu'))
+    actor_model.add(Dense(128, activation='relu'))
 
     return actor_model
 
@@ -74,23 +74,24 @@ def atari_preprocess(obs):
     obs = obs[:, :, np.newaxis]
     return obs
 
-# Descomentar para ejecutar el ejemplo discreto
-problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
-                             n_stack=4, img_input=True, state_size=(90, 80, 1))
-
-problem_disc.preprocess = atari_preprocess
-
-# En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
-# iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
-# máximo de épocas.
-problem_disc.solve(3000, render=True, max_step_epi=5000, skip_states=3)
-problem_disc.test(render=True, n_iter=10)
+# state_size = None
+# # Descomentar para ejecutar el ejemplo discreto
+# problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
+#                              n_stack=3, img_input=False, state_size=state_size)
+#
+# # problem_disc.preprocess = atari_preprocess
+#
+# # En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
+# # iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
+# # máximo de épocas.
+# problem_disc.solve(30, render=False, max_step_epi=5000, skip_states=1)
+# problem_disc.test(render=True, n_iter=10)
 
 
 # Descomentar para ejecutar el ejemplo continuo
-# problem_cont= rl_problem.Problem(environment_cont, agent_cont, model_params_cont, net_architecture=net_architecture,
-#                              n_stack=1)
-# # En este caso no se utiliza el parámetro max_step_epi=500 por lo que el máximo de iteraciones será el que viene por
-# # defecto (1000).
-# problem_cont.solve(500, render=False, skip_states=1)
-# problem_cont.test(render=True, n_iter=5)
+problem_cont= rl_problem.Problem(environment_cont, agent_cont, model_params_cont, net_architecture=net_architecture,
+                             n_stack=3)
+# En este caso no se utiliza el parámetro max_step_epi=500 por lo que el máximo de iteraciones será el que viene por
+# defecto (1000).
+problem_cont.solve(300, render=False, skip_states=3)
+problem_cont.test(render=True, n_iter=10)

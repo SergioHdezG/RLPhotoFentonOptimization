@@ -18,7 +18,7 @@ model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
 def lstm_custom_model(input_shape):
     actor_model = Sequential()
     actor_model.add(LSTM(64, input_shape=input_shape, activation='tanh'))
-    actor_model.add(Dense(256, activation='relu'))
+    actor_model.add(Dense(256, input_shape=input_shape, activation='relu'))
     actor_model.add(Dense(256, activation='relu'))
     return actor_model
 

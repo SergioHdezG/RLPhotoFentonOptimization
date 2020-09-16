@@ -148,7 +148,7 @@ def build_nn_net(net_architecture, input_shape, dddqn=False, actor=False, critic
     custom_net = read_net_params(net_architecture, actor, critic)[-5:]
 
     if use_custom_net:
-        return custom_net(input_shape)
+        return custom_net((input_shape,))
     else:
         model = Sequential()
         model.add(Dense(n_neurons[0], input_dim=input_shape, activation=dense_activation[0]))
