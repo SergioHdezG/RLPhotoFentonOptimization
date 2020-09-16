@@ -11,13 +11,13 @@ from CAPORL.utils.preprocess import *
 from CAPORL.utils import hyperparameters as params
 from CAPORL.Memory.deque_memory import Memory as deque_m
 from src.IRL.utils import callbacks
-from CAPORL.RL_Agent.PPO import ppo_agent_discrete_async
+from CAPORL.RL_Agent.PPO import ppo_agent_discrete_parallel
 
 
 environment = "LunarLander-v2"
 # environment = el_viajante
 
-agent = ppo_agent_discrete_async.create_agent()
+agent = ppo_agent_discrete_parallel.create_agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-4,
                                             batch_size=32,

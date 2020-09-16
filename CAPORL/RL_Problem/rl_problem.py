@@ -1,11 +1,11 @@
 from CAPORL.RL_Problem.ActorCritic import a3c_problem, ddpg_problem, a2c_problem
 from CAPORL.RL_Problem.ValueBased import dqn_problem
 from CAPORL.RL_Problem.PolicyBased import dpg_problem
-from CAPORL.RL_Problem.PPO import ppo_problem_v1, ppo_problem_v2, ppo_problem_tf, ppo_problem_async, ppo_problem_discrete, ppo_problem_discrete_async
+from CAPORL.RL_Problem.PPO import ppo_problem_continuous, ppo_problem_continuous_parallel, ppo_problem_discrete, ppo_problem_discrete_parallel
 from CAPORL.RL_Agent.DQN_Agent import ddqn_agent, dddqn_agent, dqn_agent
 from CAPORL.RL_Agent.DDPG_Agent import ddpg_agent
 from CAPORL.RL_Agent.DPGAgent import dpg_agent
-from CAPORL.RL_Agent.PPO import ppo_agent_v1, ppo_agent_v2, ppo_agent_tf, ppo_agent_async, ppo_agent_discrete, ppo_agent_discrete_async
+from CAPORL.RL_Agent.PPO import ppo_agent_continuous, ppo_agent_continuous_parallel, ppo_agent_discrete, ppo_agent_discrete_parallel
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent import a2c_agent_continuous, a2c_agent_discrete, a2c_agent_discrete_queue, a2c_agent_continuous_queue
 
 def Problem(environment, agent, model_params, saving_model_params=None, net_architecture=None, n_stack=1, img_input=False, state_size=None):
@@ -73,23 +73,23 @@ def Problem(environment, agent, model_params, saving_model_params=None, net_arch
                                          state_size=state_size, model_params=model_params,
                                          saving_model_params=saving_model_params, net_architecture=net_architecture)
     elif agent == 'PPO_continuous':
-        agent = ppo_agent_v2
-        problem = ppo_problem_v2.PPOProblem(environment, agent, img_input=img_input, n_stack=n_stack,
-                                            state_size=state_size, model_params=model_params,
-                                            saving_model_params=saving_model_params, net_architecture=net_architecture)
+        agent = ppo_agent_continuous
+        problem = ppo_problem_continuous.PPOProblem(environment, agent, img_input=img_input, n_stack=n_stack,
+                                                    state_size=state_size, model_params=model_params,
+                                                    saving_model_params=saving_model_params, net_architecture=net_architecture)
     elif agent == 'PPO_continuous_async':
-        agent = ppo_agent_async
-        problem = ppo_problem_async.PPOProblem(environment, agent, img_input=img_input, n_stack=n_stack,
-                                               state_size=state_size, model_params=model_params,
-                                               saving_model_params=saving_model_params, net_architecture=net_architecture)
+        agent = ppo_agent_continuous_parallel
+        problem = ppo_problem_continuous_parallel.PPOProblem(environment, agent, img_input=img_input, n_stack=n_stack,
+                                                             state_size=state_size, model_params=model_params,
+                                                             saving_model_params=saving_model_params, net_architecture=net_architecture)
     elif agent == 'PPO_discrete':
         agent = ppo_agent_discrete
         problem = ppo_problem_discrete.PPOProblem(environment, agent, img_input=img_input, n_stack=n_stack,
                                             state_size=state_size, model_params=model_params,
                                             saving_model_params=saving_model_params, net_architecture=net_architecture)
     elif agent == 'PPO_discrete_async':
-        agent = ppo_agent_discrete_async
-        problem = ppo_problem_discrete_async.PPOProblem(environment, agent, img_input=img_input, n_stack=n_stack,
-                                            state_size=state_size, model_params=model_params,
-                                            saving_model_params=saving_model_params, net_architecture=net_architecture)
+        agent = ppo_agent_discrete_parallel
+        problem = ppo_problem_discrete_parallel.PPOProblem(environment, agent, img_input=img_input, n_stack=n_stack,
+                                                           state_size=state_size, model_params=model_params,
+                                                           saving_model_params=saving_model_params, net_architecture=net_architecture)
     return problem

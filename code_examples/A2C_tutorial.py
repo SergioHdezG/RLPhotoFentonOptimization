@@ -4,7 +4,7 @@ from CAPORL.RL_Agent.ActorCritic.A2C_Agent import a2c_agent_continuous, a2c_agen
 from CAPORL.utils import hyperparameters as params
 
 
-environment_disc = "LunarLander-v2"
+environment_disc = "CartPole-v1"
 environment_cont = "LunarLanderContinuous-v2"
 
 # Encontramos cuatro tipos de agentes A2C, dos para problemas con acciones discretas (a2c_agent_discrete,
@@ -13,8 +13,8 @@ environment_cont = "LunarLanderContinuous-v2"
 # (a2c_agent_discrete_queue, a2c_agent_continuous_queue)
 # agent_disc = a2c_agent_discrete.create_agent()
 agent_disc = a2c_agent_discrete_queue.create_agent()
-agent_cont = a2c_agent_continuous.create_agent()
-# agent_cont = a2c_agent_continuous_queue.create_agent()
+# agent_cont = a2c_agent_continuous.create_agent()
+agent_cont = a2c_agent_continuous_queue.create_agent()
 
 # Este algoritmo utiliza el parámetro n_step_return que indica que ventana de tiempo se utiliza para calcular el valor
 # del retorno durante la optimización. En este caso una ventana temporal de los 15 últimos estados.
@@ -54,20 +54,19 @@ problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_dis
 
 # Seleccionamos el tamaño de la memoria
 memory_max_len = 10000  # Indicamos la capacidad máxima de la memoria
-problem_disc.agent.set_memory(deq_m, memory_max_len)
+# problem_disc.agent.set_memory(deq_m, memory_max_len)
 
 # En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
 # iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
 # máximo de épocas.
-problem_disc.solve(150, render=False, max_step_epi=500, skip_states=3)
-problem_disc.test(render=True, n_iter=5)
+problem_disc.solve(400, render=False, max_step_epi=500, skip_states=2)
+problem_disc.test(render=True, n_iter=10)
 
 
-"""# Descomentar para ejecutar el ejemplo continuo
+# Descomentar para ejecutar el ejemplo continuo
 problem_cont= rl_problem.Problem(environment_cont, agent_cont, model_params_cont, net_architecture=net_architecture,
-                             n_stack=4)
+                             n_stack=1)
 # En este caso no se utiliza el parámetro max_step_epi=500 por lo que el máximo de iteraciones será el que viene por
 # defecto (1000).
-problem_cont.solve(500, render=False, skip_states=3)
-problem_cont.test(render=True, n_iter=5)
-"""
+problem_cont.solve(500, render=False, skip_states=2)
+problem_cont.test(render=True, n_iter=10)

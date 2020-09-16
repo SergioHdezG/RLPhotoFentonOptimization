@@ -1,6 +1,6 @@
 from CAPORL.Memory.deque_memory import Memory as deq_m
 from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.PPO import ppo_agent_discrete, ppo_agent_v2, ppo_agent_async, ppo_agent_discrete_async
+from CAPORL.RL_Agent.PPO import ppo_agent_discrete, ppo_agent_continuous, ppo_agent_continuous_parallel, ppo_agent_discrete_parallel
 from CAPORL.utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
@@ -12,8 +12,8 @@ environment_cont = "LunarLanderContinuous-v2"
 # ppo_agent_discrete_async) y dos para acciones continuas (ppo_agent_v2, ppo_agent_async). Por
 # otro lado encontramos una versión de cada uno siíncrona y otra asíncrona.
 # agent_disc = ppo_agent_discrete.create_agent()
-agent_disc = ppo_agent_discrete_async.create_agent()
-agent_cont = ppo_agent_v2.create_agent()
+agent_disc = ppo_agent_discrete_parallel.create_agent()
+agent_cont = ppo_agent_continuous.create_agent()
 # agent_cont = ppo_agent_async.create_agent()
 
 # Este algoritmo utiliza el parámetro n_step_return que indica que ventana de tiempo se utiliza para calcular el valor

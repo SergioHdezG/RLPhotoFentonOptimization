@@ -54,6 +54,9 @@ class AgentInterfaz(object):
         """
         pass
 
+    def copy_model_to_target(self):
+        pass
+
 
 class AgentSuper(AgentInterfaz):
     def __init__(self):

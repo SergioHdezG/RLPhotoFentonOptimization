@@ -14,7 +14,7 @@ from CAPORL.utils import hyperparameters as params
 from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop, carlaenv_stop_async
 from src.IRL.IRL_Problem import irl_problem_super as irl_p
 from src.IRL.utils.callbacks import load_expert_memories
-from CAPORL.RL_Agent.PPO import ppo_agent_async, ppo_agent_v2, ppo_agent_discrete
+from CAPORL.RL_Agent.PPO import ppo_agent_continuous_parallel, ppo_agent_continuous, ppo_agent_discrete
 from CAPORL.environments import CarRacing
 from CAPORL.utils.custom_networks import custom_nets
 import subprocess
@@ -25,7 +25,7 @@ import subprocess
 # environment = carlaenv_continuous_stop.env
 environment = carlaenv_continuous.env
 
-agent = ppo_agent_v2.create_agent()
+agent = ppo_agent_continuous.create_agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-4,
                                             batch_size=64,

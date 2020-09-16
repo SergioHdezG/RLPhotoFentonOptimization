@@ -17,9 +17,6 @@ from tensorflow.keras.initializers import RandomNormal
 from CAPORL.RL_Agent.agent_interfaz import AgentSuper
 
 
-def create_agent():
-    pass
-
 # worker class that inits own environment, trains on it and updloads weights to global net
 class PPOSuper(AgentSuper):
     def __init__(self, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,

@@ -8,7 +8,7 @@ import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Lambda, subtract, add
 from tensorflow.keras.optimizers import Adam
-from CAPORL.RL_Agent.DQN_Agent.dqn_agent_super import DQNAgentSuper
+from CAPORL.RL_Agent.DQN_Agent.dqn_agent_base import DQNAgentSuper
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import dddqn_net
 

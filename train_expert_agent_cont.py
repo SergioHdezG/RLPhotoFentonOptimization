@@ -6,7 +6,7 @@ from CAPORL.RL_Agent.ActorCritic.A3C_Agent import a3c_agent_continuous, a3c_agen
 from CAPORL.RL_Agent.DPGAgent import dpg_agent
 from CAPORL.RL_Agent.DDPG_Agent import ddpg_agent
 from CAPORL.RL_Agent.DQN_Agent import dqn_agent, ddqn_agent, dddqn_agent
-from CAPORL.RL_Agent.PPO import ppo_agent_async, ppo_agent_v2
+from CAPORL.RL_Agent.PPO import ppo_agent_continuous_parallel, ppo_agent_continuous
 from CAPORL.utils.clipping_reward import *
 from CAPORL.utils.preprocess import *
 from CAPORL.utils import hyperparameters as params
@@ -21,7 +21,7 @@ from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop, c
 environment = carlaenv_continuous_rl.env
 
 # agent = ppo_agent_async.create_agent()
-agent = ppo_agent_v2.create_agent()
+agent = ppo_agent_continuous.create_agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-4,
                                             batch_size=128,
