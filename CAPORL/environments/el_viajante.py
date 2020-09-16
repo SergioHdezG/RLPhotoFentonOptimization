@@ -3,7 +3,7 @@ import time
 import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
-from CAPORL.environments.env_interfaz import EnvInterface, ActionSpaceInterface
+from CAPORL.environments.env_interface import EnvInterface, ActionSpaceInterface
 
 class action_space(ActionSpaceInterface):
     def __init__(self, n_cities):

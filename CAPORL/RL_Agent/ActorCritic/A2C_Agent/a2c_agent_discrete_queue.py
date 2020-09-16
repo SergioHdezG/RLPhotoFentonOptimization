@@ -6,7 +6,7 @@ import gc
 import numpy as np
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
 from CAPORL.Memory.deque_memory import Memory
-from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+from CAPORL.RL_Agent.agent_interface import AgentSuper
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.a2c_agent_queue_base import A2CQueueSuper
 
 

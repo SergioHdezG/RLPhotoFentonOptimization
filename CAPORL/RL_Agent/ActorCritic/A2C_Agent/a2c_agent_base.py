@@ -3,7 +3,7 @@ import datetime
 import random
 from tensorflow.python.keras.models import model_from_json
 import random
-from  CAPORL.RL_Agent.agent_interfaz import AgentInterface
+from  CAPORL.RL_Agent.agent_interface import AgentInterface
 import numpy as np
 import tensorflow as tf
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
@@ -15,7 +15,7 @@ from tensorflow.keras.optimizers import Adam
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import ppo_net
 from tensorflow.keras.initializers import RandomNormal
-from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+from CAPORL.RL_Agent.agent_interface import AgentSuper
 
 
 # worker class that inits own environment, trains on it and updloads weights to global net

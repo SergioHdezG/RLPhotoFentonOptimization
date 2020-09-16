@@ -67,7 +67,7 @@ class AgentInterface(object):
 
 class AgentSuper(AgentInterface):
     """
-    All agents in this library should inherit from this class. Here can be found basic useful utilities for agents 
+    All agents in this library should inherit from this class. Here can be found basic useful utilities for agents
     implementation.
     """
     def __init__(self):

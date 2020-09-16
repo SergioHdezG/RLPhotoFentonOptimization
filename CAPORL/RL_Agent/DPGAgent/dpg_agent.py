@@ -6,7 +6,7 @@ from CAPORL.utils.parse_utils import *
 from CAPORL.RL_Problem.rl_problem_super import *
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import dpg_net
-from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+from CAPORL.RL_Agent.agent_interface import AgentSuper
 
 
 def create_agent():

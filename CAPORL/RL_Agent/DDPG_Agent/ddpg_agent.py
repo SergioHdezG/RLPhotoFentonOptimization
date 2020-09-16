@@ -7,7 +7,7 @@ from CAPORL.utils.parse_utils import *
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import ddpg_net
 from tensorflow.keras.initializers import RandomNormal
-from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+from CAPORL.RL_Agent.agent_interface import AgentSuper
 
 
 def create_agent():

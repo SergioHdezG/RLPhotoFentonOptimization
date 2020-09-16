@@ -1,4 +1,4 @@
-from CAPORL.environments.env_interfaz import EnvInterface, ActionSpaceInterface
+from CAPORL.environments.env_interface import EnvInterface, ActionSpaceInterface
 import gym
 import CAPORL.environments.carla.vae_1 as vae
 import os

@@ -12,7 +12,7 @@ from tensorflow.keras.models import model_from_json
 from tensorflow.keras.optimizers import Adam
 import tensorflow.keras.backend as K
 import gc
-from CAPORL.RL_Agent.agent_interfaz import AgentSuper
+from CAPORL.RL_Agent.agent_interface import AgentSuper
 
 
 class DQNAgentSuper(AgentSuper):
