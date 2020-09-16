@@ -1,4 +1,4 @@
-from  CAPORL.RL_Agent.agent_interfaz import AgentInterfaz
+from  CAPORL.RL_Agent.agent_interfaz import AgentInterface
 import numpy as np
 import tensorflow as tf
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous
@@ -14,7 +14,7 @@ def create_agent():
 
 
 # worker class that inits own environment, trains on it and updloads weights to global net
-class Agent(AgentInterfaz):
+class Agent(AgentInterface):
     def __init__(self, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  action_bound=None, batch_size=32, buffer_size=2048, net_architecture=None):
         self.state_size = state_size

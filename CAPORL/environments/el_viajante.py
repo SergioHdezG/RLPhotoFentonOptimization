@@ -3,9 +3,9 @@ import time
 import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
-from CAPORL.environments.env_interfaz import EnvInterfaz, ActionSpaceInterfaz
+from CAPORL.environments.env_interfaz import EnvInterface, ActionSpaceInterface
 
-class action_space(ActionSpaceInterfaz):
+class action_space(ActionSpaceInterface):
     def __init__(self, n_cities):
         """
         Actions: Permutaciones posibles
@@ -58,7 +58,7 @@ class Cities:
         b = np.array(self.city_path)/(len(self.city_path)-1)
         return np.concatenate((a, b))
 
-class env(EnvInterfaz):
+class env(EnvInterface):
     """ Problema del viajante
     """
     def __init__(self):

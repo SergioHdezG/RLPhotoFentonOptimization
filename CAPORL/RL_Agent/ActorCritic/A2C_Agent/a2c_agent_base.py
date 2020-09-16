@@ -3,7 +3,7 @@ import datetime
 import random
 from tensorflow.python.keras.models import model_from_json
 import random
-from  CAPORL.RL_Agent.agent_interfaz import AgentInterfaz
+from  CAPORL.RL_Agent.agent_interfaz import AgentInterface
 import numpy as np
 import tensorflow as tf
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete

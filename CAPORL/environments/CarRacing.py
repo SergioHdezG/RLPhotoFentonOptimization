@@ -1,4 +1,4 @@
-from CAPORL.environments.env_interfaz import EnvInterfaz, ActionSpaceInterfaz
+from CAPORL.environments.env_interfaz import EnvInterface, ActionSpaceInterface
 import gym
 import CAPORL.environments.carla.vae_1 as vae
 import os
@@ -15,7 +15,7 @@ class action_space:
         self.high = 1
         self.n = 3
 
-class env(EnvInterfaz):
+class env(EnvInterface):
     """ Problema del viajante
     """
     def __init__(self):
