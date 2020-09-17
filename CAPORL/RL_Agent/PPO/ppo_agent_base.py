@@ -22,12 +22,7 @@ class PPOSuper(AgentSuper):
     def __init__(self, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  batch_size=32, buffer_size=2048, epsilon=1.0, epsilon_decay=0.995, epsilon_min = 0.1,
                  net_architecture=None):
-        super().__init__()
-
-        self.state_size = state_size
-        self.n_actions = n_actions
-        self.stack = stack
-        self.img_input = img_input
+        super().__init__(state_size=state_size, n_actions=n_actions, img_input=img_input, stack=stack)
 
         self.lr_actor = lr_actor
         self.lr_critic = lr_critic
@@ -287,7 +282,6 @@ class PPOSuper(AgentSuper):
             p1 = ratio * advantage
             p2 = K.clip(ratio, min_value=1 - self.loss_clipping, max_value=1 + self.loss_clipping) * advantage
             actor_loss = - K.mean(K.minimum(p1, p2))
-            # TODO: Es rewards o returns
             critic_loss = self.critic_discount * K.mean(K.square(rewards - values))
             entropy = - self.entropy_beta * K.mean(-(new_prob * K.log(new_prob + 1e-10)))
 
@@ -306,7 +300,6 @@ class PPOSuper(AgentSuper):
             p1 = ratio * advantage
             p2 = K.clip(ratio, min_value=1 - self.loss_clipping, max_value=1 + self.loss_clipping) * advantage
             actor_loss = - K.mean(K.minimum(p1, p2))
-            # TODO: Es rewards o returns
             critic_loss = self.critic_discount * K.mean(K.square(rewards - values))
             entropy = - self.entropy_beta * K.mean(-(new_prob * K.log(new_prob + 1e-10)))
 

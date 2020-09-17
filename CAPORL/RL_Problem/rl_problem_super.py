@@ -16,26 +16,34 @@ class RLProblemSuper:
 
     This class represent the RL problem to solve, here is where the problem gave by the environment is solved by the
     agent.
-    All agents extends this class,but A3C due to a different structure is needed in this algorithm.
+    Specific problem classes of every agents should extends this class, but A3C due to a different structure is needed
+    in this algorithm.
     """
 
     def __init__(self, environment, agent, n_stack=1, img_input=False, state_size=None, saving_model_params=None,
                  net_architecture=None):
         """
         Attributes:
-            environment:    Environment selected for this problem
-            agent:          Agent to solve the problem
+            environment:    EnvInterface. Environment selected for this problem
+            agent:          AgentInterface. Selected agent for solving the problem
             n_stack:        Int >= 1. If 1, there is no stacked input. Number of time related input stacked.
             img_input:      Bool. If True, input data is an image.
-            state_size:     None, Int or Tuple. State dimensions. If None it will be calculated automatically. Int or
-                            Tuple format will be useful when preprocessing change the input dimensions.
+            state_size:     None, Int or Tuple. State dimensions. If None it will be calculated automatically using the
+                            dimensions specified in the environment. Int or Tuple format would be useful when
+                            preprocessing change the input dimensions.
         """
 
         # Inicializar el entorno
-        if isinstance(environment, str):
-            self.env = gym.make(environment)
-        else:
-            self.env = environment()
+        # if isinstance(environment, str):
+        #     self.env = gym.make(environment)
+        # else:
+        #     self.env = environment()
+
+        self.env = environment
+
+        if hasattr(self.env, 'spec') and hasattr(self.env.spec, 'id'):
+            name = self.env.spec.id
+
 
         self.n_stack = n_stack
         self.img_input = img_input

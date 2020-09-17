@@ -22,12 +22,7 @@ from CAPORL.RL_Agent.agent_interface import AgentSuper
 class A2CSuper(AgentSuper):
     def __init__(self, sess, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  n_steps_update=10, net_architecture=None, continuous_actions=False):
-        super().__init__()
-
-        self.stack = stack
-        self.img_input = img_input
-        self.n_actions = n_actions
-        self.state_size = state_size
+        super().__init__(state_size=state_size, n_actions=n_actions, img_input=img_input, stack=stack)
 
         self.sess = sess
 

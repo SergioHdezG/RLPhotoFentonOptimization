@@ -69,7 +69,7 @@ class Agent(DQNAgentSuper):
 
         # Advantage model
         # dense_a = Dense(256, activation='relu', name="dense_advantage")(model.output)
-        out_a = Dense(self.action_size, activation='linear', name="out_advantage")(dense_a)
+        out_a = Dense(self.n_actions, activation='linear', name="out_advantage")(dense_a)
 
         a_mean = Lambda(tf.math.reduce_mean, arguments={'axis': 1, 'keepdims': True})(out_a)  # K.mean
         a_subs = subtract([out_a, a_mean])

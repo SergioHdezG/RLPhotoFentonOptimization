@@ -28,10 +28,8 @@ class Agent(AgentSuper):
                 img_input:          True if inputs are images, False otherwise.
                 model_params:       Dictionary of params like learning rate, batch size, epsilon values, n step returns...
         """
-        super().__init__()
+        super().__init__(state_size=state_size, n_actions=n_actions, img_input=img_input, stack=stack)
 
-        self.state_size = state_size
-        self.n_actions = n_actions
         self.action_low_bound = action_low_bound
         self.action_high_bound = action_high_bound
 
@@ -44,8 +42,6 @@ class Agent(AgentSuper):
         self.critic_lr = learning_rate
         self.gamma = gamma
         self.tau = tau
-        self.stack = stack
-        self.img_input = img_input
 
         # self.memory_size = memory_size
         # self.memory = np.zeros([self.memory_size, self.state_size * 2 + self.action_size + 1])

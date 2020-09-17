@@ -30,13 +30,7 @@ class Agent(AgentSuper):
             img_input:          True if inputs are images, False otherwise.
             model_params:       Dictionary of params like learning rate, batch size, epsilon values, n step returns...
         """
-        super().__init__()
-
-        self.state_size = state_size
-        self.n_actions = n_actions
-
-        self.stack = stack
-        self.img_input = img_input
+        super().__init__(state_size=state_size, n_actions=n_actions, img_input=img_input, stack=stack)
 
         if model_params is not None:
             _, _, _, _, learning_rate, _ = \
@@ -203,8 +197,6 @@ class Agent(AgentSuper):
             self.done = False
             return discounted_episode_rewards_norm
 
-    def copy_model_to_target(self):
-        pass
 
     def load(self, dir, name):
         name = path.join(dir, name)

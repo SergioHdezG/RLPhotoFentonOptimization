@@ -36,10 +36,7 @@ class DQNAgentSuper(AgentSuper):
                 img_input:          True if inputs are images, False otherwise.
                 model_params:       Dictionary of params like learning rate, batch size, epsilon values, n step returns...
         """
-        super().__init__()
-
-        self.state_size = state_size
-        self.action_size = n_actions
+        super().__init__(state_size=state_size, n_actions=n_actions, img_input=img_input, stack=stack)
 
         if model_params is not None:
             batch_size, epsilon, epsilon_min, epsilon_decay, learning_rate, _ = \
@@ -49,8 +46,6 @@ class DQNAgentSuper(AgentSuper):
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
         self.learning_rate = learning_rate
-        self.stack = stack
-        self.img_input = img_input
         self.model = self._build_model(net_architecture)
         self.target_model = self._build_model(net_architecture)
         self.model.summary()
@@ -85,7 +80,7 @@ class DQNAgentSuper(AgentSuper):
         """
         # Exploration
         if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
+            return random.randrange(self.n_actions)
 
         # Exploitation
         # if self.img_input:

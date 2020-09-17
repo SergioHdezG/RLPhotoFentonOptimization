@@ -52,7 +52,7 @@ class Agent(DQNAgentSuper):
         else:
             model = net_building.build_nn_net(net_architecture, self.state_size)
 
-        model.add(Dense(self.action_size, activation='linear'))
+        model.add(Dense(self.n_actions, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
         return model

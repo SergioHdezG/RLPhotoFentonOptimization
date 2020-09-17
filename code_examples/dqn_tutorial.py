@@ -2,8 +2,9 @@ from CAPORL.RL_Problem import rl_problem
 from CAPORL.RL_Agent.DQN_Agent import dqn_agent
 from CAPORL.utils import hyperparameters as params
 from CAPORL.RL_Agent.PPO import ppo_agent_discrete
-
+import gym
 environment = "CartPole-v1"
+environment = gym.make(environment)
 
 agent = dqn_agent.create_agent()
 

@@ -70,8 +70,13 @@ class AgentSuper(AgentInterface):
     All agents in this library should inherit from this class. Here can be found basic useful utilities for agents
     implementation.
     """
-    def __init__(self):
+    def __init__(self, state_size, n_actions, img_input, stack):
         super().__init__()
+
+        self.state_size = state_size
+        self.n_actions = n_actions
+        self.stack = stack
+        self.img_input = img_input
 
     def _format_obs_act(self, obs):
         if self.img_input:
