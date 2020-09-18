@@ -1,12 +1,9 @@
 import cv2
-
+from CAPORL.RL_Problem.PPO.ppo_problem_base import PPOProblemBase
 from CAPORL.RL_Problem.rl_problem_super import *
 import numpy as np
 
-def create_agent():
-    return "PPO_continuous"
-
-class PPOProblem(RLProblemSuper):
+class PPOProblem(PPOProblemBase):
     """
     Proximal Policy Optimization.
     """
@@ -23,203 +20,12 @@ class PPOProblem(RLProblemSuper):
                 model_params:   Dictionary of params like learning rate, batch size, epsilon values, n step returns...
         """
         super().__init__(environment, agent, n_stack=n_stack, img_input=img_input, state_size=state_size,
-                         saving_model_params=saving_model_params, net_architecture=net_architecture)
-        self.environment = environment
+                         model_params=model_params, saving_model_params=saving_model_params,
+                         net_architecture=net_architecture, continuous=False)
 
-        if model_params is not None:
-            batch_size, epsilon, epsilon_min, epsilon_decay, learning_rate, n_step_rew = \
-                parse_model_params(model_params)
-
-        self.episode = 0
-        self.val = False
-        self.reward = []
-        self.reward_over_time = []
-
-        self.gradient_steps = 0
-
-        self.batch_size = batch_size
-        self.buffer_size = 512
-        self.learning_rate = learning_rate
-
-        # List of 100 last rewards
-        self.rew_mean_list = deque(maxlen=100)
-        self.global_steps = 0
-
-        self.obs_batch = []
-        self.actions_batch = []
-        self.actions_probs_batch = []
-        self.rewards_batch = []
-        self.values_batch = []
-        self.masks_batch = []
-
-        self.agent = self._build_agent(agent, [batch_size, epsilon, epsilon_min, epsilon_decay, learning_rate, n_step_rew], net_architecture)
-
-    def _build_agent(self, agent, model_params, net_architecture):
-        if self.img_input:
-            stack = self.n_stack is not None and self.n_stack > 1
-            # TODO: Tratar n_stack como ambos channel last and channel first
-            state_size = (*self.state_size[:2], self.state_size[-1] * self.n_stack)
-
-        elif self.n_stack is not None and self.n_stack > 1:
-            stack = True
-            state_size = (self.n_stack, self.state_size)
-        else:
-            stack = False
-            state_size = self.state_size
-
-        return agent.Agent(state_size, self.n_actions, stack=stack, img_input=self.img_input,
-                           lr_actor=self.learning_rate, lr_critic=self.learning_rate, batch_size=self.batch_size,
-                           buffer_size=self.buffer_size, epsilon=model_params[1], epsilon_decay=model_params[3],
-                           epsilon_min=model_params[2], net_architecture=net_architecture)
-
-    def solve(self, episodes, render=True, render_after=None, max_step_epi=None, skip_states=1, verbose=1, discriminator=None, expert_traj=None):
-        """ Algorithm for training the agent to solve the environment problem.
-
-        :param episodes:        Int >= 1. Number of episodes to train.
-        :param render:          Bool. If True, the environment will show the user interface during the training process.
-        :param render_after:    Int >=1 or None. Star rendering the environment after this number of episodes.
-        :param max_step_epi:    Int >=1 or None. Maximum number of epochs per episode. Mainly for problems where the
-                                environment
-                                doesn't have a maximum number of epochs specified.
-        :param skip_states:     Int >= 1. Frame skipping technique  applied in Playing Atari With Deep Reinforcement
-                                Learning paper. If 1, this technique won't be applied.
-        :param verbose:         Int in range [0, 2]. If 0 no training information will be displayed, if 1 lots of
-                                information will be displayed, if 2 fewer information will be displayed.
-        :return:
-        """
-        # Inicializar iteraciones globales
-        self.global_steps = 0
-        self.episode = 0
-        # List of 100 last rewards
-        self.rew_mean_list = deque(maxlen=10)
-
-        while self.episode < episodes:
-            self.collect_batch(render, render_after, max_step_epi, skip_states, verbose, discriminator, expert_traj)
-            actor_loss, critic_loss = self.agent.replay()
-
-            print('Actor loss', actor_loss.history['loss'][-1], self.gradient_steps)
-            print('Critic loss', critic_loss.history['loss'][-1], self.gradient_steps)
-
-            self.gradient_steps += 1
-
-    def collect_batch(self, render, render_after, max_step_epi, skip_states, verbose, discriminator=None, expert_traj=None):
-        self.obs_batch = []
-        self.actions_batch = []
-        self.actions_probs_batch = []
-        self.rewards_batch = []
-        self.values_batch = []
-        self.masks_batch = []
-        # Stacking inputs
-        if self.n_stack is not None and self.n_stack > 1:
-            obs_queue = deque(maxlen=self.n_stack)
-            obs_next_queue = deque(maxlen=self.n_stack)
-        else:
-            obs_queue = None
-            obs_next_queue = None
-
-        while len(self.obs_batch) < self.buffer_size:
-            tmp_batch = [[], [], [], [], [], [], []]
-
-            if self.episode % 99 == 0:
-                self.test(n_iter=4, render=True)
-
-            obs = self.env.reset()
-            episodic_reward = 0
-            epochs = 0
-            done = False
-            self.reward = []
-
-            obs = self.preprocess(obs)
-
-            # Stacking inputs
-            if self.n_stack is not None and self.n_stack > 1:
-                for i in range(self.n_stack):
-                    obs_queue.append(obs)
-                    obs_next_queue.append(obs)
-
-            while not done:  # and len(batch[0])+len(tmp_batch[0]) < self.buffer_size:
-                if render or ((render_after is not None) and self.episode > render_after):
-                    self.env.render()
-
-                # Select an action
-                action, action_matrix, predicted_action, value = self.act(obs, obs_queue)
-
-                # Agent act in the environment
-                next_obs, reward, done, info = self.env.step(action)
-                if discriminator is not None:
-                    if self.n_stack > 1:
-                        reward = discriminator.get_reward(obs_queue, action)[0]
-                    else:
-                        reward = discriminator.get_reward(obs, action)[0]
-                    if render or ((render_after is not None) and self.episode > render_after):
-                        # TODO: esto que es?
-                        rew_img = np.ones((50, 300, 3), dtype=np.uint8)
-                        rew_img = cv2.putText(rew_img, "Reward: {:.4f} ".format(reward), (5, 40),
-                                              cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                        cv2.imshow('Reward', rew_img)
-                        cv2.waitKey(1)
-
-                # Store the experience in episode memory
-                next_obs, obs_next_queue, reward, done, epochs, mask, tmp_batch = self.store_episode_experience(action,
-                                                                                                                done,
-                                                                                                                next_obs,
-                                                                                                                obs,
-                                                                                                                obs_next_queue,
-                                                                                                                obs_queue,
-                                                                                                                reward,
-                                                                                                                skip_states,
-                                                                                                                epochs,
-                                                                                                                tmp_batch,
-                                                                                                                predicted_action,
-                                                                                                                action_matrix,
-                                                                                                                value)
-
-                # copy next_obs to obs
-                obs, obs_queue = self.copy_next_obs(next_obs, obs, obs_next_queue, obs_queue)
-
-                episodic_reward += reward
-                epochs += 1
-                self.global_steps += 1
-
-            self.episode += 1
-
-            # Add reward to the list
-            self.rew_mean_list.append(episodic_reward)
-
-            # Print log on scream
-            self._feedback_print(self.episode, episodic_reward, epochs, verbose, self.rew_mean_list)
-
-        if discriminator is not None and expert_traj is not None:
-            agent_traj = [np.array([o, [np.argmax(a)]]) for o, a in zip(self.obs_batch, self.actions_batch)]
-            discriminator.train(expert_traj, agent_traj)
-
-            self.rewards_batch = [discriminator.get_reward(o, [np.argmax(a)])[0] for o, a in zip(self.obs_batch, self.actions_batch)]
-
-
-        self.agent.remember(self.obs_batch, self.actions_batch, self.actions_probs_batch, self.rewards_batch,
-                            self.values_batch, self.masks_batch)
-
-    def store_episode_experience(self, action, done, next_obs, obs, obs_next_queue, obs_queue, reward, skip_states, epochs,
-                         tmp_batch, predicted_action, action_matrix, value):
-
-        done, next_obs, reward, epochs = self.frame_skipping(action, done, next_obs, reward, skip_states, epochs)
-        mask = not done
-        if self.n_stack is not None and self.n_stack > 1:
-            obs_next_queue.append(next_obs)
-
-            if self.img_input:
-                obs_queue_stack = np.dstack(obs_queue)
-            else:
-                # obs_next_stack = np.array(obs_next_queue).reshape(self.state_size, self.n_stack)
-                obs_queue_stack = np.array(obs_queue)
-            self.obs_batch.append(obs_queue_stack)
-        else:
-            self.obs_batch.append(obs)
-
-        self.actions_batch.append(action_matrix)
-        self.actions_probs_batch.append(predicted_action)
-        self.rewards_batch.append(reward)
-        self.values_batch.append(value[0])
-        self.masks_batch.append(mask)
-
-        return next_obs, obs_next_queue, reward, done, epochs, mask, tmp_batch
+    def _define_agent(self, agent, state_size, n_actions, stack, img_input, lr_actor, lr_critic, batch_size,
+                      buffer_size, epsilon, epsilon_decay, epsilon_min, action_bound, net_architecture,
+                      n_parallel_envs):
+        return agent.Agent(state_size, n_actions, stack=stack, img_input=img_input, lr_actor=lr_actor,
+                           lr_critic=lr_critic, batch_size=batch_size, buffer_size=buffer_size, epsilon=epsilon,
+                           epsilon_decay=epsilon_decay, epsilon_min=epsilon_min, net_architecture=net_architecture)

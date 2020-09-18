@@ -14,7 +14,7 @@ class Agent(PPOSuper):
                          epsilon_decay=epsilon_decay, epsilon_min=epsilon_min, net_architecture=net_architecture)
 
         self.action_bound = action_bound
-        self.loss_selected = self.proximal_policy_optimization_loss_discrete
+        self.loss_selected = self.proximal_policy_optimization_loss_continuous
         self.actor, self.critic = self._build_model(net_architecture, last_activation='tanh')
         self.n_asyn_envs = n_asyn_envs
         self.dummy_action, self.dummy_value = self.dummies_parallel(self.n_asyn_envs)

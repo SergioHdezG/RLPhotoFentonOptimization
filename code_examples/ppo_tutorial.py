@@ -5,7 +5,7 @@ from CAPORL.utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 
-environment_disc = "SpaceInvaders-v0"
+environment_disc = "CartPole-v1"
 environment_cont = "LunarLanderContinuous-v2"
 
 # Encontramos cuatro tipos de agentes PPO, dos para problemas con acciones discretas (ppo_agent_discrete,
@@ -13,8 +13,8 @@ environment_cont = "LunarLanderContinuous-v2"
 # otro lado encontramos una versión de cada uno siíncrona y otra asíncrona.
 # agent_disc = ppo_agent_discrete.create_agent()
 agent_disc = ppo_agent_discrete_parallel.create_agent()
-agent_cont = ppo_agent_continuous.create_agent()
-# agent_cont = ppo_agent_async.create_agent()
+# agent_cont = ppo_agent_continuous.create_agent()
+agent_cont = ppo_agent_continuous_parallel.create_agent()
 
 # Este algoritmo utiliza el parámetro n_step_return que indica que ventana de tiempo se utiliza para calcular el valor
 # del retorno durante la optimización. En este caso una ventana temporal de los 15 últimos estados.
@@ -74,25 +74,25 @@ def atari_preprocess(obs):
     obs = obs[:, :, np.newaxis]
     return obs
 
-state_size = (90, 80, 1)
+# state_size = (90, 80, 1)
 # state_size = None
-# Descomentar para ejecutar el ejemplo discreto
-problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
-                             n_stack=3, img_input=True, state_size=state_size)
-
-problem_disc.preprocess = atari_preprocess
-
-# En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
-# iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
-# máximo de épocas.
-problem_disc.solve(30, render=False, max_step_epi=5000, skip_states=1)
-problem_disc.test(render=True, n_iter=10)
+# # Descomentar para ejecutar el ejemplo discreto
+# problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
+#                              n_stack=3, img_input=False, state_size=state_size)
+#
+# # problem_disc.preprocess = atari_preprocess
+#
+# # En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
+# # iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
+# # máximo de épocas.
+# problem_disc.solve(300, render=False, max_step_epi=5000, skip_states=1)
+# problem_disc.test(render=True, n_iter=10)
 
 
 # Descomentar para ejecutar el ejemplo continuo
 problem_cont= rl_problem.Problem(environment_cont, agent_cont, model_params_cont, net_architecture=net_architecture,
-                             n_stack=3)
+                             n_stack=1)
 # En este caso no se utiliza el parámetro max_step_epi=500 por lo que el máximo de iteraciones será el que viene por
 # defecto (1000).
-problem_cont.solve(300, render=False, skip_states=3)
+problem_cont.solve(300, render=False, skip_states=1)
 problem_cont.test(render=True, n_iter=10)

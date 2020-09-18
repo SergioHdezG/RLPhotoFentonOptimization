@@ -34,15 +34,16 @@ class RLProblemSuper:
         """
 
         # Inicializar el entorno
-        # if isinstance(environment, str):
-        #     self.env = gym.make(environment)
-        # else:
-        #     self.env = environment()
+        if isinstance(environment, str):
+            self.env = gym.make(environment)
+        else:
+            self.env = environment()
 
-        self.env = environment
-
-        if hasattr(self.env, 'spec') and hasattr(self.env.spec, 'id'):
-            name = self.env.spec.id
+        # self.env = environment
+        # if hasattr(self.env, 'spec') and hasattr(self.env.spec, 'id'):
+        #     self.env_name = self.env.spec.id
+        #
+        # if hasattr(self.env.spec, 'id'):
 
 
         self.n_stack = n_stack
