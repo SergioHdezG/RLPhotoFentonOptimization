@@ -14,12 +14,12 @@ class Callbacks:
         self.counter += 1
         self.memory.append([obs, action, reward, next_obs, done])
         # print(self.counter)
-        if self.counter >= self.max_iter:
-            try:
-                event = pygame.event.Event(pygame.QUIT)
-                pygame.event.post(event)
-            except:
-                pass
+        # if self.counter >= self.max_iter:
+        #     try:
+        #         event = pygame.event.Event(pygame.QUIT)
+        #         pygame.event.post(event)
+        #     except:
+        #         pass
                 # print("Pygame is trying to exit the game")
 
 
@@ -27,6 +27,22 @@ class Callbacks:
         self.memory = []
 
     def memory_to_csv(self, dir, name):
+        if len(self.memory) > 0:
+            obs = [x[0] for x in self.memory]
+            act = [x[1] for x in self.memory]
+            reward = np.array([x[2] for x in self.memory])
+            next_obs = np.array([x[3] for x in self.memory])
+            done = np.array([x[4] for x in self.memory])
+
+            data = pd.DataFrame({'obs': obs, 'action': act, 'reward': reward, 'done': done})
+            print('data ready')
+            # data = pd.DataFrame({'obs': obs, 'action': act, 'reward': reward, 'next_obs': next_obs, 'done': done })
+            # data.to_pickle(dir+name+'.pkl')
+            data.to_csv(dir+name+'.csv')
+            print('data saved')
+
+
+    def memory_to_pkl(self, dir, name):
         if len(self.memory) > 0:
             obs = [x[0] for x in self.memory]
             act = [x[1] for x in self.memory]
@@ -54,6 +70,9 @@ class Callbacks:
             #     return np.array(data)
             data = format_obs(obs, action, get_action, done, n_stack)
             return data
+
+    def set_max_iter(self, iterations):
+        self.max_iter = iterations
 
 def load_expert_memories(dir, name, load_action, n_stack=0, not_formated=False):
     # data = pd.read_csv(dir+name+".csv")

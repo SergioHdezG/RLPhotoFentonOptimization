@@ -17,7 +17,7 @@ class Problem:
     This class represent the src problem to solve.
     """
 
-    def __init__(self, rl_problem, expert_traj, stack_disc=True):
+    def __init__(self, rl_problem, expert_traj, stack_disc=False):
         """
         Attributes:
             environment:    Environment selected for this problem.
@@ -61,7 +61,7 @@ class Problem:
             discrete_env = True
 
         n_stack = self.n_stack if self.stack_disc else 1
-        return vanilla_airl.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
+        return gail_v3.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
                                           img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-5,
                                           discrete=discrete_env)
 
@@ -81,7 +81,7 @@ class Problem:
                                 information will be displayed, if 2 fewer information will be displayed.
         :return:
         """
-        if True:
+        if False:
             for iter in range(iterations):
                     n_agent_iter = 10
                     # self.agent_traj = self.agent_play(n_agent_iter, render=render)

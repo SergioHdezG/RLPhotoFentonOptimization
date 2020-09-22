@@ -36,7 +36,7 @@ class PPOProblemBase(RLProblemSuper):
         self.gradient_steps = 0
 
         self.batch_size = batch_size
-        self.buffer_size = 512
+        self.buffer_size = 2048
         self.learning_rate = learning_rate
 
         # List of 10 last rewards

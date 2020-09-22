@@ -137,10 +137,14 @@ class Discriminator(object):
             return reward
         else:
             if self.discrete_actions:
-                # One hot encoding
-                action_matrix = np.zeros(self.n_actions)
-                action_matrix[action] = 1
-                action = action_matrix
+                # If not one hot encoded
+                onehot = False
+                if hasattr(action, 'shape'):
+                    onehot = action.shape[0] > 1
+                if not onehot:
+                    action_matrix = np.zeros(self.n_actions)
+                    action_matrix[action] = 1
+                    action = action_matrix
 
             action = np.array([action])
             if self.stack:
@@ -180,6 +184,7 @@ class Discriminator(object):
                 agent_traj_a = [x[1] for x in agent_traj]
 
                 # If inputs are stacked but nor the discriminator, select the las one input from each stack
+                eee = agent_traj_s[0].shape
                 if len(agent_traj_s[0].shape) > 1:
                     agent_traj_s = [x[-1, :] for x in agent_traj_s]
 
@@ -200,23 +205,25 @@ class Discriminator(object):
         agent_traj_a = np.array(agent_traj_a)[agent_traj_index]
 
         if self.discrete_actions:
-            # One hot encoding
-            one_hot_agent_a = []
-            one_hot_expert_a = []
-            for i in range(agent_traj_a.shape[0]):
-                action_matrix_agent = np.zeros(self.n_actions)
-                action_matrix_expert = np.zeros(self.n_actions)
+            # If not one hot encoded
+            if len(agent_traj_a.shape) < 2:
+                one_hot_agent_a = []
+                for i in range(agent_traj_a.shape[0]):
+                    action_matrix_agent = np.zeros(self.n_actions)
+                    action_matrix_agent[agent_traj_a[i]] = 1
+                    one_hot_agent_a.append(action_matrix_agent)
+                agent_traj_a = np.array(one_hot_agent_a)
 
-                action_matrix_agent[agent_traj_a[i]] = 1
-                action_matrix_expert[expert_traj_a[i]] = 1
+            # If not one hot encoded
+            if len(expert_traj_a.shape) < 2:
+                one_hot_expert_a = []
+                for i in range(expert_traj_a.shape[0]):
+                    action_matrix_expert = np.zeros(self.n_actions)
+                    action_matrix_expert[expert_traj_a[i]] = 1
+                    one_hot_expert_a.append(action_matrix_expert)
+                expert_traj_a = np.array(one_hot_expert_a)
 
-                one_hot_agent_a.append(action_matrix_agent)
-                one_hot_expert_a.append(action_matrix_expert)
-
-            agent_traj_a = np.array(one_hot_agent_a)
-            expert_traj_a = np.array(one_hot_expert_a)
-
-        loss = self.fit(expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=2,
+        loss = self.fit(expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=5,
                  validation_split=0.15)  # batch_size=expert_traj_a.shape[0]
         return loss
 

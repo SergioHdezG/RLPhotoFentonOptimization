@@ -37,16 +37,16 @@ class Discriminator(object):
         if self.stack:
             # flat_s = Dense(128, activation='tanh')(s_input)
             # flat_s = Conv1D(32, kernel_size=3, strides=2, padding='same', activation='tanh')(s_input)
-            flat_s = LSTM(1024, activation='tanh')(s_input)
+            flat_s = LSTM(32, activation='tanh')(s_input)
             # flat_s = Flatten()(s_input)
         else:
             flat_s = s_input
         concat = Concatenate(axis=1)([flat_s, a_input])
-        dense = Dropout(0.4)(concat)
-        dense = Dense(256, activation='tanh')(dense)
-        dense = Dropout(0.4)(dense)
+        # dense = Dropout(0.4)(concat)
+        dense = Dense(64, activation='relu')(concat)
+        # dense = Dropout(0.4)(dense)
         # dense = Dense(256, activation='tanh')(dense)
-        dense = Dense(256, activation='tanh')(dense)
+        dense = Dense(64, activation='relu')(dense)
         # dense = concat
         output = Dense(1, activation='sigmoid')(dense)
 
