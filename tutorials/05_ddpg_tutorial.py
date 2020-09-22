@@ -5,7 +5,7 @@ from CAPORL.utils import hyperparameters as params
 
 environment = "MountainCarContinuous-v0"
 
-agent = ddpg_agent.create_agent()
+agent = ddpg_agent.Agent()
 
 # Este algoritmo utiliza el parámetro n_step_return que indica que ventana de tiempo se utiliza para calcular el valor
 # del retorno durante la optimización. En este caso una ventana temporal de los 15 últimos estados.

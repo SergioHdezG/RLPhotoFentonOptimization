@@ -6,7 +6,8 @@ from CAPORL.utils.parse_utils import *
 from CAPORL.RL_Problem.rl_problem_super import *
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import dpg_net
-from CAPORL.RL_Agent.agent_interface import AgentSuper
+from CAPORL.RL_Agent.base.agent_interface import AgentSuper
+from CAPORL.RL_Agent.base.utils import agent_globals
 
 
 def create_agent():
@@ -17,8 +18,10 @@ class Agent(AgentSuper):
     """
     Deterministic Policy Gradient Agent
     """
+    def __init__(self):
+        self.agent_name = agent_globals.names["dpg"]
 
-    def __init__(self, n_actions, state_size, stack=False, img_input=False, learning_rate=0.01, gamma=0.95,
+    def build_agent(self, n_actions, state_size, stack=False, img_input=False, learning_rate=0.01, gamma=0.95,
                  model_params=None, net_architecture=None):
         """
         Attributes:

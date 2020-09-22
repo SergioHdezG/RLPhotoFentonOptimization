@@ -5,20 +5,13 @@ import tensorflow as tf
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
-from CAPORL.RL_Agent.DQN_Agent import dddqn_agent, dqn_agent
-from CAPORL.RL_Agent.DPGAgent import dpg_agent
 from CAPORL.RL_Problem import rl_problem as rl_p
-from CAPORL.utils.clipping_reward import *
-from CAPORL.utils.preprocess import *
 from CAPORL.utils import hyperparameters as params
-from CAPORL.environments import carlaenv_continuous, carlaenv_continuous_stop, carlaenv_stop_async
-from src.IRL.IRL_Problem import irl_problem_super as irl_p
+from CAPORL.environments import carlaenv_continuous
+from src.IRL.IRL_Problem.base import irl_problem_super as irl_p
 from src.IRL.utils.callbacks import load_expert_memories
-from CAPORL.RL_Agent.PPO import ppo_agent_continuous_parallel, ppo_agent_continuous, ppo_agent_discrete
-from CAPORL.environments import CarRacing
+from CAPORL.RL_Agent.PPO import ppo_agent_continuous
 from CAPORL.utils.custom_networks import custom_nets
-import subprocess
-
 
 # environment = "LunarLanderContinuous-v2"
 # environment = CarRacing.env
@@ -88,7 +81,7 @@ name_loaded="PPO_IRL_carla146-149"
 rl_problem.load_model(dir_load=dir_load, name_loaded=name_loaded)
 
 print(datetime.datetime.now())
-irl_problem = irl_p.Problem(rl_problem, exp_memory, stack_disc=disc_stack > 1)
+irl_problem = irl_p.IRLProblemSuper(rl_problem, exp_memory, n_stack_disc=disc_stack > 1)
 
 # irl_problem.solve(500, render=False, max_step_epi=None, render_after=1500, skip_states=1)
 rl_problem.test(10, True)

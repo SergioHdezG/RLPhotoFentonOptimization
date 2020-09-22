@@ -122,18 +122,35 @@ class Discriminator(object):
                 agent_net = discriminator(self.agent_traj)
         return expert_net, agent_net
 
-    def get_reward(self, obs, action, asyncr=False):
-        if asyncr:
+    def get_reward(self, obs, action, parallel=False):
+        if parallel:
             if self.discrete_actions:
-                # One hot encoding
-                action_matrix = np.array([np.zeros(self.n_actions) for a in action])
-                for i in range(action.shape[0]):
-                    action_matrix[i][action[i]] = 1
-                action = action_matrix
+                # If not one hot encoded
+                onehot = False
+                if hasattr(action[0], 'shape'):
+                    onehot = action[0].shape[0] > 1
+                if not onehot:
+                    action_matrix = np.array([np.zeros(self.n_actions) for a in action])
+                    for a, a_m in zip(action, action_matrix):
+                        a_m[a] = 1
+                    action = action_matrix
+
+            action = np.array(action)
+            if self.stack:
+                # obs = np.transpose(obs)
+                # obs = np.reshape(obs, (1, self.state_size, self.n_stack))
+                obs = np.array(obs)
+            else:
+                # If inputs are stacked but nor the discriminator, select the las one input from each stack
+                if len(obs.shape) > 2:
+                    obs1 = np.copy(obs)
+                    obs = obs[:, -1, :]
+                obs = np.array(obs)
 
             reward = self.sess.run(self.reward, feed_dict={self.agent_traj_s: obs,
                                                            self.agent_traj_a: action})
-            reward = np.array([r[0] for r in reward])
+            # reward = np.array([r[0] for r in reward])
+            reward = np.squeeze(reward)
             return reward
         else:
             if self.discrete_actions:
@@ -152,10 +169,10 @@ class Discriminator(object):
                 # obs = np.reshape(obs, (1, self.state_size, self.n_stack))
                 obs = np.array([obs])
             else:
+                # If inputs are stacked but nor the discriminator, select the las one input from each stack
                 if len(obs.shape) > 1:
                     obs = obs[-1, :]
                 obs = np.array([obs])
-                # If inputs are stacked but nor the discriminator, select the las one input from each stack
 
 
             reward = self.sess.run(self.reward, feed_dict={self.agent_traj_s: obs,
@@ -184,7 +201,6 @@ class Discriminator(object):
                 agent_traj_a = [x[1] for x in agent_traj]
 
                 # If inputs are stacked but nor the discriminator, select the las one input from each stack
-                eee = agent_traj_s[0].shape
                 if len(agent_traj_s[0].shape) > 1:
                     agent_traj_s = [x[-1, :] for x in agent_traj_s]
 

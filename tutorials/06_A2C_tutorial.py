@@ -11,10 +11,10 @@ environment_cont = "LunarLanderContinuous-v2"
 # a2c_agent_discrete_queue)  y dos para acciones continuas (a2c_agent_continuous, a2c_agent_continuous_queue). Por
 # otro lado encontramos una versión de cada uno que utiliza una memoria de repetición de experiencias
 # (a2c_agent_discrete_queue, a2c_agent_continuous_queue)
-# agent_disc = a2c_agent_discrete.create_agent()
-agent_disc = a2c_agent_discrete_queue.create_agent()
-# agent_cont = a2c_agent_continuous.create_agent()
-agent_cont = a2c_agent_continuous_queue.create_agent()
+# agent_disc = a2c_agent_discrete.Agent()
+agent_disc = a2c_agent_discrete_queue.Agent()
+# agent_cont = a2c_agent_continuous.Agent()
+agent_cont = a2c_agent_continuous_queue.Agent()
 
 # Este algoritmo utiliza el parámetro n_step_return que indica que ventana de tiempo se utiliza para calcular el valor
 # del retorno durante la optimización. En este caso una ventana temporal de los 15 últimos estados.
@@ -49,18 +49,18 @@ net_architecture = params.actor_critic_net_architecture(
                     )
 
 # Descomentar para ejecutar el ejemplo discreto
-problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
-                             n_stack=4)
-
-# Seleccionamos el tamaño de la memoria
-memory_max_len = 10000  # Indicamos la capacidad máxima de la memoria
-# problem_disc.agent.set_memory(deq_m, memory_max_len)
-
-# En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
-# iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
-# máximo de épocas.
-problem_disc.solve(400, render=False, max_step_epi=500, skip_states=2)
-problem_disc.test(render=True, n_iter=10)
+# problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
+#                              n_stack=4)
+#
+# # Seleccionamos el tamaño de la memoria
+# memory_max_len = 10000  # Indicamos la capacidad máxima de la memoria
+# # problem_disc.agent.set_memory(deq_m, memory_max_len)
+#
+# # En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
+# # iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
+# # máximo de épocas.
+# problem_disc.solve(400, render=False, max_step_epi=500, skip_states=2)
+# problem_disc.test(render=True, n_iter=10)
 
 
 # Descomentar para ejecutar el ejemplo continuo

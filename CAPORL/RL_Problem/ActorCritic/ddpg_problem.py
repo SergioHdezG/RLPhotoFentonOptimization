@@ -30,7 +30,7 @@ class DDPGPRoblem(RLProblemSuper):
         self.action_low_bound = self.env.action_space.low
         self.action_high_bound = self.env.action_space.high
 
-        self.agent = self._build_agent(agent, model_params, net_architecture)
+        self._build_agent(agent, model_params, net_architecture)
 
 
     def _build_agent(self, agent, model_params, net_architecture):
@@ -58,8 +58,8 @@ class DDPGPRoblem(RLProblemSuper):
             state_size = self.state_size
             # return agent.Agent(self.n_actions, self.state_size, self.action_low_bound, self.action_high_bound,
             #                    model_params=model_params, net_architecture=net_architecture)
-        return agent.Agent(self.n_actions, state_size, self.action_low_bound, self.action_high_bound, stack=stack,
-                           img_input=self.img_input, model_params=model_params, net_architecture=net_architecture)
+        agent.build_agent(self.n_actions, state_size, self.action_low_bound, self.action_high_bound, stack=stack,
+                    img_input=self.img_input, model_params=model_params, net_architecture=net_architecture)
 
     def _max_steps(self, done, epochs, max_steps):
         if not done and max_steps is not None:

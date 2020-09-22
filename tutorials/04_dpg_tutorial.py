@@ -1,5 +1,5 @@
 from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.DPGAgent import dpg_agent
+from CAPORL.RL_Agent.DPG_Agent import dpg_agent
 from CAPORL.utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Dense, LSTM
 
 environment = "LunarLander-v2"
 
-agent = dpg_agent.create_agent()
+agent = dpg_agent.Agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
                                             batch_size=64)

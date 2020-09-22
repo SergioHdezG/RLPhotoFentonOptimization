@@ -69,7 +69,7 @@ class RLProblemSuper:
         self.clip_norm_reward = self._clip_norm_reward  # Clipping reward
 
         # The agent will be initialized in agent subclass
-        self.agent = None
+        self.agent = agent
 
         # Total number of steps processed
         self.global_steps = 0

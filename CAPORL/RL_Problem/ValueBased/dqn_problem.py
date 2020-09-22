@@ -20,7 +20,7 @@ class DQNProblem(RLProblemSuper):
         """
         super().__init__(environment, agent, n_stack=n_stack, img_input=img_input, state_size=state_size,
                          saving_model_params=saving_model_params, net_architecture=net_architecture)
-        self.agent = self._build_agent(agent, model_params, net_architecture)
+        self._build_agent(agent, model_params, net_architecture)
 
     def _build_agent(self, agent, model_params, net_architecture):
         # Building the agent depending of the input type
@@ -46,7 +46,7 @@ class DQNProblem(RLProblemSuper):
             state_size = self.state_size
             # return agent.Agent(self.n_actions, state_size=self.state_size, model_params=model_params,
             #                    net_architecture=net_architecture)
-        return agent.Agent(self.n_actions, state_size=state_size, stack=stack, img_input=self.img_input,
-                           model_params=model_params, net_architecture=net_architecture)
+        self.agent.build_agent(self.n_actions, state_size=state_size, stack=stack, img_input=self.img_input,
+                               model_params=model_params, net_architecture=net_architecture)
     def _max_steps(self, done, epochs, max_steps):
         return done

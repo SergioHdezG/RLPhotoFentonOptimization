@@ -4,9 +4,9 @@ from CAPORL.utils import hyperparameters as params
 from CAPORL.RL_Agent.PPO import ppo_agent_discrete
 import gym
 environment = "CartPole-v1"
-environment = gym.make(environment)
+# environment = gym.make(environment)
 
-agent = dqn_agent.create_agent()
+agent = dqn_agent.Agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
                                             batch_size=128,

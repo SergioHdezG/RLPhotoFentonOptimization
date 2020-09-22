@@ -56,22 +56,30 @@ class Discriminator(object):
                       optimizer=Adam(lr=self.learning_rate), metrics=['accuracy'])
         return model
 
-    def get_reward(self, obs, action, asyncr=False):
-        if asyncr:
+    def get_reward(self, obs, action, parallel=False):
+        if parallel:
             if self.discrete_actions:
-                # One hot encoding
-                action_matrix = np.array([np.zeros(self.n_actions) for a in action])
-                for i in range(action.shape[0]):
-                    action_matrix[i][action[i]] = 1
-                action = action_matrix
+                # If not one hot encoded
+                onehot = False
+                if hasattr(action[0], 'shape'):
+                    onehot = action[0].shape[0] > 1
+                if not onehot:
+                    action_matrix = np.array([np.zeros(self.n_actions) for a in action])
+                    for a, a_m in zip(action, action_matrix):
+                        a_m[a] = 1
+                    action = action_matrix
 
             action = np.array(action)
             reward = self.model.predict([obs, action])
-            reward = np.array([r[0] for r in reward])
+            # reward = np.array([r[0] for r in reward])
+            reward = np.squeeze(reward)
             return reward
         else:
-            if self.discrete_actions:
-                # One hot encoding
+            # If not one hot encoded
+            onehot = False
+            if hasattr(action, 'shape'):
+                onehot = action.shape[0] > 1
+            if not onehot:
                 action_matrix = np.zeros(self.n_actions)
                 action_matrix[action] = 1
                 action = action_matrix
@@ -85,13 +93,13 @@ class Discriminator(object):
                 # obs = np.transpose(obs)
                 # obs = np.reshape(obs, (1, self.state_size, self.n_stack))
                 obs = np.array([obs])
-                return self.model.predict([obs, action])[0]
             else:
                 if len(obs.shape) > 1:
                     obs = obs[-1, :]
                 # obs = np.reshape(obs, (1, -1))
                 obs = np.array([obs])
-                return self.model.predict([obs, action])[0]
+
+            return self.model.predict([obs, action])[0]
 
     def train(self, expert_traj, agent_traj):
         print("Training discriminator")

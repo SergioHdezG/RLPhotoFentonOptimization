@@ -8,9 +8,10 @@ import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Lambda, subtract, add
 from tensorflow.keras.optimizers import Adam
-from CAPORL.RL_Agent.DQN_Agent.dqn_agent_base import DQNAgentSuper
+from CAPORL.RL_Agent.base.DQN_base.dqn_agent_base import DQNAgentSuper
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import dddqn_net
+from CAPORL.RL_Agent.base.utils import agent_globals
 
 
 def create_agent():
@@ -20,7 +21,11 @@ class Agent(DQNAgentSuper):
     """
     Dueling (Double) Deep Q Network Agent extend DQNAgentSuper
     """
-    def __init__(self, n_actions, state_size=4, batch_size=32, epsilon_min=0.01, epsilon_decay=0.9999995,
+    def __init__(self):
+        self.agent_name = agent_globals.names["dddqn"]
+
+
+    def build_agent(self, n_actions, state_size=4, batch_size=32, epsilon_min=0.01, epsilon_decay=0.9999995,
                  learning_rate=1e-4, gamma=0.95, epsilon=.8, stack=False, img_input=False,
                  model_params=None, net_architecture=None):
         """

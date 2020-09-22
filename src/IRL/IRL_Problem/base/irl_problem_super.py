@@ -8,16 +8,16 @@ import datetime as dt
 # from src.IRL.Expert_Agent.expert import Expert
 # from src.IRL.utils import callbacks
 from src.IRL.utils.callbacks import Callbacks
-from src.IRL.networks import vanilla_airl, gail, gail_v2, gail_v3
+from src.IRL.networks import vanilla_deep_irl, gail, gail_v2, gail_discriminator
 import gym
 
-class Problem:
+class IRLProblemSuper(object):
     """ Inverse Reinforcement Learning Problem.
 
     This class represent the src problem to solve.
     """
 
-    def __init__(self, rl_problem, expert_traj, stack_disc=False):
+    def __init__(self, rl_problem, expert_traj, n_stack_disc=1):
         """
         Attributes:
             environment:    Environment selected for this problem.
@@ -33,10 +33,17 @@ class Problem:
         self.state_size = rl_problem.state_size
         self.n_actions = rl_problem.n_actions
 
-        if self.n_stack < 2 and stack_disc:
-            self.stack_disc = False
+        if self.n_stack < 2 and n_stack_disc > 1:
+            raise Exception("Is not allowed to use stacked input for the discriminator if agent do not use stacked "
+                            "inputs. Discriminator: n_stack_disc = "+str(n_stack_disc)+", Agent: n_stack = "
+                            + str(self.n_stack))
+        elif self.n_stack > 1 and self.n_stack != n_stack_disc and n_stack_disc != 1:
+            raise Exception("Is not allowed to use stacked input for both discriminator and agent if number of stacked "
+                            "inputs differ. It is allowed to use the same stacking number for both or use stacked input"
+                            "for agent but don't use it for discriminator. Discriminator: n_stack_disc = "
+                            + str(n_stack_disc) + ", Agent: n_stack = " + str(self.n_stack))
         else:
-            self.stack_disc = stack_disc
+            self.n_stack_disc = n_stack_disc
 
         # Reinforcement learning problem/agent
         self.rl_problem = rl_problem
@@ -55,15 +62,7 @@ class Problem:
         self.discriminator = self._build_discriminator()
 
     def _build_discriminator(self):
-        try:
-            discrete_env = self.rl_problem.action_bound is None
-        except:
-            discrete_env = True
-
-        n_stack = self.n_stack if self.stack_disc else 1
-        return gail_v3.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
-                                          img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-5,
-                                          discrete=discrete_env)
+        pass
 
     def solve(self, iterations, render=True, render_after=None, max_step_epi=None, skip_states=1,
               verbose=1):

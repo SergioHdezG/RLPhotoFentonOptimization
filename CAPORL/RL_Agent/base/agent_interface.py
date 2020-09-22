@@ -10,6 +10,7 @@ class AgentInterface(object):
         self.n_actions = None
         self.stack = None
         self.img_input = None
+        self.agent_name = None
 
     def act(self, obs):
         """

@@ -2,7 +2,7 @@ from os import path
 
 from tensorflow.python.keras.models import model_from_json
 
-from  CAPORL.RL_Agent.agent_interface import AgentInterface
+from CAPORL.RL_Agent.base.agent_interface import AgentInterface
 import numpy as np
 import tensorflow as tf
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous

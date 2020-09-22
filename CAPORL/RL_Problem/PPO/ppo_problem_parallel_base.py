@@ -102,9 +102,9 @@ class PPOProblemParallelBase(PPOProblemBase):
             next_obs, reward, done, info = self.env.step(action)
             if discriminator is not None:
                 if discriminator.stack:
-                    reward = discriminator.get_reward(obs_queue, action, asyncr=True)
+                    reward = discriminator.get_reward(obs_queue, action, parallel=True)
                 else:
-                    reward = discriminator.get_reward(obs, action, asyncr=True)
+                    reward = discriminator.get_reward(obs, action, parallel=True)
 
             # Store the experience in episode memory
             next_obs, obs_next_queue, reward, done, epochs, mask = self.store_episode_experience(action,
@@ -157,14 +157,15 @@ class PPOProblemParallelBase(PPOProblemBase):
             if discriminator.stack:
                 agent_traj = [[np.array(o), np.array(a)] for o, a in zip(obs, action)]
             else:
-                agent_traj = [[np.array(o[-1, :]), np.array(a)] for o, a in zip(obs, action)]
+                # agent_traj = [[np.array(o[-1, :]), np.array(a)] for o, a in zip(obs, action)]
+                agent_traj = [[np.array(o), np.array(a)] for o, a in zip(obs, action)]
 
             discriminator.train(expert_traj, agent_traj)
 
             if discriminator.stack:
-                self.rewards_batch = [discriminator.get_reward(o, a, asyncr=True) for o, a in zip(self.obs_batch, self.actions_batch)]
+                self.rewards_batch = [discriminator.get_reward(o, a, parallel=True) for o, a in zip(self.obs_batch, self.actions_batch)]
             else:
-                self.rewards_batch = [discriminator.get_reward(o[:, -1, :], a, asyncr=True) for o, a in zip(self.obs_batch, self.actions_batch)]
+                self.rewards_batch = [discriminator.get_reward(o, a, parallel=True) for o, a in zip(self.obs_batch, self.actions_batch)]
 
 
         self.agent.remember(self.obs_batch, self.actions_batch, self.actions_probs_batch, self.rewards_batch,

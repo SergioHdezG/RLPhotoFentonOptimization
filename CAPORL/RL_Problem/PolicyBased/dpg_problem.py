@@ -23,7 +23,7 @@ class DPGProblem(RLProblemSuper):
         self.n_stack = n_stack
         self.img_input = img_input
 
-        self.agent = self._build_agent(agent, model_params, net_architecture)
+        self._build_agent(agent, model_params, net_architecture)
 
     def _build_agent(self, agent, model_params, net_architecture):
         # Building the agent depending of the input type
@@ -49,5 +49,5 @@ class DPGProblem(RLProblemSuper):
             state_size = self.state_size
             # return agent.Agent(self.n_actions, self.state_size, model_params=model_params,
             #                    net_architecture=net_architecture)
-        return agent.Agent(self.n_actions, state_size, stack=stack, img_input=self.img_input, model_params=model_params,
+        agent.build_agent(self.n_actions, state_size, stack=stack, img_input=self.img_input, model_params=model_params,
                             net_architecture=net_architecture)

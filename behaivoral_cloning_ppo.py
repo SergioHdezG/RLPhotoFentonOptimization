@@ -3,7 +3,7 @@ import random
 from CAPORL.RL_Problem import rl_problem
 from CAPORL.RL_Agent.ActorCritic.A2C_Agent import a2c_agent_continuous, a2c_agent_discrete, a2c_agent_discrete_queue, a2c_agent_continuous_queue
 from CAPORL.RL_Agent.ActorCritic.A3C_Agent import a3c_agent_continuous, a3c_agent_discrete
-from CAPORL.RL_Agent.DPGAgent import dpg_agent
+from CAPORL.RL_Agent.DPG_Agent import dpg_agent
 from CAPORL.RL_Agent.DDPG_Agent import ddpg_agent
 from CAPORL.RL_Agent.DQN_Agent import dqn_agent, ddqn_agent, dddqn_agent
 from CAPORL.RL_Agent.PPO import ppo_agent_continuous_parallel, ppo_agent_continuous, ppo_agent_discrete, ppo_agent_discrete_parallel

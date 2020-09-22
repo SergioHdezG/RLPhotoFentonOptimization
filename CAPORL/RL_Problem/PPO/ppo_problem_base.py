@@ -57,7 +57,7 @@ class PPOProblemBase(RLProblemSuper):
         else:
             self.action_bound = None
 
-        self.agent = self._build_agent(agent, [batch_size, epsilon, epsilon_min, epsilon_decay, learning_rate, n_step_rew], net_architecture)
+        self._build_agent(agent, [batch_size, epsilon, epsilon_min, epsilon_decay, learning_rate, n_step_rew], net_architecture)
 
         # for IRL
         self.agent_traj = deque(maxlen=10000)
@@ -76,7 +76,7 @@ class PPOProblemBase(RLProblemSuper):
             stack = False
             state_size = self.state_size
 
-        return self._define_agent(agent=agent, state_size=state_size, n_actions=self.n_actions, stack=stack,
+        self._define_agent(agent=agent, state_size=state_size, n_actions=self.n_actions, stack=stack,
                                   img_input=self.img_input, lr_actor=self.learning_rate, lr_critic=self.learning_rate,
                                   batch_size=self.batch_size, buffer_size=self.buffer_size, epsilon=model_params[1],
                                   epsilon_decay=model_params[3], epsilon_min=model_params[2],

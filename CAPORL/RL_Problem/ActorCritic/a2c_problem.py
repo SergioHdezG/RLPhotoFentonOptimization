@@ -32,7 +32,7 @@ class A2CProblem(RLProblemSuper):
             batch_size, epsilon, epsilon_min, epsilon_decay, learning_rate, n_step_rew = \
                 parse_model_params(model_params)
 
-        if "A2C_continuous" in agent.create_agent():
+        if "A2C_continuous" in agent.agent_name:
             self.action_bound = [self.env.action_space.low, self.env.action_space.high]  # action bounds
 
         self.batch_size = batch_size
@@ -45,7 +45,7 @@ class A2CProblem(RLProblemSuper):
 
         self.sess = tf.Session()
 
-        self.agent = self._build_agent(agent, model_params, net_architecture)
+        self._build_agent(agent, model_params, net_architecture)
 
         self.sess.run(tf.global_variables_initializer())
 
@@ -62,13 +62,13 @@ class A2CProblem(RLProblemSuper):
             stack = False
             state_size = self.state_size
 
-        if "A2C_continuous" in agent.create_agent():
-            return agent.Agent(self.sess, state_size=state_size, n_actions=self.n_actions, stack=stack,
+        if "A2C_continuous" in agent.agent_name:
+            agent.build_agent(self.sess, state_size=state_size, n_actions=self.n_actions, stack=stack,
                                img_input=self.img_input, lr_actor=self.lr_actor, lr_critic=self.lr_critic,
                                n_steps_update=self.n_steps_update, action_bound=self.action_bound,
                                batch_size=self.batch_size, net_architecture=net_architecture)
         else:
-            return agent.Agent(self.sess, state_size=state_size, n_actions=self.n_actions, stack=stack,
+            agent.build_agent(self.sess, state_size=state_size, n_actions=self.n_actions, stack=stack,
                                img_input=self.img_input, epsilon=self.epsilon, epsilon_decay=self.epsilon_decay,
                                epsilon_min=self.epsilon_min, lr_actor=self.lr_actor, lr_critic=self.lr_critic,
                                n_steps_update=self.n_steps_update, batch_size=self.batch_size,

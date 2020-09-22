@@ -1,8 +1,6 @@
-import numpy as np
-import tensorflow as tf
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous
-from CAPORL.RL_Agent.agent_interface import AgentSuper
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent.a2c_agent_base import A2CSuper
+from CAPORL.RL_Agent.base.ActorCritic_base.a2c_agent_base import A2CSuper
+from CAPORL.RL_Agent.base.utils import agent_globals
+
 
 def create_agent():
     return "A2C_continuous"
@@ -10,7 +8,10 @@ def create_agent():
 
 # worker class that inits own environment, trains on it and updloads weights to global net
 class Agent(A2CSuper):
-    def __init__(self, sess, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
+    def __init__(self):
+        self.agent_name = agent_globals.names["a2c_continuous"]
+
+    def build_agent(self, sess, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  n_steps_update=10, action_bound=None, batch_size=0, net_architecture=None):
         self.action_bound = action_bound
 

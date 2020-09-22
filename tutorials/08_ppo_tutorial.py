@@ -11,10 +11,10 @@ environment_cont = "LunarLanderContinuous-v2"
 # Encontramos cuatro tipos de agentes PPO, dos para problemas con acciones discretas (ppo_agent_discrete,
 # ppo_agent_discrete_async) y dos para acciones continuas (ppo_agent_v2, ppo_agent_async). Por
 # otro lado encontramos una versión de cada uno siíncrona y otra asíncrona.
-# agent_disc = ppo_agent_discrete.create_agent()
-agent_disc = ppo_agent_discrete_parallel.create_agent()
-# agent_cont = ppo_agent_continuous.create_agent()
-agent_cont = ppo_agent_continuous_parallel.create_agent()
+# agent_disc = ppo_agent_discrete.Agent()
+agent_disc = ppo_agent_discrete_parallel.Agent()
+# agent_cont = ppo_agent_continuous.Agent()
+agent_cont = ppo_agent_continuous_parallel.Agent()
 
 # Este algoritmo utiliza el parámetro n_step_return que indica que ventana de tiempo se utiliza para calcular el valor
 # del retorno durante la optimización. En este caso una ventana temporal de los 15 últimos estados.

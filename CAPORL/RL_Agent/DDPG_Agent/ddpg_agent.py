@@ -7,7 +7,8 @@ from CAPORL.utils.parse_utils import *
 from CAPORL.utils import net_building
 from CAPORL.utils.networks import ddpg_net
 from tensorflow.keras.initializers import RandomNormal
-from CAPORL.RL_Agent.agent_interface import AgentSuper
+from CAPORL.RL_Agent.base.agent_interface import AgentSuper
+from CAPORL.RL_Agent.base.utils import agent_globals
 
 
 def create_agent():
@@ -15,7 +16,10 @@ def create_agent():
 
 
 class Agent(AgentSuper):
-    def __init__(self, n_actions, state_size, action_low_bound, action_high_bound, batch_size=64, learning_rate=0.001,
+    def __init__(self):
+        self.agent_name = agent_globals.names["ddpg"]
+
+    def build_agent(self, n_actions, state_size, action_low_bound, action_high_bound, batch_size=64, learning_rate=0.001,
                  stack=False, img_input=False, gamma=0.99, tau=0.001, memory_size=10000, epsilon_decay=0.999995,
                  model_params=None, net_architecture=None):
         """ Attributes:

@@ -1,13 +1,8 @@
 import random
-import tensorflow as tf
-from collections import deque
-import gc
 
 import numpy as np
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
-from CAPORL.Memory.deque_memory import Memory
-from CAPORL.RL_Agent.agent_interface import AgentSuper
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent.a2c_agent_queue_base import A2CQueueSuper
+from CAPORL.RL_Agent.base.ActorCritic_base.a2c_agent_queue_base import A2CQueueSuper
+from CAPORL.RL_Agent.base.utils import agent_globals
 
 
 # TODO: Heredar de a2c_agent_discrete.py
@@ -17,7 +12,10 @@ def create_agent():
 
 # worker class that inits own environment, trains on it and updloads weights to global net
 class Agent(A2CQueueSuper):
-    def __init__(self, sess, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
+    def __init__(self):
+        self.agent_name = agent_globals.names["a2c_discrete_queue"]
+
+    def build_agent(self, sess, state_size, n_actions, stack=False, img_input=False, lr_actor=0.0001, lr_critic=0.001,
                  epsilon=1., epsilon_decay=0.99995, epsilon_min=0.15, n_steps_update=10, batch_size=32,
                  net_architecture=None):
         super().__init__(sess, state_size, n_actions, stack=stack, img_input=img_input, lr_actor=lr_actor,

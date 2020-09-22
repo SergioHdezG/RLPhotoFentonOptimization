@@ -4,7 +4,7 @@ from CAPORL.utils import hyperparameters as params
 
 environment = "CartPole-v1"
 
-agent = ddqn_agent.create_agent()
+agent = ddqn_agent.Agent()
 
 model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
                                             batch_size=128,

@@ -1,23 +1,6 @@
-from os import path
-import datetime
-import random
-from tensorflow.python.keras.models import model_from_json
-import random
-from  CAPORL.RL_Agent.agent_interface import AgentInterface
 import numpy as np
-import tensorflow as tf
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense
-from tensorflow.keras import backend as K
-from tensorflow.keras.optimizers import Adam
-from CAPORL.utils import net_building
-from CAPORL.utils.networks import ppo_net
-from tensorflow.keras.initializers import RandomNormal
-from CAPORL.RL_Agent.agent_interface import AgentSuper
 from CAPORL.Memory.deque_memory import Memory
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent.a2c_agent_base import A2CSuper
+from CAPORL.RL_Agent.base.ActorCritic_base.a2c_agent_base import A2CSuper
 
 # worker class that inits own environment, trains on it and updloads weights to global net
 class A2CQueueSuper(A2CSuper):
