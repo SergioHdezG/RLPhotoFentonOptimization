@@ -1,15 +1,12 @@
 from collections import deque
 
-import numpy as np
-import datetime as dt
 # from pympler import muppy, summary
 # from memory_leaks import *
 # from IRL.utils.parse_utils import *
 # from src.IRL.Expert_Agent.expert import Expert
 # from src.IRL.utils import callbacks
-from src.IRL.utils.callbacks import Callbacks
-from src.IRL.networks import vanilla_deep_irl, gail, gail_v2, gail_discriminator
-import gym
+from IRL_Problem.base.utils.callbacks import Callbacks
+
 
 class IRLProblemSuper(object):
     """ Inverse Reinforcement Learning Problem.

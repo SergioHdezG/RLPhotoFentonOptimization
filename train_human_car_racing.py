@@ -1,10 +1,7 @@
-from environments import carlaenv_continuous, CarRacing
-from src.IRL.utils.callbacks import Callbacks, load_expert_memories
-import gym
+from environments import CarRacing
+from IRL_Problem.base.utils.callbacks import Callbacks
 import pygame
-from numpy import save
 import numpy as np
-import time
 from collections import deque
 
 

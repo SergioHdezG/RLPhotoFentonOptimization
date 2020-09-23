@@ -8,8 +8,8 @@ sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 from RL_Problem import rl_problem as rl_p
 from utils import hyperparameters as params
 from environments import carlaenv_continuous
-from src.IRL.IRL_Problem.base import irl_problem_super as irl_p
-from src.IRL.utils.callbacks import load_expert_memories
+from IRL_Problem.base import irl_problem_super as irl_p
+from IRL_Problem.base.utils.callbacks import load_expert_memories
 from RL_Agent.PPO import ppo_agent_continuous
 from utils.custom_networks import custom_nets
 

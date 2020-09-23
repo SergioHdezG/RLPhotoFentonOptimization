@@ -1,9 +1,6 @@
-from src.IRL.utils.callbacks import load_expert_memories
+from IRL_Problem.base.utils.callbacks import load_expert_memories
 import numpy as np
 import pandas as pd
-import cv2
-import glob
-import os
 
 exp_dir = "expert_demonstrations/ultimos/"
 exp_name = 'human_expert_carla_street'

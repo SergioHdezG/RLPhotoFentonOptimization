@@ -1,23 +1,20 @@
-from collections import deque
-from src.IRL.IRL_Problem.base.irl_problem_super import IRLProblemSuper
-import numpy as np
-import datetime as dt
+from IRL_Problem.base.irl_problem_super import IRLProblemSuper
 # from pympler import muppy, summary
 # from memory_leaks import *
 # from IRL.utils.parse_utils import *
 # from src.IRL.Expert_Agent.expert import Expert
 # from src.IRL.utils import callbacks
-from src.IRL.utils.callbacks import Callbacks
-from src.IRL.networks import vanilla_deep_irl, gail, gail_v2, gail_discriminator
-import gym
+from IRL_Problem.base.networks import gail_discriminator
+from RL_Agent.base.utils import agent_globals
 
-class DeepIRL(IRLProblemSuper):
+
+class GAIL(IRLProblemSuper):
     """ Inverse Reinforcement Learning Problem.
 
     This class represent the src problem to solve.
     """
 
-    def __init__(self, rl_problem, expert_traj, n_stack_disc=False):
+    def __init__(self, rl_problem, expert_traj, n_stack_disc=1):
         """
         Attributes:
             environment:    Environment selected for this problem.
@@ -27,7 +24,9 @@ class DeepIRL(IRLProblemSuper):
             state_size:     None, Int or Tuple. State dimensions. If None it will be calculated automatically. Int or
                             Tuple format will be useful when preprocessing change the input dimensions.
         """
+        self._check_agent(rl_problem.agent)
         super().__init__(rl_problem, expert_traj, n_stack_disc)
+        # TODO: check if agent is instance of ppo
         self.discriminator = self._build_discriminator()
 
     def _build_discriminator(self):
@@ -37,8 +36,9 @@ class DeepIRL(IRLProblemSuper):
             discrete_env = True
 
         n_stack = self.n_stack if self.n_stack_disc > 1 else 1
-        return vanilla_deep_irl.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
-                                                img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-5,
+        return gail_discriminator.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
+                                                img_input=self.img_input, expert_actions=self.action_memory,
+                                                learning_rate=1e-5,
                                                 discrete=discrete_env)
 
     def solve(self, iterations, render=True, render_after=None, max_step_epi=None, skip_states=1,
@@ -57,15 +57,15 @@ class DeepIRL(IRLProblemSuper):
                                 information will be displayed, if 2 fewer information will be displayed.
         :return:
         """
-        for iter in range(iterations):
-                n_agent_iter = 10
-                # self.agent_traj = self.agent_play(n_agent_iter, render=render)
+        self.rl_problem.solve(iterations, render=render, max_step_epi=None, render_after=None, skip_states=0,
+                              discriminator=self.discriminator, expert_traj=self.expert_traj)
 
-                for element in self.agent_play(n_agent_iter, render=render):
-                    self.agent_traj.append(element)
+    def _check_agent(self, agent):
+        valid_agent = agent.agent_name == agent_globals.names["ppo_discrete"] or \
+                      agent.agent_name == agent_globals.names["ppo_continuous"] or \
+                      agent.agent_name == agent_globals.names["ppo_discrete_parallel"] or \
+                      agent.agent_name == agent_globals.names["ppo_continuous_parallel"]
 
-                self.discriminator.train(self.expert_traj, self.agent_traj)
-
-                self.rl_problem.solve(100, render=render, max_step_epi=None, render_after=1000, skip_states=0, discriminator=self.discriminator)
-
-
+        if not valid_agent:
+            raise Exception('GAIL algorithm in this library only works with ppo rl agents but ' + str(agent.agent_name)
+                            + ' rl agent was selected')

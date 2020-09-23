@@ -1,8 +1,9 @@
 from RL_Problem import rl_problem
-from src.IRL.IRL_Problem.gail import GAIL
+from IRL_Problem.gail import GAIL
+from IRL_Problem.deepirl import DeepIRL
 from RL_Agent.PPO import ppo_agent_discrete_parallel
 from utils import hyperparameters as params
-from src.IRL.utils.callbacks import load_expert_memories
+from IRL_Problem.base.utils.callbacks import load_expert_memories
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 
@@ -79,7 +80,7 @@ rl_problem = rl_problem.Problem(environment, agent, model_params, net_architectu
 discriminator_stack = 1
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=discriminator_stack)
 
-irl_problem = GAIL(rl_problem, exp_memory, n_stack_disc=discriminator_stack)
+irl_problem = DeepIRL(rl_problem, exp_memory, n_stack_disc=discriminator_stack)
 
 irl_problem.solve(1500, render=False, max_step_epi=None, render_after=1500, skip_states=1)
 rl_problem.test(10)

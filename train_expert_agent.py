@@ -1,6 +1,6 @@
 from RL_Problem import rl_problem
 from utils import hyperparameters as params
-from src.IRL.utils import callbacks
+from IRL_Problem.base.utils import callbacks
 from RL_Agent.PPO import ppo_agent_discrete_parallel
 
 

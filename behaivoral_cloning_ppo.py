@@ -1,7 +1,7 @@
 from RL_Problem import rl_problem
 from RL_Agent.PPO import ppo_agent_continuous
 from utils import hyperparameters as params
-from src.IRL.utils.callbacks import load_expert_memories
+from IRL_Problem.base.utils.callbacks import load_expert_memories
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 from utils.custom_networks import custom_nets
