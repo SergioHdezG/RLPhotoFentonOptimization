@@ -1,6 +1,6 @@
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.DPG_Agent import dpg_agent
-from CAPORL.utils import hyperparameters as params
+from RL_Problem import rl_problem
+from RL_Agent.DPG_Agent import dpg_agent
+from utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 

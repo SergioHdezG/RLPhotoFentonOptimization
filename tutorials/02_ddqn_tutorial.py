@@ -1,6 +1,6 @@
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.DQN_Agent import ddqn_agent
-from CAPORL.utils import hyperparameters as params
+from RL_Problem import rl_problem
+from RL_Agent.DQN_Agent import ddqn_agent
+from utils import hyperparameters as params
 
 environment = "CartPole-v1"
 
@@ -12,7 +12,7 @@ model_params = params.algotirhm_hyperparams(learning_rate=1e-3,
                                             epsilon_decay=0.999,
                                             epsilon_min=0.15)
 
-# Se puede definir una red rápida mediante un diccionario o usanto las utilidades de CAPORL.utils.hyperparameters
+# Se puede definir una red rápida mediante un diccionario o usanto las utilidades de utils.hyperparameters
 """
 net_architecture = params.net_architecture(dense_layers=2,
                                            n_neurons=[128, 128],

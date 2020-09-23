@@ -1,9 +1,8 @@
-from CAPORL.Memory.deque_memory import Memory as deq_m
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.PPO import ppo_agent_discrete, ppo_agent_continuous, ppo_agent_continuous_parallel, ppo_agent_discrete_parallel
-from CAPORL.utils import hyperparameters as params
+from RL_Problem import rl_problem
+from RL_Agent.PPO import ppo_agent_continuous_parallel, ppo_agent_discrete_parallel
+from utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM
+from tensorflow.keras.layers import Dense
 
 environment_disc = "CartPole-v1"
 environment_cont = "LunarLanderContinuous-v2"
@@ -91,7 +90,7 @@ def atari_preprocess(obs):
 
 # Descomentar para ejecutar el ejemplo continuo
 problem_cont= rl_problem.Problem(environment_cont, agent_cont, model_params_cont, net_architecture=net_architecture,
-                             n_stack=1)
+                                 n_stack=1)
 # En este caso no se utiliza el parámetro max_step_epi=500 por lo que el máximo de iteraciones será el que viene por
 # defecto (1000).
 problem_cont.solve(300, render=False, skip_states=1)

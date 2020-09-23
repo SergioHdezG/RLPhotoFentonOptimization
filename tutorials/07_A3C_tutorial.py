@@ -1,7 +1,7 @@
-from CAPORL.Memory.deque_memory import Memory as deq_m
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.ActorCritic.A3C_Agent import a3c_agent_discrete, a3c_agent_continuous
-from CAPORL.utils import hyperparameters as params
+from RL_Problem import rl_problem
+from RL_Agent.ActorCritic.A3C_Agent import a3c_agent_discrete
+from RL_Agent.ActorCritic.A3C_Agent import a3c_agent_continuous
+from utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Flatten
 import numpy as np
@@ -83,7 +83,7 @@ def clip_norm_atari_reward(rew):
 
 # Descomentar para ejecutar el ejemplo discreto
 problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
-                             n_stack=5, img_input=True, state_size=state_size)
+                                  n_stack=5, img_input=True, state_size=state_size)
 
 # Indicamos que se quiere usar la función de recompensa y la normalización
 problem_disc.preprocess = atari_preprocess

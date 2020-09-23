@@ -1,8 +1,7 @@
-from CAPORL.RL_Problem import rl_problem
+from RL_Problem import rl_problem
 from src.IRL.IRL_Problem.gail import GAIL
-from src.IRL.IRL_Problem.deepirl import DeepIRL
-from CAPORL.RL_Agent.PPO import ppo_agent_discrete, ppo_agent_discrete_parallel
-from CAPORL.utils import hyperparameters as params
+from RL_Agent.PPO import ppo_agent_discrete_parallel
+from utils import hyperparameters as params
 from src.IRL.utils.callbacks import load_expert_memories
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM

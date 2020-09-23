@@ -10,7 +10,7 @@ import datetime as dt
 from src.IRL.utils.callbacks import Callbacks
 from src.IRL.networks import vanilla_deep_irl, gail, gail_v2, gail_discriminator
 import gym
-from CAPORL.RL_Agent.base.utils import agent_globals
+from RL_Agent.base.utils import agent_globals
 
 
 class GAIL(IRLProblemSuper):

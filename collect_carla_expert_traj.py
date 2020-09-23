@@ -1,10 +1,8 @@
 import cv2
 from numpy import save
-from CAPORL.environments import carlaenv_collect_img, carlaenv_cont_no_decoder, carlaenv_continuous, carlaenv_continuous_stop, carlaenv_continuous_pace_follow
+from environments import carlaenv_continuous_stop
 from src.IRL.utils.callbacks import Callbacks, load_expert_memories
 import pygame
-from CAPORL.RL_Problem import rl_problem as rl_p
-from CAPORL.RL_Agent.PPO import ppo_agent_continuous
 from collections import deque
 import numpy as np
 import datetime as dt

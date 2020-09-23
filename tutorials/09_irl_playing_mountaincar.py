@@ -1,9 +1,9 @@
 import gym
 from gym.utils import play
 from src.IRL.utils.callbacks import Callbacks, load_expert_memories
-from CAPORL.RL_Agent.PPO import ppo_agent_discrete
-from CAPORL.utils import hyperparameters as params
-from CAPORL.RL_Problem import rl_problem as rl_p
+from RL_Agent.PPO import ppo_agent_discrete
+from utils import hyperparameters as params
+from RL_Problem import rl_problem as rl_p
 from src.IRL.IRL_Problem.base import irl_problem_super as irl_p
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM

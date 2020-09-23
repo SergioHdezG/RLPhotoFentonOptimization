@@ -1,4 +1,4 @@
-from CAPORL.RL_Problem import rl_problem
+from RL_Problem import rl_problem
 # from CAPORL.IRL.utils.clipping_reward import *
 # from CAPORL.IRL.utils.preprocess import *
 from src.IRL.utils.callbacks import Callbacks

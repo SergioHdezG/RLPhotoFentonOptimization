@@ -1,8 +1,7 @@
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.DQN_Agent import dqn_agent
-from CAPORL.utils import hyperparameters as params
-from CAPORL.RL_Agent.PPO import ppo_agent_discrete
-import gym
+from RL_Problem import rl_problem
+from RL_Agent.DQN_Agent import dqn_agent
+from utils import hyperparameters as params
+
 environment = "CartPole-v1"
 # environment = gym.make(environment)
 

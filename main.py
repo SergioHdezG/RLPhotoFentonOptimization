@@ -5,13 +5,13 @@ import tensorflow as tf
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
-from CAPORL.RL_Problem import rl_problem as rl_p
-from CAPORL.utils import hyperparameters as params
-from CAPORL.environments import carlaenv_continuous
+from RL_Problem import rl_problem as rl_p
+from utils import hyperparameters as params
+from environments import carlaenv_continuous
 from src.IRL.IRL_Problem.base import irl_problem_super as irl_p
 from src.IRL.utils.callbacks import load_expert_memories
-from CAPORL.RL_Agent.PPO import ppo_agent_continuous
-from CAPORL.utils.custom_networks import custom_nets
+from RL_Agent.PPO import ppo_agent_continuous
+from utils.custom_networks import custom_nets
 
 # environment = "LunarLanderContinuous-v2"
 # environment = CarRacing.env

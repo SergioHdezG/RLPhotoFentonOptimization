@@ -1,4 +1,4 @@
-from CAPORL.environments import carlaenv_continuous, CarRacing
+from environments import carlaenv_continuous, CarRacing
 from src.IRL.utils.callbacks import Callbacks, load_expert_memories
 import gym
 import pygame

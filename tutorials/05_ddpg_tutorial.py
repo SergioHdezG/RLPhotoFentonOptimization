@@ -1,7 +1,6 @@
-from CAPORL.Memory.deque_memory import Memory as deq_m
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.DDPG_Agent import ddpg_agent
-from CAPORL.utils import hyperparameters as params
+from RL_Problem import rl_problem
+from RL_Agent.DDPG_Agent import ddpg_agent
+from utils import hyperparameters as params
 
 environment = "MountainCarContinuous-v0"
 

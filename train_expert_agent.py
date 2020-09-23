@@ -1,17 +1,7 @@
-import random
-
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent import a2c_agent_continuous, a2c_agent_discrete, a2c_agent_discrete_queue, a2c_agent_continuous_queue
-from CAPORL.RL_Agent.ActorCritic.A3C_Agent import a3c_agent_continuous, a3c_agent_discrete
-from CAPORL.RL_Agent.DPG_Agent import dpg_agent
-from CAPORL.RL_Agent.DDPG_Agent import ddpg_agent
-from CAPORL.RL_Agent.DQN_Agent import dqn_agent, ddqn_agent, dddqn_agent
-from CAPORL.utils.clipping_reward import *
-from CAPORL.utils.preprocess import *
-from CAPORL.utils import hyperparameters as params
-from CAPORL.Memory.deque_memory import Memory as deque_m
+from RL_Problem import rl_problem
+from utils import hyperparameters as params
 from src.IRL.utils import callbacks
-from CAPORL.RL_Agent.PPO import ppo_agent_discrete_parallel
+from RL_Agent.PPO import ppo_agent_discrete_parallel
 
 
 environment = "LunarLander-v2"

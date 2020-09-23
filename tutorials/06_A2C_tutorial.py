@@ -1,7 +1,6 @@
-from CAPORL.Memory.deque_memory import Memory as deq_m
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.ActorCritic.A2C_Agent import a2c_agent_continuous, a2c_agent_discrete, a2c_agent_discrete_queue, a2c_agent_continuous_queue
-from CAPORL.utils import hyperparameters as params
+from RL_Problem import rl_problem
+from RL_Agent.ActorCritic.A2C_Agent import a2c_agent_discrete_queue, a2c_agent_continuous_queue
+from utils import hyperparameters as params
 
 
 environment_disc = "CartPole-v1"
@@ -65,7 +64,7 @@ net_architecture = params.actor_critic_net_architecture(
 
 # Descomentar para ejecutar el ejemplo continuo
 problem_cont= rl_problem.Problem(environment_cont, agent_cont, model_params_cont, net_architecture=net_architecture,
-                             n_stack=1)
+                                 n_stack=1)
 # En este caso no se utiliza el parámetro max_step_epi=500 por lo que el máximo de iteraciones será el que viene por
 # defecto (1000).
 problem_cont.solve(500, render=False, skip_states=2)

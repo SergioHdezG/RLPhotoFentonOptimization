@@ -1,7 +1,7 @@
-from CAPORL.RL_Problem import rl_problem
-from CAPORL.RL_Agent.DQN_Agent import dddqn_agent
-from CAPORL.utils import hyperparameters as params
-from CAPORL.Memory.deque_memory import Memory as deq_m
+from RL_Problem import rl_problem
+from RL_Agent.DQN_Agent import dddqn_agent
+from utils import hyperparameters as params
+from RL_Agent.base.utils.Memory.deque_memory import Memory as deq_m
 import numpy as np
 import matplotlib.pylab as plt
 import gym
