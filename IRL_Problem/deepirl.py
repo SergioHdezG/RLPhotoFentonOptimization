@@ -4,7 +4,7 @@ from IRL_Problem.base.irl_problem_super import IRLProblemSuper
 # from IRL.utils.parse_utils import *
 # from src.IRL.Expert_Agent.expert import Expert
 # from src.IRL.utils import callbacks
-from IRL_Problem.base.networks import vanilla_deep_irl
+from IRL_Problem.base.networks import vdirl_discriminator
 
 
 class DeepIRL(IRLProblemSuper):
@@ -33,9 +33,9 @@ class DeepIRL(IRLProblemSuper):
             discrete_env = True
 
         n_stack = self.n_stack if self.n_stack_disc > 1 else 1
-        return vanilla_deep_irl.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
-                                              img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-5,
-                                              discrete=discrete_env)
+        return vdirl_discriminator.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
+                                                 img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-5,
+                                                 discrete=discrete_env)
 
     def solve(self, iterations, render=True, render_after=None, max_step_epi=None, skip_states=1,
               verbose=1):

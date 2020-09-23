@@ -77,10 +77,10 @@ net_architecture = params.actor_critic_net_architecture(use_custom_network=True,
 rl_problem = rl_problem.Problem(environment, agent, model_params, net_architecture=net_architecture, n_stack=3)
 
 
-discriminator_stack = 1
+discriminator_stack = 3
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=discriminator_stack)
 
-irl_problem = DeepIRL(rl_problem, exp_memory, n_stack_disc=discriminator_stack)
+irl_problem = GAIL(rl_problem, exp_memory, n_stack_disc=discriminator_stack)
 
 irl_problem.solve(1500, render=False, max_step_epi=None, render_after=1500, skip_states=1)
 rl_problem.test(10)
