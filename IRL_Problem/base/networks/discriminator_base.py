@@ -6,18 +6,9 @@ from tensorflow.keras import backend as K
 import numpy as np
 import random
 
-def logsigmoid(a):
-    '''Equivalent to tf.log(tf.sigmoid(a))'''
-    return -tf.nn.softplus(-a)
-
-""" Reference: https://github.com/openai/imitation/blob/99fbccf3e060b6e6c739bdf209758620fcdefd3c/policyopt/thutil.py#L48-L51"""
-def logit_bernoulli_entropy(logits):
-    ent = (1.-tf.nn.sigmoid(logits))*logits - logsigmoid(logits)
-    return ent
-
 class DiscriminatorBase(object):
     def __init__(self, scope, state_size, n_actions, n_stack=1, img_input=False, expert_actions=False,
-                 learning_rate=1e-3, discrete=False):
+                 learning_rate=1e-3, batch_size=5, epochs=5, val_split=0.15, discrete=False):
 
         self.expert_actions = expert_actions
 
@@ -29,9 +20,13 @@ class DiscriminatorBase(object):
         self.stack = self.n_stack > 1
         self.learning_rate = learning_rate
 
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.val_split = val_split
+
         self.discrete_actions = discrete
 
-    def _build_model(self):
+    def _build_model(self, net_architecture):
         # Neural Net for Deep-Q learning Model
         if self.img_input:
             state_size = (*self.state_size[:2], self.state_size[-1] * self.n_stack)
@@ -40,9 +35,9 @@ class DiscriminatorBase(object):
         else:
             state_size = (self.state_size,)
 
-        return self._build_net(state_size)
+        return self._build_net(state_size, net_architecture)
 
-    def _build_net(self, state_size):
+    def _build_net(self, state_size, net_architecture):
         pass
 
     def get_reward(self, obs, action, parallel=False):
@@ -162,8 +157,8 @@ class DiscriminatorBase(object):
                     one_hot_expert_a.append(action_matrix_expert)
                 expert_traj_a = np.array(one_hot_expert_a)
 
-        loss = self.fit(expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=5,
-                 validation_split=0.15)
+        loss = self.fit(expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=self.batch_size,
+                        epochs=self.epochs, validation_split=self.val_split)
         return loss
 
     def fit(self, expert_traj_s, expert_traj_a, agent_traj_s, agent_traj_a, batch_size=128, epochs=10,

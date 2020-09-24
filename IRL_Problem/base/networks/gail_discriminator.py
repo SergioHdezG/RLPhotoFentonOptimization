@@ -4,7 +4,8 @@ from tensorflow.keras.layers import Dense, Conv2D, Conv1D, Flatten, MaxPooling2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import backend as K
 from IRL_Problem.base.networks.discriminator_base import DiscriminatorBase
-
+from utils import discriminator_nn_building
+from utils.networks import irl_net
 import numpy as np
 import random
 
@@ -19,24 +20,25 @@ def logit_bernoulli_entropy(logits):
 
 class Discriminator(DiscriminatorBase):
     def __init__(self, scope, state_size, n_actions, n_stack=1, img_input=False, expert_actions=False,
-                 learning_rate=1e-3, discrete=False):
+                 learning_rate=1e-3, batch_size=5, epochs=5, val_split=0.15, discrete=False, net_architecture=None):
         """
         :param env:
         Output of this Discriminator is reward for learning agent. Not the cost.
         Because discriminator predicts  P(expert|s,a) = 1 - P(agent|s,a).
         """
         super().__init__(scope=scope, state_size=state_size, n_actions=n_actions, n_stack=n_stack, img_input=img_input,
-                         expert_actions=expert_actions, learning_rate=learning_rate, discrete=discrete)
+                         expert_actions=expert_actions, learning_rate=learning_rate, batch_size=batch_size,
+                         epochs=epochs, val_split=val_split, discrete=discrete)
 
         self.entropy_beta = 0.001
-        self._build_graph()
+        self._build_graph(net_architecture)
 
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
 
-    def _build_graph(self):
+    def _build_graph(self, net_architecture):
 
-        expert_net, agent_net = self._build_model()
+        expert_net, agent_net = self._build_model(net_architecture)
 
         sig_expert_net = tf.keras.activations.sigmoid(expert_net)
         sig_agent_net = tf.keras.activations.sigmoid(agent_net)
@@ -71,7 +73,20 @@ class Discriminator(DiscriminatorBase):
         # self.reward = -tf.log(tf.clip_by_value(sig_agent_net, 1e-4, 1))  # log(P(expert|s,a)) larger is better for agent
         # self.reward = tf.log(1 - sig_agent_net + 1e-1)  # log(P(expert|s,a)) larger is better for agent
 
-    def _build_net(self, state_size):
+
+    def _build_net(self, state_size, net_architecture):
+        # Neural Net for Deep-Q learning Model
+        if net_architecture is None:  # Standart architecture
+            net_architecture = irl_net
+
+        if self.img_input:
+            state_model, action_model, common_model, last_layer_activation = \
+                discriminator_nn_building.build_disc_nn_net(net_architecture, state_size, self.n_actions)
+
+        else:
+            state_model, action_model, common_model, last_layer_activation = \
+                    discriminator_nn_building.build_disc_nn_net(net_architecture, state_size, self.n_actions)
+
         with tf.variable_scope('discriminator'):
             self.agent_traj_s = tf.placeholder(dtype=tf.float32, shape=(None, *state_size), name="agent_traj_s")
             self.expert_traj_s = tf.placeholder(dtype=tf.float32, shape=(None, *state_size),
@@ -80,33 +95,45 @@ class Discriminator(DiscriminatorBase):
             self.agent_traj_a = tf.placeholder(dtype=tf.float32, shape=(None, self.n_actions), name="agent_traj_a")
             self.expert_traj_a = tf.placeholder(dtype=tf.float32, shape=(None, self.n_actions), name="expert_traj_a")
 
-            if self.stack:
-                # expert_traj_s = Conv1D(64, kernel_size=3, strides=2, padding='same', activation='tanh')(self.expert_traj_s)
-                # expert_traj_s = Flatten()(self.expert_traj_s)
-                expert_traj_s = LSTM(256, activation='tanh')(self.expert_traj_s)
+            # if self.stack:
+            #     # expert_traj_s = Conv1D(64, kernel_size=3, strides=2, padding='same', activation='tanh')(self.expert_traj_s)
+            #     # expert_traj_s = Flatten()(self.expert_traj_s)
+            #     expert_traj_s = LSTM(256, activation='tanh')(self.expert_traj_s)
+            #
+            #     # agent_traj_s = Conv1D(64, kernel_size=3, strides=2, padding='same', activation='tanh')(self.agent_traj_s)
+            #     # agent_traj_s = Flatten()(self.agent_traj_s)
+            #     agent_traj_s = LSTM(256, activation='tanh')(self.agent_traj_s)
+            #     self.expert_traj = tf.concat([expert_traj_s, self.expert_traj_a], axis=1)
+            #     self.agent_traj = tf.concat([agent_traj_s, self.agent_traj_a], axis=1)
+            # else:
+            #     self.expert_traj = tf.concat([self.expert_traj_s, self.expert_traj_a], axis=1)
+            #     self.agent_traj = tf.concat([self.agent_traj_s, self.agent_traj_a], axis=1)
+            #
+            # with tf.variable_scope('network') as network_scope:
+            #     discriminator = Sequential()
+            #     # discriminator.add(Dense(2048, activation='tanh'))
+            #     # discriminator.add(Dropout(0.4))
+            #     # discriminator.add(Dense(256, activation='tanh'))
+            #     # discriminator.add(Dropout(0.4))
+            #     # discriminator.add(Dense(256, activation='tanh'))
+            #     # discriminator.add(Dropout(0.3))
+            #     discriminator.add(Dense(128, activation='tanh'))
+            #     discriminator.add(Dense(1, activation='linear'))
 
-                # agent_traj_s = Conv1D(64, kernel_size=3, strides=2, padding='same', activation='tanh')(self.agent_traj_s)
-                # agent_traj_s = Flatten()(self.agent_traj_s)
-                agent_traj_s = LSTM(256, activation='tanh')(self.agent_traj_s)
-                self.expert_traj = tf.concat([expert_traj_s, self.expert_traj_a], axis=1)
-                self.agent_traj = tf.concat([agent_traj_s, self.agent_traj_a], axis=1)
-            else:
-                self.expert_traj = tf.concat([self.expert_traj_s, self.expert_traj_a], axis=1)
-                self.agent_traj = tf.concat([self.agent_traj_s, self.agent_traj_a], axis=1)
+                # expert_net = discriminator(self.expert_traj)
+                # agent_net = discriminator(self.agent_traj)
+            expert_s_out = state_model(self.expert_traj_s)
+            expert_a_out = action_model(self.expert_traj_a)
+            expert_concat = Concatenate(axis=1)([expert_s_out, expert_a_out])
+            expert_out = common_model(expert_concat)
+            expert_net = Dense(1, activation=last_layer_activation)(expert_out)
 
-            with tf.variable_scope('network') as network_scope:
-                discriminator = Sequential()
-                # discriminator.add(Dense(2048, activation='tanh'))
-                # discriminator.add(Dropout(0.4))
-                # discriminator.add(Dense(256, activation='tanh'))
-                # discriminator.add(Dropout(0.4))
-                # discriminator.add(Dense(256, activation='tanh'))
-                # discriminator.add(Dropout(0.3))
-                discriminator.add(Dense(128, activation='tanh'))
-                discriminator.add(Dense(1, activation='linear'))
+            agent_s_out = state_model(self.agent_traj_s)
+            agent_a_out = action_model(self.agent_traj_a)
+            agent_concat = Concatenate(axis=1)([agent_s_out, agent_a_out])
+            agent_out = common_model(agent_concat)
+            agent_net = Dense(1, activation=last_layer_activation)(agent_out)
 
-                expert_net = discriminator(self.expert_traj)
-                agent_net = discriminator(self.agent_traj)
         return expert_net, agent_net
 
     def predict(self, obs, action):

@@ -6,35 +6,55 @@ from tensorflow.keras.layers import Dense, Conv2D, Conv1D, Flatten, MaxPooling2D
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 import os.path as path
+from utils import discriminator_nn_building
+from utils.networks import irl_net
+
 
 # Network for the Actor Critic
 class Discriminator(DiscriminatorBase):
     def __init__(self, scope, state_size, n_actions, n_stack=False, img_input=False, expert_actions=False,
-                 learning_rate=1e-3, discrete=False):
+                 learning_rate=1e-3, batch_size=5, epochs=5, val_split=0.15, discrete=False, net_architecture=None):
         super().__init__(scope=scope, state_size=state_size, n_actions=n_actions, n_stack=n_stack, img_input=img_input,
-                         expert_actions=expert_actions, learning_rate=learning_rate, discrete=discrete)
-        self.model = self._build_model()
+                         expert_actions=expert_actions, learning_rate=learning_rate, batch_size=batch_size,
+                         epochs=epochs, val_split=val_split, discrete=discrete)
+        self.model = self._build_model(net_architecture)
 
 
 
-    def _build_net(self, state_size):
+    def _build_net(self, state_size, net_architecture):
+
+        # Neural Net for Deep-Q learning Model
+        if net_architecture is None:  # Standart architecture
+            net_architecture = irl_net
+
+        if self.img_input:
+            state_model, action_model, common_model, last_layer_activation = \
+                discriminator_nn_building.build_disc_nn_net(net_architecture, state_size, self.n_actions)
+
+        else:
+            state_model, action_model, common_model, last_layer_activation = \
+                    discriminator_nn_building.build_disc_nn_net(net_architecture, state_size, self.n_actions)
+
         s_input = Input(shape=state_size)
         a_input = Input(shape=self.n_actions)
-        if self.stack:
-            # flat_s = Dense(128, activation='tanh')(s_input)
-            # flat_s = Conv1D(32, kernel_size=3, strides=2, padding='same', activation='tanh')(s_input)
-            flat_s = LSTM(32, activation='tanh')(s_input)
-            # flat_s = Flatten()(s_input)
-        else:
-            flat_s = s_input
-        concat = Concatenate(axis=1)([flat_s, a_input])
+        # if self.stack:
+        #     # flat_s = Dense(128, activation='tanh')(s_input)
+        #     # flat_s = Conv1D(32, kernel_size=3, strides=2, padding='same', activation='tanh')(s_input)
+        #     # flat_s = LSTM(32, activation='tanh')(s_input)
+        #     # flat_s = Flatten()(s_input)
+        # else:
+        #     flat_s = s_input
+        s_out = state_model(s_input)
+        a_out = action_model(a_input)
+        concat = Concatenate(axis=1)([s_out, a_out])
         # dense = Dropout(0.4)(concat)
-        dense = Dense(64, activation='relu')(concat)
-        # dense = Dropout(0.4)(dense)
-        # dense = Dense(256, activation='tanh')(dense)
-        dense = Dense(64, activation='relu')(dense)
-        # dense = concat
-        output = Dense(1, activation='sigmoid')(dense)
+        output = common_model(concat)
+        # dense = Dense(64, activation='relu')(concat)
+        # # dense = Dropout(0.4)(dense)
+        # # dense = Dense(256, activation='tanh')(dense)
+        # dense = Dense(64, activation='relu')(dense)
+        # # dense = concat
+        output = Dense(1, activation=last_layer_activation)(output)
         model = Model(inputs=[s_input, a_input], outputs=output)
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate), metrics=['accuracy'])

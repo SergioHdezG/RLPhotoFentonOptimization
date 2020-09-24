@@ -13,7 +13,7 @@ class DeepIRL(IRLProblemSuper):
     This class represent the src problem to solve.
     """
 
-    def __init__(self, rl_problem, expert_traj, n_stack_disc=False):
+    def __init__(self, rl_problem, expert_traj, n_stack_disc=False, net_architecture=None, irl_params=None):
         """
         Attributes:
             environment:    Environment selected for this problem.
@@ -23,10 +23,11 @@ class DeepIRL(IRLProblemSuper):
             state_size:     None, Int or Tuple. State dimensions. If None it will be calculated automatically. Int or
                             Tuple format will be useful when preprocessing change the input dimensions.
         """
-        super().__init__(rl_problem, expert_traj, n_stack_disc)
-        self.discriminator = self._build_discriminator()
+        super().__init__(rl_problem, expert_traj, n_stack_disc, net_architecture=net_architecture,
+                         irl_params=irl_params)
+        # self.discriminator = self._build_discriminator(net_architecture)
 
-    def _build_discriminator(self):
+    def _build_discriminator(self, net_architecture):
         try:
             discrete_env = self.rl_problem.action_bound is None
         except:
@@ -34,8 +35,10 @@ class DeepIRL(IRLProblemSuper):
 
         n_stack = self.n_stack if self.n_stack_disc > 1 else 1
         return vdirl_discriminator.Discriminator("Discriminator", self.state_size, self.n_actions, n_stack=n_stack,
-                                                 img_input=self.img_input, expert_actions=self.action_memory, learning_rate=1e-5,
-                                                 discrete=discrete_env)
+                                                 img_input=self.img_input, expert_actions=self.action_memory,
+                                                 learning_rate=self.lr_disc, batch_size=self.batch_size_disc,
+                                                 epochs=self.epochs_disc, val_split=self.val_split_disc,
+                                                 discrete=discrete_env, net_architecture=net_architecture)
 
     def solve(self, iterations, render=True, render_after=None, max_step_epi=None, skip_states=1,
               verbose=1):
@@ -53,15 +56,13 @@ class DeepIRL(IRLProblemSuper):
                                 information will be displayed, if 2 fewer information will be displayed.
         :return:
         """
-        for iter in range(iterations):
-                n_agent_iter = 10
-                # self.agent_traj = self.agent_play(n_agent_iter, render=render)
-
-                for element in self.agent_play(n_agent_iter, render=render):
+        for it in range(iterations):
+                for element in self.agent_play(self.agent_collect_iter, render=render):
                     self.agent_traj.append(element)
 
                 self.discriminator.train(self.expert_traj, self.agent_traj)
 
-                self.rl_problem.solve(100, render=render, max_step_epi=None, render_after=1000, skip_states=0, discriminator=self.discriminator)
+                self.rl_problem.solve(self.agent_train_iter, render=render, max_step_epi=None, render_after=None,
+                                      skip_states=skip_states, discriminator=self.discriminator)
 
 

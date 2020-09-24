@@ -1,5 +1,6 @@
 from collections import deque
-
+from utils.parse_utils import parse_discriminator_params
+from utils.hyperparameters import irl_hyperparams
 # from pympler import muppy, summary
 # from memory_leaks import *
 # from IRL.utils.parse_utils import *
@@ -14,7 +15,7 @@ class IRLProblemSuper(object):
     This class represent the src problem to solve.
     """
 
-    def __init__(self, rl_problem, expert_traj, n_stack_disc=1):
+    def __init__(self, rl_problem, expert_traj, n_stack_disc=1, net_architecture=None, irl_params=None):
         """
         Attributes:
             environment:    Environment selected for this problem.
@@ -56,9 +57,26 @@ class IRLProblemSuper(object):
 
         self.max_rew_mean = -100000  # Store the maximum value for reward mean
 
-        self.discriminator = self._build_discriminator()
+        if irl_params is not None:
+            self.lr_disc,\
+            self.batch_size_disc,\
+            self.epochs_disc,\
+            self.val_split_disc,\
+            self.agent_collect_iter,\
+            self.agent_train_iter = \
+                parse_discriminator_params(irl_params)
+        else:
+            self.lr_disc,\
+            self.batch_size_disc,\
+            self.epochs_disc,\
+            self.val_split_disc,\
+            self.agent_collect_iter,\
+            self.agent_train_iter = \
+                parse_discriminator_params(irl_hyperparams())
 
-    def _build_discriminator(self):
+        self.discriminator = self._build_discriminator(net_architecture)
+
+    def _build_discriminator(self, net_architecture):
         pass
 
     def solve(self, iterations, render=True, render_after=None, max_step_epi=None, skip_states=1,
@@ -77,21 +95,7 @@ class IRLProblemSuper(object):
                                 information will be displayed, if 2 fewer information will be displayed.
         :return:
         """
-        if False:
-            for iter in range(iterations):
-                    n_agent_iter = 10
-                    # self.agent_traj = self.agent_play(n_agent_iter, render=render)
-
-                    for element in self.agent_play(n_agent_iter, render=render):
-                        self.agent_traj.append(element)
-
-                    self.discriminator.train(self.expert_traj, self.agent_traj)
-
-                    self.rl_problem.solve(100, render=render, max_step_epi=None, render_after=1000, skip_states=0, discriminator=self.discriminator)
-        else:
-            self.rl_problem.solve(iterations, render=render, max_step_epi=None, render_after=None, skip_states=0, discriminator=self.discriminator,
-                                  expert_traj=self.expert_traj)
-
+        pass
 
     def load_expert_data(self):
         pass

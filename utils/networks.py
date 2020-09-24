@@ -127,3 +127,27 @@ ppo_net = {"actor_conv_layers": 3,
            "critic_n_neurons": [128, 128],
            "critic_dense_activation": ['tanh', 'tanh'],
            }
+
+# ppo network input and hidden layers architecture. This architecture will use two diferent architectures for actor
+# and critic nets. For dense only networks, convolutional parameters will be not readed.
+irl_net = {"state_conv_layers": 3,
+           "state_kernel_num": [32, 32, 64],
+           "state_kernel_size": [7, 5, 3],
+           "state_kernel_strides": [4, 2, 1],
+           "state_conv_activation": ['relu', 'relu', 'relu'],
+           "state_dense_lay": 2,
+           "state_n_neurons": [128, 128],
+           "state_dense_activation": ['tanh', 'tanh'],
+
+           "action_dense_lay": 1,
+           "action_n_neurons": [128, 128],
+           "action_dense_activation": ['tanh', 'tanh'],
+
+           "common_dense_lay": 1,
+           "common_n_neurons": [128, 128],
+           "common_dense_activation": ['tanh', 'tanh'],
+           "use_custom_network": None,
+           "state_custom_network": None,
+           "action_custom_network": None,
+           "common_custom_network": None
+           }

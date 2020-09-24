@@ -27,3 +27,14 @@ def parse_saving_model_params(params):
         save_if_better = False
 
     return base, name, save_each, save_if_better
+
+def parse_discriminator_params(irl_params):
+    lr_disc = irl_params.get("lr_disc")
+    batch_size_disc = irl_params.get("batch_size_disc")
+    epochs_disc = irl_params.get("epochs_disc")
+    val_split_disc = irl_params.get("val_split_disc")
+    agent_collect_iter = irl_params.get("agent_collect_iter")
+    agent_train_iter = irl_params.get("agent_train_iter")
+
+    return lr_disc, batch_size_disc, epochs_disc, val_split_disc, agent_collect_iter, agent_train_iter
+

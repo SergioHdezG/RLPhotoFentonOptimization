@@ -1,7 +1,9 @@
 from RL_Problem import rl_problem
 from IRL_Problem.gail import GAIL
 from IRL_Problem.deepirl import DeepIRL
+from IRL_Problem.base.utils.callbacks import Callbacks
 from RL_Agent.PPO import ppo_agent_discrete_parallel
+from RL_Agent.DPG_Agent import dpg_agent
 from utils import hyperparameters as params
 from IRL_Problem.base.utils.callbacks import load_expert_memories
 from tensorflow.keras.models import Sequential
@@ -13,7 +15,7 @@ environment = "CartPole-v1"
 exp_dir = "../expert_demonstrations/"
 exp_name="Expert_CartPole"
 
-# expert = dpg_agent.create_agent()
+# expert = dpg_agent.Agent()
 #
 # model_params = params.algotirhm_hyperparams(learning_rate=5e-4,
 #                                             batch_size=32,
@@ -80,7 +82,24 @@ rl_problem = rl_problem.Problem(environment, agent, model_params, net_architectu
 discriminator_stack = 3
 exp_memory = load_expert_memories(exp_dir, exp_name, load_action=True, n_stack=discriminator_stack)
 
-irl_problem = GAIL(rl_problem, exp_memory, n_stack_disc=discriminator_stack)
+irl_params = params.irl_hyperparams(lr_disc=1e-4, batch_size_disc=128, epochs_disc=5, val_split_disc=0.2,
+                                    agent_collect_iter=15, agent_train_iter=100)
+
+def one_layer_custom_model(input_shape):
+    model = Sequential()
+    model.add(Dense(128, input_shape=input_shape, activation='relu'))
+    model.add(Dense(128, input_shape=input_shape, activation='relu'))
+    return model
+
+
+irl_net_architecture = params.irl_discriminator_net_architecture(use_custom_network=True,
+                                                                 state_custom_network=None,
+                                                                 action_custom_network=None,
+                                                                 common_custom_network=one_layer_custom_model,
+                                                                 last_layer_activation='sigmoid')
+
+irl_problem = GAIL(rl_problem, exp_memory, n_stack_disc=discriminator_stack, irl_params=irl_params,
+                      net_architecture=irl_net_architecture)
 
 irl_problem.solve(1500, render=False, max_step_epi=None, render_after=1500, skip_states=1)
 rl_problem.test(10)
