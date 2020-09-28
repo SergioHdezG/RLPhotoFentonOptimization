@@ -1,5 +1,5 @@
 from RL_Problem import rl_problem
-from RL_Agent.DQN_Agent import dqn_agent
+from RL_Agent import dqn_agent
 from utils import hyperparameters as params
 
 environment = "CartPole-v1"

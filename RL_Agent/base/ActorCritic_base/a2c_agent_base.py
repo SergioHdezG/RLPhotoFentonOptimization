@@ -1,8 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_discrete
-from RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous
-from tensorflow.keras import backend as K
+from RL_Agent.base.ActorCritic_base.A2C_Networks import a2c_net_continuous, a2c_net_discrete
 from RL_Agent.base.agent_interface import AgentSuper
 
 

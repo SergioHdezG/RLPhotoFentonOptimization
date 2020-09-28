@@ -1,10 +1,10 @@
 from RL_Problem import rl_problem
-from RL_Agent.PPO import ppo_agent_continuous_parallel, ppo_agent_discrete_parallel
+from RL_Agent import ppo_agent_discrete, ppo_agent_discrete_parallel, ppo_agent_continuous, ppo_agent_continuous_parallel
 from utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, LSTM
 
-environment_disc = "CartPole-v1"
+environment_disc = "LunarLander-v2"
 environment_cont = "LunarLanderContinuous-v2"
 
 # Encontramos cuatro tipos de agentes PPO, dos para problemas con acciones discretas (ppo_agent_discrete,
@@ -40,57 +40,32 @@ model_params_cont = params.algotirhm_hyperparams(learning_rate=1e-3,
 
 def lstm_custom_model(input_shape):
     actor_model = Sequential()
-    # actor_model.add(LSTM(32, input_shape=input_shape, activation='tanh'))
+    actor_model.add(LSTM(32, input_shape=input_shape, activation='tanh'))
     actor_model.add(Dense(128, input_shape=input_shape, activation='relu'))
     actor_model.add(Dense(128, activation='relu'))
 
     return actor_model
 
-net_architecture = params.actor_critic_net_architecture(
-                    actor_conv_layers=2,                            critic_conv_layers=2,
-                    actor_kernel_num=[32, 32],                      critic_kernel_num=[32, 32],
-                    actor_kernel_size=[3, 3],                       critic_kernel_size=[3, 3],
-                    actor_kernel_strides=[2, 2],                    critic_kernel_strides=[2, 2],
-                    actor_conv_activation=['relu', 'relu'],         critic_conv_activation=['relu', 'relu'],
-                    actor_dense_layers=2,                           critic_dense_layers=2,
-                    actor_n_neurons=[512, 256],                     critic_n_neurons=[512, 256],
-                    actor_dense_activation=['relu', 'relu'],        critic_dense_activation=['relu', 'relu'],
-                    use_custom_network=False,
-                    actor_custom_network=lstm_custom_model,         critic_custom_network=lstm_custom_model
-                    )
+net_architecture = params.actor_critic_net_architecture(use_custom_network=True,
+                                                        actor_custom_network=lstm_custom_model,
+                                                        critic_custom_network=lstm_custom_model)
 
-import numpy as np
-# Función para preprocesar las imágenes
-def atari_preprocess(obs):
-    # Crop and resize the image
-    obs = obs[20:200:2, ::2]
+# Descomentar para ejecutar el ejemplo discreto
+"""
+problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
+                                  n_stack=3, img_input=False)
 
-    # Convert the image to greyscale
-    obs = obs.mean(axis=2)
 
-    # normalize between from 0 to 1
-    obs = obs / 255.
-    obs = obs[:, :, np.newaxis]
-    return obs
-
-# state_size = (90, 80, 1)
-# state_size = None
-# # Descomentar para ejecutar el ejemplo discreto
-# problem_disc = rl_problem.Problem(environment_disc, agent_disc, model_params_disc, net_architecture=net_architecture,
-#                              n_stack=3, img_input=False, state_size=state_size)
-#
-# # problem_disc.preprocess = atari_preprocess
-#
-# # En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
-# # iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
-# # máximo de épocas.
-# problem_disc.solve(300, render=False, max_step_epi=5000, skip_states=1)
-# problem_disc.test(render=True, n_iter=10)
-
+# En este caso se utiliza el parámetro max_step_epi=500 para indicar que cada episodio termine a las 500 épocas o
+# iteraciones ya que por defecto este entorno llega hasta 1000. Esto es util para entornos que no tengan definido un
+# máximo de épocas.
+problem_disc.solve(300, render=False, max_step_epi=5000, skip_states=1)
+problem_disc.test(render=True, n_iter=10)
+"""
 
 # Descomentar para ejecutar el ejemplo continuo
 problem_cont= rl_problem.Problem(environment_cont, agent_cont, model_params_cont, net_architecture=net_architecture,
-                                 n_stack=1)
+                                 n_stack=3)
 # En este caso no se utiliza el parámetro max_step_epi=500 por lo que el máximo de iteraciones será el que viene por
 # defecto (1000).
 problem_cont.solve(300, render=False, skip_states=1)

@@ -1,5 +1,5 @@
 from RL_Problem import rl_problem
-from RL_Agent.DDPG_Agent import ddpg_agent
+from RL_Agent import ddpg_agent
 from utils import hyperparameters as params
 
 environment = "MountainCarContinuous-v0"

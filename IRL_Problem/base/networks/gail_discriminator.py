@@ -1,13 +1,10 @@
 import tensorflow as tf
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Conv2D, Conv1D, Flatten, MaxPooling2D, Dropout, Lambda, Input, Concatenate, Reshape, BatchNormalization, SimpleRNN, LSTM
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Dense, MaxPooling2D, Concatenate
 from IRL_Problem.base.networks.discriminator_base import DiscriminatorBase
-from utils import discriminator_nn_building
-from utils.networks import irl_net
+from IRL_Problem.base.utils import discriminator_nn_building
+from utils.default_networks import irl_net
 import numpy as np
-import random
+
 
 def logsigmoid(a):
     '''Equivalent to tf.log(tf.sigmoid(a))'''

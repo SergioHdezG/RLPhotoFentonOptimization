@@ -1,19 +1,12 @@
 from os import path
 import datetime
-import random
-from tensorflow.python.keras.models import model_from_json
-import random
-from RL_Agent.base.agent_interface import AgentInterface
 import numpy as np
-import tensorflow as tf
-from RL_Agent.ActorCritic.A2C_Agent.Networks import a2c_net_continuous
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras import backend as K
 from tensorflow.keras.optimizers import Adam
-from utils import net_building
-from utils.networks import ppo_net
-from tensorflow.keras.initializers import RandomNormal
+from RL_Agent.base.utils import net_building
+from utils.default_networks import ppo_net
 from RL_Agent.base.agent_interface import AgentSuper
 
 

@@ -1,7 +1,9 @@
-from RL_Problem.ActorCritic import a3c_problem, a2c_problem, ddpg_problem
-from RL_Problem.ValueBased import dqn_problem
-from RL_Problem.PolicyBased import dpg_problem
-from RL_Problem.PPO import ppo_problem_continuous, ppo_problem_continuous_parallel, ppo_problem_discrete, ppo_problem_discrete_parallel
+from RL_Problem.base.ActorCritic import a2c_problem
+from RL_Problem.base.ActorCritic import ddpg_problem
+from RL_Problem.base.ValueBased import dqn_problem
+from RL_Problem.base.PolicyBased import dpg_problem
+from RL_Problem.base.PPO import ppo_problem_continuous, ppo_problem_continuous_parallel, ppo_problem_discrete_parallel
+from RL_Problem.base.PPO import ppo_problem_discrete
 from RL_Agent.base.utils import agent_globals
 
 
@@ -20,10 +22,6 @@ def Problem(environment, agent, model_params, saving_model_params=None, net_arch
                                          state_size=state_size, model_params=model_params,
                                          saving_model_params=saving_model_params, net_architecture=net_architecture)
     elif agent.agent_name == agent_globals.names["ddqn"]:
-        problem = dqn_problem.DQNProblem(environment, agent, img_input=img_input, n_stack=n_stack,
-                                         state_size=state_size, model_params=model_params,
-                                         saving_model_params=saving_model_params, net_architecture=net_architecture)
-    elif agent.agent_name == agent_globals.names["dddqn"]:
         problem = dqn_problem.DQNProblem(environment, agent, img_input=img_input, n_stack=n_stack,
                                          state_size=state_size, model_params=model_params,
                                          saving_model_params=saving_model_params, net_architecture=net_architecture)
@@ -49,15 +47,6 @@ def Problem(environment, agent, model_params, saving_model_params=None, net_arch
                                          saving_model_params=saving_model_params, net_architecture=net_architecture)
     elif agent.agent_name == agent_globals.names["a2c_continuous_queue"]:
         problem = a2c_problem.A2CProblem(environment, agent, img_input=img_input, n_stack=n_stack,
-                                         state_size=state_size, model_params=model_params,
-                                         saving_model_params=saving_model_params, net_architecture=net_architecture)
-    elif agent == "A3C_continuous":
-        problem = a3c_problem.A3CProblem(environment, agent=agent, img_input=img_input, n_stack=n_stack,
-                                         state_size=state_size, model_params=model_params,
-                                         saving_model_params=saving_model_params, net_architecture=net_architecture)
-
-    elif agent == "A3C_discrete":
-        problem = a3c_problem.A3CProblem(environment, agent=agent, img_input=img_input, n_stack=n_stack,
                                          state_size=state_size, model_params=model_params,
                                          saving_model_params=saving_model_params, net_architecture=net_architecture)
     elif agent.agent_name == agent_globals.names["ppo_continuous"]:

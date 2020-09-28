@@ -4,7 +4,7 @@ from os import path
 
 import numpy as np
 
-from utils.parse_utils import *
+from RL_Agent.base.parse_utils import *
 from RL_Agent.base.utils.Memory.deque_memory import Memory
 import tensorflow.keras.callbacks as callbacks
 from tensorflow.keras.models import model_from_json

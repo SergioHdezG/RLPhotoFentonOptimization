@@ -1,5 +1,5 @@
 from RL_Problem import rl_problem
-from RL_Agent.DPG_Agent import dpg_agent
+from RL_Agent import dpg_agent
 from utils import hyperparameters as params
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM

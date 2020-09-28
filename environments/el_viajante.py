@@ -3,7 +3,7 @@ import time
 import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
-from environments.env_interface import EnvInterface, ActionSpaceInterface
+from environments.env_base import EnvInterface, ActionSpaceInterface
 
 class action_space(ActionSpaceInterface):
     def __init__(self, n_cities):
@@ -143,16 +143,3 @@ class env(EnvInterface):
 
     def _done(self):
         return self.iterations > self.max_epochs
-
-    # # Functions for Hindsight Experience Replay
-    # def calc_rew_HER(self, chain_a, chain_b):
-    #     if np.array_equal(chain_a, chain_b):
-    #         return 10
-    #     else:
-    #         return 0
-    #
-    # def ismine(self):
-    #     return True
-    #
-    # def sample_goal(self):
-    #     return np.concatenate([self.experimental_model.A, self.experimental_model.B])

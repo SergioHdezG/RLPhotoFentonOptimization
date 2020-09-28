@@ -1,13 +1,10 @@
-import random
 from IRL_Problem.base.networks.discriminator_base import DiscriminatorBase
-import tensorflow as tf
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Conv2D, Conv1D, Flatten, MaxPooling2D, Dropout, Lambda, Input, Concatenate, Reshape, BatchNormalization, SimpleRNN, LSTM
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Input, Concatenate
 from tensorflow.keras.optimizers import Adam
 import numpy as np
-import os.path as path
-from utils import discriminator_nn_building
-from utils.networks import irl_net
+from IRL_Problem.base.utils import discriminator_nn_building
+from utils.default_networks import irl_net
 
 
 # Network for the Actor Critic
