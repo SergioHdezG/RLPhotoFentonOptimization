@@ -1,3 +1,7 @@
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from RL_Problem import rl_problem
 from RL_Agent import a2c_agent_discrete, a2c_agent_discrete_queue, a2c_agent_continuous, a2c_agent_continuous_queue
 from utils import hyperparameters as params

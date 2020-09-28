@@ -1,3 +1,7 @@
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from RL_Problem import rl_problem
 from RL_Agent import ppo_agent_discrete, ppo_agent_discrete_parallel, ppo_agent_continuous, ppo_agent_continuous_parallel
 from utils import hyperparameters as params

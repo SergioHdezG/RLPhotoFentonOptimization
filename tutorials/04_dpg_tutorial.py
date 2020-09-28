@@ -1,3 +1,7 @@
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from RL_Problem import rl_problem
 from RL_Agent import dpg_agent
 from utils import hyperparameters as params

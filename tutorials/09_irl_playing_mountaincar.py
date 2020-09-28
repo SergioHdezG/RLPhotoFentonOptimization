@@ -1,3 +1,7 @@
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 import gym
 from gym.utils import play
 from IRL_Problem.base.utils.callbacks import Callbacks, load_expert_memories
