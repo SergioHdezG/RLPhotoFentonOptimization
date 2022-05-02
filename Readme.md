@@ -5,6 +5,7 @@ Here we include some different configuration over a Proximal Policy Optimization
 balancing the memory of experiences, Hindsight Experience Replay [[3]](#1) and including expert knowledge.
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SergioHdezG/RLPhotoFentonOptimization/HEAD)
+
 To run an experiment:
 ```bash
 python <file.py> <path to folder containing exp_config.yaml>
