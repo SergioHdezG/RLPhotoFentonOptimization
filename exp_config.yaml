@@ -1,0 +1,26 @@
+# Optimization conf
+actor_lr: 1e-5
+critic_lr: 1e-5
+batch_size: 128
+exploration_noise: 5.0
+epsilon: 1.0
+epsilon_decay: 0.8
+epsilon_min: 0.09  # exploration_noise*epsilon_min > 0.4
+memory_size: 40
+histogram_memory: False
+n_stack: 20
+n_step_return: 20
+skip_states: 1
+iter: 25
+
+sodis_params: src/environments/fotocaos_complete_model/sodis_params.txt
+perox_params: src/environments/fotocaos_complete_model/perox_params.txt
+
+experiment_path: experimentos/
+
+test_iter: 0
+
+test: False
+
+optimize_peroxide: True
+optimize_bacteria: False
