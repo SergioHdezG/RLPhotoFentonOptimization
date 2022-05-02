@@ -96,9 +96,10 @@ agent = ppo_opt_cicles_agent_continuous_parallel.Agent(actor_lr=float(data['acto
                                             memory_size=data['memory_size'],
                                             net_architecture=net_architecture,
                                             n_stack=data['n_stack'],
-                                            n_step_return=data['n_step_return'],
+                                            n_step_return=20,
                                             histogram_memory=True,
-                                            tensorboard_dir=None
+                                            tensorboard_dir=None,
+                                            n_parallel_envs=data["n_threads"]
                                             )
 
 perox_sqp_globals.n_stack = data['n_stack']

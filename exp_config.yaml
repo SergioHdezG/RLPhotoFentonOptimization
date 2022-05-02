@@ -9,9 +9,8 @@ epsilon_min: 0.09  # exploration_noise*epsilon_min > 0.4
 memory_size: 40
 histogram_memory: False
 n_stack: 20
-n_step_return: 20
-skip_states: 1
-iter: 25
+n_threads: 12
+iter: 24
 
 sodis_params: src/environments/fotocaos_complete_model/sodis_params.txt
 perox_params: src/environments/fotocaos_complete_model/perox_params.txt

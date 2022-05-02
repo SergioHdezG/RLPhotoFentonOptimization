@@ -94,9 +94,10 @@ agent = ppo_agent_continuous_parallel.Agent(actor_lr=float(data['actor_lr']),
                                             memory_size=data['memory_size'],
                                             net_architecture=net_architecture,
                                             n_stack=data['n_stack'],
-                                            n_step_return=data['n_step_return'],
+                                            n_step_return=20,
                                             histogram_memory=False,
-                                            tensorboard_dir=None  #glob.traj_path
+                                            tensorboard_dir=None,
+                                            n_parallel_envs=data["n_threads"]
                                             )
 
 problem = rl_problem.Problem(m_cinetico, agent)
