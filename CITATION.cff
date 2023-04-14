@@ -16,8 +16,8 @@ authors:
 title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
 version: 2.0.4
 doi: 10.1007/s00521-022-07803-3
-date-released: 2017-12-18
-url: "https://github.com/github/linguist"
+date-released: 2022-09-26
+url: "https://github.com/SergioHdezG/RLPhotoFentonOptimization"
 preferred-citation:
   type: article
   authors:
