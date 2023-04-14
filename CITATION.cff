@@ -17,7 +17,6 @@ title: "Deep reinforcement learning for automated search of model parameters: ph
 doi: 10.1007/s00521-022-07803-3
 date-released: 2022-09-26
 url: "https://github.com/SergioHdezG/RLPhotoFentonOptimization"
-
 preferred-citation:
   type: article
   authors:
