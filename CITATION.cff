@@ -36,9 +36,9 @@ preferred-citation:
   doi: "10.1007/s00521-022-07803-3"
   journal: "Neural Computing and Applications"
   month: 1
-  start: 1 # First page number
-  end: 10 # Last page number
+  start: 1379 # First page number
+  end: 1394  # Last page number
   title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
   issue: 1
-  volume: 1
-  year: 2021
+  volume: 35
+  year: 2023
