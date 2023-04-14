@@ -39,6 +39,6 @@ preferred-citation:
   start: 1379 # First page number
   end: 1394  # Last page number
   title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
-  issue: 1
+  number: 2
   volume: 35
   year: 2023
