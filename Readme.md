@@ -57,7 +57,7 @@ Install python 3.6 and then install the requirements.txt
 pip install -r requirements.txt
 ```
 
-## Please cite as:
+## Cite as:
 ```bibtext
 @article{hernandez2023rlphotofenton,
   title={Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study},
