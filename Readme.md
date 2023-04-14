@@ -5,7 +5,7 @@ Here we include some different configuration over a Proximal Policy Optimization
 balancing the memory of experiences, Hindsight Experience Replay [[3]](#1) and including expert knowledge.
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SergioHdezG/RLPhotoFentonOptimization/HEAD?labpath=run_experiment_on_binder.ipynb)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://doi.org/10.1007/s00521-022-07803-3)
+[![DOI]](https://doi.org/10.1007/s00521-022-07803-3)
 
 To run an experiment:
 ```bash
