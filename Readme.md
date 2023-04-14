@@ -2,11 +2,10 @@
 
 Code for optimizing the parametric Photo-fenton model from [[1]](#1) using deep reinforcement learning.
 Here we include some different configuration over a Proximal Policy Optimization (PPO) agent [[1]](#1) including 
-balancing the memory of experiences, Hindsight Experience Replay [[3]](#1) and including expert knowledge.
+balancing the memory of experiences, Hindsight Experience Replay [[3]](#1) and including expert knowledge. Read the full article here: [paper](https://doi.org/10.1007/s00521-022-07803-3)
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SergioHdezG/RLPhotoFentonOptimization/HEAD?labpath=run_experiment_on_binder.ipynb)
 
-Read the full article here: [paper](https://doi.org/10.1007/s00521-022-07803-3)
 
 To run an experiment:
 ```bash
