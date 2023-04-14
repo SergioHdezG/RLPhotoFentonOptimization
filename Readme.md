@@ -57,6 +57,19 @@ Install python 3.6 and then install the requirements.txt
 pip install -r requirements.txt
 ```
 
+Please cite as:
+```bash
+@article{hernandez2023rlphotofenton,
+  title={Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study},
+  author={Hern{\'a}ndez-Garc{\'\i}a, Sergio and Cuesta-Infante, Alfredo and Moreno-SanSegundo, Jos{\'e} {\'A}ngel and Montemayor, Antonio S},
+  journal={Neural Computing and Applications},
+  volume={35},
+  number={2},
+  pages={1379--1394},
+  year={2023},
+  publisher={Springer}
+}
+```
 ## References
 <a id="1">[1]</a> 
 C. Casado, J. Moreno-SanSegundo, I. De la Obra, B. Esteban
