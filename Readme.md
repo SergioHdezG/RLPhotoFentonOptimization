@@ -1,4 +1,4 @@
-# Photo-fenton model optimization through Deep Reinforcement Learning
+# Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study
 
 Code for optimizing the parametric Photo-fenton model from [[1]](#1) using deep reinforcement learning.
 Here we include some different configuration over a Proximal Policy Optimization (PPO) agent [[1]](#1) including 
