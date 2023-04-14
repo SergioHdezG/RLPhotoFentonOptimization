@@ -35,11 +35,10 @@ preferred-citation:
   given-names: "Antonio S "
   orcid: "https://orcid.org/0000-0002-8980-8799"
   doi: "10.1007/s00521-022-07803-3"
+  journal: "Neural Computing and Applications"
   start: 1379 # First page number
   end: 1394  # Last page number
   title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
-  journal: "Neural Computing and Applications"
-  number: 2
   volume: 35
   year: 2023
   publisher: Springer
