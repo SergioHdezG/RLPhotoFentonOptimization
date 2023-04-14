@@ -13,9 +13,8 @@ authors:
 - family-names: "Montemayor"
   given-names: "Antonio S "
   orcid: "https://orcid.org/0000-0002-8980-8799"
-title: "My Research Software"
-version: 2.0.4
-doi: 10.5281/zenodo.1234
+title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
+doi: 10.1007/s00521-022-07803-3
 date-released: 2017-12-18
 url: "https://github.com/github/linguist"
 preferred-citation:
