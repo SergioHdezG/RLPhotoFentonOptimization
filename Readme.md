@@ -12,7 +12,7 @@ python <file.py> <path to folder containing exp_config.yaml>
 ```
 
 E. g.: To run an optimization of peroxide model using a PPO agent with "balanced" memory of experiences and "random" 
-initialization, configure the exp_config.yaml file:
+initialization, configure the exp_config.yaml file as:
 
 ```bash
 # Optimization conf
