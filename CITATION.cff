@@ -13,7 +13,7 @@ authors:
 - family-names: "Montemayor"
   given-names: "Antonio S "
   orcid: "https://orcid.org/0000-0002-8980-8799"
-title: "My Research Software"
+title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
 version: 2.0.4
 doi: 10.5281/zenodo.1234
 date-released: 2017-12-18
@@ -38,7 +38,7 @@ preferred-citation:
   month: 9
   start: 1 # First page number
   end: 10 # Last page number
-  title: "My awesome research software"
+  title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
   issue: 1
   volume: 1
   year: 2021
