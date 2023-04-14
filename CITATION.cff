@@ -1,22 +1,5 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-authors:
-- family-names: "Hernández-García "
-  given-names: "Sergio"
-  orcid: "https://orcid.org/0000-0001-7254-9594"
-- family-names: "Cuesta-Infante"
-  given-names: "Alfredo "
-  orcid: "https://orcid.org/0000-0002-3328-501X"
-- family-names: "Moreno-SanSegundo"
-  given-names: "José "
-  orcid: "https://orcid.org/0000-0002-7732-9088"
-- family-names: "Montemayor"
-  given-names: "Antonio S "
-  orcid: "https://orcid.org/0000-0002-8980-8799"
-title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
-doi: 10.1007/s00521-022-07803-3
-date-released: 2022-09-26
-url: "https://github.com/SergioHdezG/RLPhotoFentonOptimization"
 preferred-citation:
   type: article
   authors:
