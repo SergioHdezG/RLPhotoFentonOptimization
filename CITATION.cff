@@ -1,26 +1,32 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 authors:
-- family-names: "Hernández-García "
-  given-names: "Sergio"
-  orcid: "https://orcid.org/0000-0001-7254-9594"
-- family-names: "Cuesta-Infante"
-  given-names: "Alfredo "
-  orcid: "https://orcid.org/0000-0002-3328-501X"
-- family-names: "Moreno-SanSegundo"
-  given-names: "José "
-  orcid: "https://orcid.org/0000-0002-7732-9088"
-- family-names: "Montemayor"
-  given-names: "Antonio S "
-  orcid: "https://orcid.org/0000-0002-8980-8799"
-title: "Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study"
-doi: 10.1007/s00521-022-07803-3
-date-released: 2022-09-26
-url: "https://github.com/SergioHdezG/RLPhotoFentonOptimization"
-doi: "10.1007/s00521-022-07803-3"
-journal: "Neural Computing and Applications"
-start: 1379 # First page number
-end: 1394  # Last page number
-volume: 35
-year: 2023
-publisher: Springer
+- family-names: "Lisa"
+  given-names: "Mona"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "Bot"
+  given-names: "Hew"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "My Research Software"
+version: 2.0.4
+doi: 10.5281/zenodo.1234
+date-released: 2017-12-18
+url: "https://github.com/github/linguist"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Lisa"
+    given-names: "Mona"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Bot"
+    given-names: "Hew"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+  doi: "10.0000/00000"
+  journal: "Journal Title"
+  month: 9
+  start: 1 # First page number
+  end: 10 # Last page number
+  title: "My awesome research software"
+  issue: 1
+  volume: 1
+  year: 2021
