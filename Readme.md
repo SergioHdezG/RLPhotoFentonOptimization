@@ -58,7 +58,7 @@ pip install -r requirements.txt
 ```
 
 Please cite as:
-```bash
+```bibtext
 @article{hernandez2023rlphotofenton,
   title={Deep reinforcement learning for automated search of model parameters: photo-fenton wastewater disinfection case study},
   author={Hern{\'a}ndez-Garc{\'\i}a, Sergio and Cuesta-Infante, Alfredo and Moreno-SanSegundo, Jos{\'e} {\'A}ngel and Montemayor, Antonio S},
@@ -67,7 +67,8 @@ Please cite as:
   number={2},
   pages={1379--1394},
   year={2023},
-  publisher={Springer}
+  publisher={Springer},
+  doi = {10.1007/s00521-022-07803-3}
 }
 ```
 ## References
